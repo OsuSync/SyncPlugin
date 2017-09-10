@@ -1,10 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26730.10
+VisualStudioVersion = 15.0.26730.12
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sync", "..\Sync\Sync.csproj", "{FBD514C2-2830-479E-B050-D1C383028456}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DefaultPlugin", "DefaultPlugin\DefaultPlugin.csproj", "{D5D6E048-2DE2-4388-A0B0-4AC3875CBF81}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PPQuery", "PPQuery\PPQuery.csproj", "{716D37AB-28A0-4A70-BAFC-9174FB4D84D1}"
@@ -24,6 +22,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OsuStatusOutputSever", "Out
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DefaultGUI", "DefaultGUI\DefaultGUI.csproj", "{44E842F8-C937-4082-B7C3-79D152AD12F4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sync", "H:\Sync\Sync\Sync.csproj", "{FBD514C2-2830-479E-B050-D1C383028456}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,14 +32,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{FBD514C2-2830-479E-B050-D1C383028456}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{FBD514C2-2830-479E-B050-D1C383028456}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{FBD514C2-2830-479E-B050-D1C383028456}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{FBD514C2-2830-479E-B050-D1C383028456}.Debug|x86.Build.0 = Debug|Any CPU
-		{FBD514C2-2830-479E-B050-D1C383028456}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{FBD514C2-2830-479E-B050-D1C383028456}.Release|Any CPU.Build.0 = Release|Any CPU
-		{FBD514C2-2830-479E-B050-D1C383028456}.Release|x86.ActiveCfg = Release|Any CPU
-		{FBD514C2-2830-479E-B050-D1C383028456}.Release|x86.Build.0 = Release|Any CPU
 		{D5D6E048-2DE2-4388-A0B0-4AC3875CBF81}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{D5D6E048-2DE2-4388-A0B0-4AC3875CBF81}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D5D6E048-2DE2-4388-A0B0-4AC3875CBF81}.Debug|x86.ActiveCfg = Debug|Any CPU
@@ -104,6 +96,14 @@ Global
 		{44E842F8-C937-4082-B7C3-79D152AD12F4}.Release|Any CPU.Build.0 = Release|Any CPU
 		{44E842F8-C937-4082-B7C3-79D152AD12F4}.Release|x86.ActiveCfg = Release|Any CPU
 		{44E842F8-C937-4082-B7C3-79D152AD12F4}.Release|x86.Build.0 = Release|Any CPU
+		{FBD514C2-2830-479E-B050-D1C383028456}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FBD514C2-2830-479E-B050-D1C383028456}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FBD514C2-2830-479E-B050-D1C383028456}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{FBD514C2-2830-479E-B050-D1C383028456}.Debug|x86.Build.0 = Debug|Any CPU
+		{FBD514C2-2830-479E-B050-D1C383028456}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FBD514C2-2830-479E-B050-D1C383028456}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FBD514C2-2830-479E-B050-D1C383028456}.Release|x86.ActiveCfg = Release|Any CPU
+		{FBD514C2-2830-479E-B050-D1C383028456}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
