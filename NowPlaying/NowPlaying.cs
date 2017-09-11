@@ -16,6 +16,16 @@ using static Sync.Plugins.PluginEvents;
 
 namespace NowPlaying
 {
+    public class CurrentPlayingBeatmapChangedEvent : IBaseEvent
+    {
+        public BeatmapEntry NewBeatmap;
+
+        public CurrentPlayingBeatmapChangedEvent(BeatmapEntry beatmap)
+        {
+            NewBeatmap = beatmap;
+        }
+    }
+
     public class NowPlaying : Plugin, IFilter, ISourceDanmaku,IConfigurable
     {
         private MessageDispatcher MainMessager = null;
@@ -33,10 +43,7 @@ namespace NowPlaying
         List<BeatmapEntry> CurrentBeatmapList;
         FileSystemWatcher CurrentOsuFilesWatcher;
         BeatmapEntry CurrentPlayingBeatmap;
-
-        public delegate void OnCurrentPlayingBeatmapChangedFunc(BeatmapEntry new_beatmap);
-        public event OnCurrentPlayingBeatmapChangedFunc OnCurrentPlayingBeatmapChangedEvent;
-
+        
         public NowPlaying() : base("Now Playing", "Deliay")
         {
         }
@@ -262,7 +269,8 @@ namespace NowPlaying
 
             if (temp_beatmap != CurrentPlayingBeatmap)
             {
-                OnCurrentPlayingBeatmapChangedEvent?.Invoke(CurrentPlayingBeatmap);
+                //OnCurrentPlayingBeatmapChangedEvent?.Invoke(CurrentPlayingBeatmap);
+                EventBus.RaiseEvent<CurrentPlayingBeatmapChangedEvent>(new CurrentPlayingBeatmapChangedEvent(CurrentPlayingBeatmap));
             }
 
             return;
