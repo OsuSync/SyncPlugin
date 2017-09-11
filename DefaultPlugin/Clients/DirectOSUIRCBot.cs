@@ -158,6 +158,8 @@ namespace DefaultPlugin.Clients
             SendMessage(new IRCMessage(IRCNick.ToString(), "[DirectOSUIRCBot]Welcome!"));
             sw.Flush();
 
+            this.NickName = IRCNick;
+
             CurrentStatus = SourceStatus.CONNECTED_WORKING;
 
         }
