@@ -7,7 +7,7 @@ using static BanManagerPlugin.DefaultLanguage;
 
 namespace BanManagerPlugin.Ban
 {
-    class BanServerFilter : IFilter, ISourceOsu
+    class BanServerFilter : IFilter
     {
 
         BanManager bindManager = null;
@@ -34,15 +34,15 @@ namespace BanManagerPlugin.Ban
 
         static char[] split = { ' ' };
 
-        public void onMsg(ref MessageBase msg)
+        public void onMsg(ref IMessageBase msg)
         {
-            string message = msg.message.RawText;
+            string message = msg.Message.RawText;
             string[] args;
             if (message[0] != '?')
                 return;
             for (int i = 0; i < basecommandArray.Count; i++)
             {
-                msg.cancel = true;
+                msg.Cancel = true;
 
                 if (!IsBaseCommand(basecommandArray[i], message))
                     continue;
@@ -55,9 +55,7 @@ namespace BanManagerPlugin.Ban
 
                 if (args.Length == 0) // like ?ban ,?whitelist for help
                 {
-                    CBaseDanmuku danmaku = new CBaseDanmuku();
-                    danmaku.Danmuku = basecommandHelpArray[i];
-                    bindManager.GetMessageDispatcher().RaiseMessage<ISourceDanmaku>(new DanmakuMessage(danmaku));
+                    bindManager.GetMessageDispatcher().RaiseMessage<ISourceDanmaku>(new IRCMessage("BanManager", basecommandHelpArray[i]));
                 }
                 else {
                     try
@@ -66,9 +64,7 @@ namespace BanManagerPlugin.Ban
                     }
                     catch (Exception e)
                     {
-                        CBaseDanmuku danmaku = new CBaseDanmuku();
-                        danmaku.Danmuku = e.Message;
-                        bindManager.GetMessageDispatcher().RaiseMessage < ISourceDanmaku >( new DanmakuMessage(danmaku));
+                        bindManager.GetMessageDispatcher().RaiseMessage<ISourceDanmaku>(new IRCMessage("BanManager",e.Message));
                     }
                 }
                 break;
@@ -225,7 +221,6 @@ namespace BanManagerPlugin.Ban
         public void listCommand(string[] message)
         {
             StringBuilder sb = new StringBuilder(200);
-            CBaseDanmuku danmaku = new CBaseDanmuku();
             switch (message[0])
             {
                 case "-ban":
@@ -234,8 +229,6 @@ namespace BanManagerPlugin.Ban
                     foreach (var rule in bindManager.GetFliterInfo().GetBanRuleRegexList())
                         sb.AppendFormat("{0}:\"{1}\" || ", rule.id,rule.expression);
                     
-                    danmaku.Danmuku = sb.ToString();
-                    bindManager.GetMessageDispatcher().RaiseMessage<ISourceDanmaku>(new DanmakuMessage(danmaku));
                     break;
 
                 case "-whitelist":
@@ -244,10 +237,10 @@ namespace BanManagerPlugin.Ban
                     foreach (var rule in bindManager.GetFliterInfo().GetWhiteListRuleRegexList())
                         sb.AppendFormat("{0}:\"{1}\" || ", rule.id, rule.expression);
                     
-                    danmaku.Danmuku = sb.ToString();
-                    bindManager.GetMessageDispatcher().RaiseMessage<ISourceDanmaku>(new DanmakuMessage(danmaku));
                     break;
             }
+
+            bindManager.GetMessageDispatcher().RaiseMessage<ISourceDanmaku>(new IRCMessage("BanManager", sb.ToString()));
         }
 
         public void Dispose()
