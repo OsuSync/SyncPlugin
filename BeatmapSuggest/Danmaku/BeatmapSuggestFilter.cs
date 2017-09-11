@@ -22,15 +22,17 @@ namespace BeatmapSuggest.Danmaku
 
         private const string suggestCommand = "?suggest";
 
+        public ConfigurationElement EnableInsoMirrorLink { get; set; } = "0";
+
         const int timeout = 6000;//ms
 
-        public void onMsg(ref MessageBase msg)
+        public void onMsg(ref IMessageBase msg)
         {
-            string message = msg.message.RawText;
+            string message = msg.Message.RawText;
             int id = 0;
             if (message.StartsWith(suggestCommand))
             {
-                msg.cancel = true;
+                msg.Cancel = true;
                 if (msgManager == null)
                     return; //没完全初始化，发送不了信息
 
@@ -46,10 +48,10 @@ namespace BeatmapSuggest.Danmaku
                     switch (param[1])
                     {
                         case "-b":
-                            SendSuggestMessage(id, msg.user.RawText,false);
+                            SendSuggestMessage(id, msg.User.RawText,false);
                             break;
                         case "-s":
-                            SendSuggestMessage(id, msg.user.RawText);
+                            SendSuggestMessage(id, msg.User.RawText);
                             break;
                         default:
                             IO.CurrentIO.WriteColor(string.Format(LANG_UNKOWN_PARAM, param[1]), ConsoleColor.Red);
@@ -58,7 +60,7 @@ namespace BeatmapSuggest.Danmaku
                 }
                 else if (Int32.TryParse(message.Substring(suggestCommand.Length).Trim(), out id))
                 {
-                    SendSuggestMessage(id, msg.user.RawText);
+                    SendSuggestMessage(id, msg.User.RawText);
                 }
             }
         }
@@ -78,20 +80,20 @@ namespace BeatmapSuggest.Danmaku
                 IO.CurrentIO.WriteColor(string.Format(LANG_GET_BEATMAP_FAILED, id, e.Message),ConsoleColor.Red);
                 return;
             }
-            CBaseDanmuku danmaku = new CBaseDanmuku();
+
             string message = string.Format(LANG_SUGGEST_MEG,userName,GetLink(id,isSetId),$"{beatmapInfo[3]} - {beatmapInfo[2]}[{beatmapInfo[4]}]",GetDownloadLink(int.Parse(beatmapInfo[1])),GetMirrorDownloadLink(int.Parse(beatmapInfo[0])));
-            danmaku.danmuku = message;
-            msgManager.RaiseMessage<ISourceDanmaku>(new DanmakuMessage(danmaku));
+            msgManager.RaiseMessage<ISourceDanmaku>(new IRCMessage("LiveEvent", message));
+
         }
 
-        private async Task<string[]> GetBeatmapInfo(int id,bool isSetId)
+        private async Task<string[]> GetBeatmapInfo(int id, bool isSetId)
         {
             var timeoutCancellation = new CancellationTokenSource();
 
             var task = new Task<string[]>(() =>
             {
                 string uri = @"https://osu.ppy.sh/api/get_beatmaps?" +
-                $@"k=f188c4793a2a435983a9bdc49fc85c287af66a2b&{(isSetId ? "s" : "b")}={id}&limit=1";
+                $@"k=b9f8ca3fc035078a5b111380bc21cd0b8e79d7b5&{(isSetId ? "s" : "b")}={id}&limit=1";
 
                 HttpWebRequest request = HttpWebRequest.Create(uri) as HttpWebRequest;
                 request.Method = "GET";
@@ -136,7 +138,7 @@ namespace BeatmapSuggest.Danmaku
             return await task;
         }
 
-        private string GetJSONValue(ref string text,string key)
+        private string GetJSONValue(ref string text, string key)
         {
             var result = Regex.Match(text, $"{key}\":\"(.+?)\"");
 
@@ -146,19 +148,28 @@ namespace BeatmapSuggest.Danmaku
             return result.Groups[1].Value;
         }
 
-        private string GetLink(int id,bool isSetId)
+        private string GetLink(int id, bool isSetId)
         {
-            return (isSetId?"https://osu.ppy.sh/s/": "https://osu.ppy.sh/b/")+id;
+            return (isSetId ? "https://osu.ppy.sh/s/" : "https://osu.ppy.sh/b/") + id;
         }
 
         private string GetDownloadLink(int id)
         {
-            return "https://osu.ppy.sh/b/"+id;
+            return "https://osu.ppy.sh/b/" + id;
         }
 
         private string GetMirrorDownloadLink(int beatmapSetId)
         {
-            return /*"http://osu.mengsky.net/api/download/"*/"http://osu.uu.gl/s/" + beatmapSetId;
+            if (((string)EnableInsoMirrorLink).Trim() != "1")
+            {
+                // Defualt
+                return $"http://osu.uu.gl/s/{beatmapSetId}";
+            }
+            else
+            {
+                //Inso Link
+                return "http://inso.link/yukiho/?" /*+ (isSetId ? $"m" : $"b") */+ $"m={beatmapSetId}";
+            }
         }
 
         public void SetFilterManager(MessageDispatcher manager)
