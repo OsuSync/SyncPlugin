@@ -61,7 +61,7 @@
       <Project>{472d4d0f-c09b-4d26-8cba-f8ababa32220}</Project>
       <Name>RecentlyMessageQuery</Name>
     </ProjectReference>
-    <ProjectReference Include="H:\Sync\Sync\Sync.csproj">
+    <ProjectReference Include="..\..\Sync\Sync.csproj">
       <Project>{fbd514c2-2830-479e-b050-d1c383028456}</Project>
       <Name>Sync</Name>
     </ProjectReference>

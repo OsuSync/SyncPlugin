@@ -55,7 +55,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="H:\Sync\Sync\Sync.csproj">
+    <ProjectReference Include="..\..\Sync\Sync.csproj">
       <Project>{FBD514C2-2830-479E-B050-D1C383028456}</Project>
       <Name>Sync</Name>
     </ProjectReference>
