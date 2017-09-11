@@ -11,7 +11,7 @@ using Sync.Plugins;
 
 namespace RecentlyUserQuery.Osu
 {
-    class MessageRecorderControlFilter : IFilter
+    class MessageRecorderControlFilter : IFilter, ISourceClient
     {
         MessageRecorder recorder = null;
         MessageDispatcher manager = null;
@@ -58,9 +58,7 @@ namespace RecentlyUserQuery.Osu
 
         private void SendResponseMessage(string message)
         {
-            BaseDanmakuEvent danmaku = new BaseDanmakuEvent();
-            danmaku.Danmuku = message;
-            manager.RaiseMessage<ISourceDanmaku>(new DanmakuMessage(danmaku));
+            Sync.SyncHost.Instance.Messages.RaiseMessage<ISourceClient>(new IRCMessage("RecentQuery", message));
         }
 
         public void Dispose()

@@ -9,7 +9,7 @@ using Sync.Source;
 
 namespace RecentlyUserQuery.Osu
 {
-    class GetUserIdFilter : IFilter
+    class GetUserIdFilter : IFilter,ISourceClient
     {
         MessageDispatcher messageSender = null;
 
@@ -28,11 +28,10 @@ namespace RecentlyUserQuery.Osu
             if (message.StartsWith(queryUserIdCommand))
             {
                 param = message.Substring(queryUserIdCommand.Length).Trim();
-
-                danmaku = new BaseDanmakuEvent();
-                danmaku.Danmuku = String.Format("userid \"{0}\" is {1} ", param, (UserIdGenerator.GetId(param)));
-
-                messageSender.RaiseMessage<ISourceDanmaku>( new DanmakuMessage(danmaku));
+                
+                string result= String.Format("userid \"{0}\" is {1} ", param, (UserIdGenerator.GetId(param)));
+                
+                Sync.SyncHost.Instance.Messages.RaiseMessage<ISourceClient>(new IRCMessage("RecentQuery", result));
                 msg.Cancel = true;
                 return;
             }
@@ -45,10 +44,10 @@ namespace RecentlyUserQuery.Osu
 
                 if (Int32.TryParse(param, out id))
                     return;
+                
+                string result= String.Format("userName \"{0}\" is {1} ", UserIdGenerator.GetUserName(id), param);
 
-                danmaku = new BaseDanmakuEvent();
-                danmaku.Danmuku = String.Format("userName \"{0}\" is {1} ", UserIdGenerator.GetUserName(id), param);
-                messageSender.RaiseMessage<ISourceDanmaku>(new DanmakuMessage(danmaku));
+                Sync.SyncHost.Instance.Messages.RaiseMessage<ISourceClient>(new IRCMessage("RecentQuery", result));
             }
         }
 
