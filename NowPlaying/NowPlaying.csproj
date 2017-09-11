@@ -39,6 +39,9 @@
     <RunPostBuildEvent>Always</RunPostBuildEvent>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="osu-database-reader">
+      <HintPath>..\..\Sync\Dependence\osu-database-reader.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Windows.Forms" />
@@ -51,6 +54,7 @@
   <ItemGroup>
     <Compile Include="MSNHandler.cs" />
     <Compile Include="NowPlaying.cs" />
+    <Compile Include="OsuFileParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
