@@ -15,7 +15,7 @@ using static Sync.Plugins.PluginEvents;
 
 namespace NowPlaying
 {
-    public class CurrentPlayingBeatmapChangedEvent : IBaseEvent
+    public class CurrentPlayingBeatmapChangedEvent : IPluginEvent
     {
         public BeatmapEntry NewBeatmap;
 
@@ -215,28 +215,30 @@ namespace NowPlaying
                 }
             }
 
+            BeatmapEntry temp_beatmap = CurrentPlayingBeatmap;
+
             if (!string.IsNullOrWhiteSpace(osu_file_path))
             {
-                IO.CurrentIO.WriteColor($"[NowPlaying]query files:{osu_file_path},time:{sw.ElapsedMilliseconds}ms", ConsoleColor.Green);
                 try
                 {
-
                     CurrentPlayingBeatmap = OsuFileParser.ParseText(File.ReadAllText(osu_file_path));
                 }
                 catch (Exception e)
                 {
                     CurrentPlayingBeatmap = null;
                 }
+
+
+                IO.CurrentIO.WriteColor($"[NowPlaying]query files:{osu_file_path},time:{sw.ElapsedMilliseconds}ms,AR/CS/OD/HP:({CurrentPlayingBeatmap.DiffAR}/{CurrentPlayingBeatmap.DiffCS}/{CurrentPlayingBeatmap.DiffOD}/{CurrentPlayingBeatmap.DiffHP})", ConsoleColor.Green);
             }
 
             sw.Stop();
-            /*
+            
             if (temp_beatmap != CurrentPlayingBeatmap)
             {
-                //OnCurrentPlayingBeatmapChangedEvent?.Invoke(CurrentPlayingBeatmap);
                 EventBus.RaiseEvent<CurrentPlayingBeatmapChangedEvent>(new CurrentPlayingBeatmapChangedEvent(CurrentPlayingBeatmap));
             }
-            */
+            
             return;
         }
 
