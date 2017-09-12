@@ -1,5 +1,4 @@
-﻿using osu_database_reader;
-using Sync.Tools;
+﻿using Sync.Tools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +8,24 @@ using System.Threading.Tasks;
 
 namespace NowPlaying
 {
+    public class BeatmapEntry
+    {
+        public string Artist { get; set; }
+        public string ArtistUnicode { get; set; }
+        public string Title { get; set; }
+        public string TitleUnicode { get; set; }
+        public string Creator { get; set; }
+        public string SongSource { get; set; }
+        public string SongTags { get; set; }
+        public string Difficulty { get; set; }
+        public int BeatmapId { get; set; }
+        public int BeatmapSetId { get; set; }
+        public float DiffAR { get; set; }
+        public float DiffOD { get; set; }
+        public float DiffCS { get; set; }
+        public float DiffHP { get; set; }
+    }
+
     public static class OsuFileParser
     {
         public static BeatmapEntry ParseText(string content)
@@ -41,7 +58,7 @@ namespace NowPlaying
             }
             catch (Exception e)
             {
-                IO.CurrentIO.WriteColor($"Parse error:{e.Message},will pass this beatmap", ConsoleColor.Yellow);
+                IO.CurrentIO.WriteColor($"[OsuFileParser]Parse error:{e.Message},will pass this beatmap", ConsoleColor.Yellow);
             }
 
             return null;

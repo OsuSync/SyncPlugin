@@ -19,7 +19,7 @@ namespace NowPlaying
         }
     }
 
-    public class NowPlayingEvents : BaseEventDispatcher
+    public class NowPlayingEvents : BaseEventDispatcher<StatusChangeEvent>
     {
         public static readonly NowPlayingEvents Instance = new NowPlayingEvents();
         private NowPlayingEvents()
