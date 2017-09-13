@@ -82,8 +82,7 @@ namespace BeatmapSuggest.Danmaku
             }
 
             string message = string.Format(LANG_SUGGEST_MEG,userName,GetLink(id,isSetId),$"{beatmapInfo[3]} - {beatmapInfo[2]}[{beatmapInfo[4]}]",GetDownloadLink(int.Parse(beatmapInfo[1])),GetMirrorDownloadLink(int.Parse(beatmapInfo[0])));
-            msgManager.RaiseMessage<ISourceClient>(new IRCMessage("LiveEvent", message));
-
+            msgManager.RaiseMessage<ISourceClient>(new IRCMessage(string.Empty, message));
         }
 
         private async Task<string[]> GetBeatmapInfo(int id, bool isSetId)

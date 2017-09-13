@@ -55,7 +55,7 @@ namespace BanManagerPlugin.Ban
 
                 if (args.Length == 0) // like ?ban ,?whitelist for help
                 {
-                    bindManager.GetMessageDispatcher().RaiseMessage<ISourceClient>(new IRCMessage("BanManager", basecommandHelpArray[i]));
+                    bindManager.GetMessageDispatcher().RaiseMessage<ISourceClient>(new IRCMessage(string.Empty, basecommandHelpArray[i]));
                 }
                 else {
                     try
@@ -64,7 +64,7 @@ namespace BanManagerPlugin.Ban
                     }
                     catch (Exception e)
                     {
-                        bindManager.GetMessageDispatcher().RaiseMessage<ISourceClient>(new IRCMessage("BanManager",e.Message));
+                        bindManager.GetMessageDispatcher().RaiseMessage<ISourceClient>(new IRCMessage(string.Empty,e.Message));
                     }
                 }
                 break;
@@ -240,7 +240,7 @@ namespace BanManagerPlugin.Ban
                     break;
             }
 
-            bindManager.GetMessageDispatcher().RaiseMessage<ISourceClient>(new IRCMessage("BanManager", sb.ToString()));
+            bindManager.GetMessageDispatcher().RaiseMessage<ISourceClient>(new IRCMessage(string.Empty,sb.ToString()));
         }
 
         public void Dispose()

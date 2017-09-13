@@ -278,7 +278,8 @@ namespace NowPlaying
 
         public void SendRawMessage(string message)
         {
-            SyncHost.Instance.Messages.RaiseMessage<ISourceDanmaku>(new DanmakuMessage() {Message=message});
+            //SyncHost.Instance.Messages.RaiseMessage<ISourceClient>(new DanmakuMessage() {Message=message});
+            SyncHost.Instance.SourceWrapper.SendableSource.Send(new IRCMessage(string.Empty, message));
         }
 
     }
