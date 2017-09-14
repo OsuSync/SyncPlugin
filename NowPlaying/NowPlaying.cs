@@ -251,7 +251,7 @@ namespace NowPlaying
 
             lock (locker)
             {
-                if (temp_beatmap != CurrentPlayingBeatmap)
+                if (temp_beatmap?.OsuFilePath != CurrentPlayingBeatmap?.OsuFilePath)
                 {
                     EventBus.RaiseEvent<CurrentPlayingBeatmapChangedEvent>(new CurrentPlayingBeatmapChangedEvent(temp_beatmap));
 
