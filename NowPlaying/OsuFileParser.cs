@@ -12,8 +12,12 @@ namespace NowPlaying
     {
         public string Artist { get; set; }
         public string ArtistUnicode { get; set; }
+        public string AvailableArtist{ get => Artist ?? ArtistUnicode; }
+
         public string Title { get; set; }
         public string TitleUnicode { get; set; }
+        public string AvailableTitle { get => Title ?? TitleUnicode; }
+
         public string Creator { get; set; }
         public string SongSource { get; set; }
         public string SongTags { get; set; }
@@ -24,6 +28,11 @@ namespace NowPlaying
         public float DiffOD { get; set; }
         public float DiffCS { get; set; }
         public float DiffHP { get; set; }
+
+        //Extra Data
+        public string OsuFilePath { get; set; }
+
+        public override string ToString() => $"{AvailableArtist} - {AvailableTitle} [{Difficulty}]";
     }
 
     public static class OsuFileParser

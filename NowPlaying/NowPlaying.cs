@@ -33,6 +33,8 @@ namespace NowPlaying
 
         PluginConfigurationManager config;
 
+        object locker = new object();
+
         public static ConfigurationElement OsuFolderPath { get; set; } = "";
         public static ConfigurationElement EnableAdvanceFeature { get; set; } = "0";
         
@@ -194,57 +196,83 @@ namespace NowPlaying
             sw.Start();
 
             string osu_file_path = string.Empty;
-
-            if (!(osuStat.status != "Playing" || string.IsNullOrWhiteSpace(OsuFolderPath) || string.IsNullOrWhiteSpace(currentOsuStat.title ?? currentOsuStat.artist)))
+            if (!(/*osuStat.status != "Playing"*/string.IsNullOrWhiteSpace(currentOsuStat.diff) || string.IsNullOrWhiteSpace(OsuFolderPath)))
             {
-                string folder_query_path = $"*{currentOsuStat.artist} - {currentOsuStat.title}*";
-
-                var path_query_list = Directory.EnumerateDirectories(OsuFolderPath + "Songs\\", ConvertVaildPath(folder_query_path));
-
-                if (path_query_list.Count() != 0)
+                try
                 {
-                    foreach (string path in path_query_list)
+                    string folder_query_path = ConvertVaildPath($"*{currentOsuStat.artist} - {currentOsuStat.title}*");
+
+                    string file_query_path = ConvertVaildPath($"*[{currentOsuStat.diff}]")+".osu";
+
+                    var path_query_list = Directory.EnumerateDirectories(OsuFolderPath + "Songs\\", folder_query_path);
+
+                    if (path_query_list.Count() != 0)
                     {
-                        var files_query_list = Directory.EnumerateFiles(path, ConvertVaildPath($"*[{currentOsuStat.diff}].osu"));
-                        if (files_query_list.Count() != 0)
+                        foreach (string path in path_query_list)
                         {
-                            osu_file_path = files_query_list.First();
-                            break;
+                            var files_query_list = Directory.EnumerateFiles(path, file_query_path);
+                            if (files_query_list.Count() != 0)
+                            {
+                                osu_file_path = files_query_list.First();
+                                break;
+                            }
                         }
                     }
+
+
+                }
+                catch (Exception e)
+                {
+                    IO.CurrentIO.WriteColor($"[NowPlaying]try to get beatmap \"{currentOsuStat.artist} - {currentOsuStat.title} [{currentOsuStat.diff}]\" failed,Message:{e.Message}",ConsoleColor.Red);
+                    osu_file_path = string.Empty;
                 }
             }
 
-            BeatmapEntry temp_beatmap = CurrentPlayingBeatmap;
+            BeatmapEntry temp_beatmap = null;
 
             if (!string.IsNullOrWhiteSpace(osu_file_path))
             {
                 try
                 {
-                    CurrentPlayingBeatmap = OsuFileParser.ParseText(File.ReadAllText(osu_file_path));
+                    temp_beatmap = OsuFileParser.ParseText(File.ReadAllText(osu_file_path));
+
+                    //Set path as extra data 
+                    temp_beatmap.OsuFilePath = osu_file_path;
                 }
                 catch (Exception e)
                 {
-                    CurrentPlayingBeatmap = null;
+                    temp_beatmap = null;
                 }
+            }
+            else
+            {
+                temp_beatmap = null;
+            }
 
+            lock (locker)
+            {
+                if (temp_beatmap != CurrentPlayingBeatmap)
+                {
+                    EventBus.RaiseEvent<CurrentPlayingBeatmapChangedEvent>(new CurrentPlayingBeatmapChangedEvent(temp_beatmap));
 
-                IO.CurrentIO.WriteColor($"[NowPlaying]query files:{osu_file_path},time:{sw.ElapsedMilliseconds}ms,AR/CS/OD/HP:({CurrentPlayingBeatmap.DiffAR}/{CurrentPlayingBeatmap.DiffCS}/{CurrentPlayingBeatmap.DiffOD}/{CurrentPlayingBeatmap.DiffHP})", ConsoleColor.Green);
+                    if (temp_beatmap != null)
+                        IO.CurrentIO.WriteColor($"[NowPlaying]query files:{osu_file_path},time:{sw.ElapsedMilliseconds}ms,AR/CS/OD/HP:({temp_beatmap.DiffAR}/{temp_beatmap.DiffCS}/{temp_beatmap.DiffOD}/{temp_beatmap.DiffHP})", ConsoleColor.Green);
+
+                    CurrentPlayingBeatmap = temp_beatmap;
+                }
             }
 
             sw.Stop();
-            
-            if (temp_beatmap != CurrentPlayingBeatmap)
-            {
-                EventBus.RaiseEvent<CurrentPlayingBeatmapChangedEvent>(new CurrentPlayingBeatmapChangedEvent(CurrentPlayingBeatmap));
-            }
-            
+
             return;
         }
 
         private static string ConvertVaildPath(string raw_path)
         {
             StringBuilder sb = new StringBuilder(raw_path);
+
+            //
+            sb.Replace(".", string.Empty);
 
             foreach (var invaild_char in Path.GetInvalidFileNameChars())
             {
