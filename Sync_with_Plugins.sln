@@ -20,7 +20,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RecentlyMessageQuery", "Rec
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DefaultGUI", "DefaultGUI\DefaultGUI.csproj", "{44E842F8-C937-4082-B7C3-79D152AD12F4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sync", "H:\Sync\Sync\Sync.csproj", "{FBD514C2-2830-479E-B050-D1C383028456}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sync", "..\Sync\Sync.csproj", "{FBD514C2-2830-479E-B050-D1C383028456}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

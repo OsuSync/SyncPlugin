@@ -15,15 +15,7 @@ using static Sync.Plugins.PluginEvents;
 
 namespace NowPlaying
 {
-    public class CurrentPlayingBeatmapChangedEvent : IPluginEvent
-    {
-        public BeatmapEntry NewBeatmap;
 
-        public CurrentPlayingBeatmapChangedEvent(BeatmapEntry beatmap)
-        {
-            NewBeatmap = beatmap;
-        }
-    }
 
     public class NowPlaying : Plugin, IFilter, ISourceDanmaku,IConfigurable
     {
@@ -73,8 +65,7 @@ namespace NowPlaying
                 OsuFolderPath = string.Empty;
             }
         }
-        
-        
+
         public override void OnEnable()
         {
             base.EventBus.BindEvent<InitFilterEvent>((filter) => filter.Filters.AddFilter(this));
@@ -182,12 +173,6 @@ namespace NowPlaying
             }
         }
 
-        [Obsolete("Replace with EventBus", true)]
-        public void registerCallback(Func<IOSUStatus, Task<bool>> callback)
-        {
-            ((IMSNHandler)handler).registerCallback(callback);
-        }
-
         private void OnOsuStatusAdvanceChange(StatusChangeEvent stat)
         {
             var currentOsuStat = stat.CurrentStatus;
@@ -239,7 +224,7 @@ namespace NowPlaying
                     //Set path as extra data 
                     temp_beatmap.OsuFilePath = osu_file_path;
                 }
-                catch (Exception e)
+                catch
                 {
                     temp_beatmap = null;
                 }
@@ -253,7 +238,7 @@ namespace NowPlaying
             {
                 if (temp_beatmap?.OsuFilePath != CurrentPlayingBeatmap?.OsuFilePath)
                 {
-                    EventBus.RaiseEvent<CurrentPlayingBeatmapChangedEvent>(new CurrentPlayingBeatmapChangedEvent(temp_beatmap));
+                    NowPlayingEvents.Instance.RaiseEvent(new CurrentPlayingBeatmapChangedEvent(temp_beatmap));
 
                     if (temp_beatmap != null)
                         IO.CurrentIO.WriteColor($"[NowPlaying]query files:{osu_file_path},time:{sw.ElapsedMilliseconds}ms,AR/CS/OD/HP:({temp_beatmap.DiffAR}/{temp_beatmap.DiffCS}/{temp_beatmap.DiffOD}/{temp_beatmap.DiffHP})", ConsoleColor.Green);

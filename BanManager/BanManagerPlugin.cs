@@ -15,17 +15,21 @@ namespace BanManagerPlugin
 
         public BanManagerPlugin() : base("Ban Manager", "Dark Projector")
         {
+        }
+
+        public override void OnEnable()
+        {
+            Sync.Tools.IO.CurrentIO.WriteColor(Name + " By " + Author, ConsoleColor.DarkCyan);
+
             Sync.Tools.I18n.Instance.ApplyLanguage(new DefaultLanguage());
 
             base.EventBus.BindEvent<PluginEvents.InitFilterEvent>(manager => {
-                banManager = new BanManager(manager.Filters,null);
+                banManager = new BanManager(manager.Filters, null);
                 manager.Filters.AddFilters(banManager.GetClientFliter(), banManager.GetServerFliter());
             });
 
-            base.EventBus.BindEvent<PluginEvents.LoadCompleteEvent>(host =>banManager.SetMessageDispatcher(host.Host.Messages));
+            base.EventBus.BindEvent<PluginEvents.LoadCompleteEvent>(host => banManager.SetMessageDispatcher(host.Host.Messages));
 
-            base.EventBus.BindEvent<PluginEvents.InitPluginEvent>((s) => Sync.Tools.IO.CurrentIO.WriteColor(Name + " By " + Author, ConsoleColor.DarkCyan));
         }
-
     }
 }

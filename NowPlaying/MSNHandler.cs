@@ -10,7 +10,19 @@ using System.Windows.Forms;
 
 namespace NowPlaying
 {
-    public struct StatusChangeEvent : IBaseEvent
+    public interface INowPlayingEvent : IBaseEvent { }
+
+    public struct CurrentPlayingBeatmapChangedEvent : INowPlayingEvent
+    {
+        public BeatmapEntry NewBeatmap;
+
+        public CurrentPlayingBeatmapChangedEvent(BeatmapEntry beatmap)
+        {
+            NewBeatmap = beatmap;
+        }
+    }
+
+    public struct StatusChangeEvent : INowPlayingEvent
     {
         public OSUStatus CurrentStatus { get; private set; }
         public StatusChangeEvent(OSUStatus status)
@@ -19,7 +31,7 @@ namespace NowPlaying
         }
     }
 
-    public class NowPlayingEvents : BaseEventDispatcher<StatusChangeEvent>
+    public class NowPlayingEvents : BaseEventDispatcher<INowPlayingEvent>
     {
         public static readonly NowPlayingEvents Instance = new NowPlayingEvents();
         private NowPlayingEvents()
