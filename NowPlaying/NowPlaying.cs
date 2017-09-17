@@ -15,8 +15,6 @@ using static Sync.Plugins.PluginEvents;
 
 namespace NowPlaying
 {
-
-
     public class NowPlaying : Plugin
     {
         private MessageDispatcher MainMessager = null;
@@ -24,7 +22,7 @@ namespace NowPlaying
         private NpFilter fltNp = null;
         PluginConfigurationManager config;
 
-        public NowPlaying() : base("Now Playing", "Deliay")
+        public NowPlaying() : base("Now Playing", "Deliay, DarkProjector")
         {
         }
 
