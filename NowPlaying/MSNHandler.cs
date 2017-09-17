@@ -129,12 +129,18 @@ namespace NowPlaying
         internal static extern IntPtr DefWindowProcW(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
     }
 
-    public class MSNHandler
+    public class MSNHandler : IDisposable
     {
         private const string CONST_CLASS_NAME = "MsnMsgrUIManager";
         private IntPtr m_hWnd;
         private NativeMethods.WNDCLASS lpWndClass;
         private Thread t;
+
+        public void Dispose()
+        {
+            DestoryMSNWindow();
+            t.Abort();
+        }
 
         public void Load()
         {
@@ -155,7 +161,6 @@ namespace NowPlaying
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-
 
             lpWndClass = new NativeMethods.WNDCLASS
             {
@@ -195,7 +200,6 @@ namespace NowPlaying
                 string[] info = Marshal.PtrToStringUni(cb.lpData, cb.cbData / 2).Split("\0".ToCharArray(), StringSplitOptions.None);
                 OSUStatus stats = info;
                 NowPlayingEvents.Instance.RaiseEventAsync(new StatusChangeEvent(stats));
-                //callbacks.ForEach(p => p(stats).Start());
             }
 
             return NativeMethods.DefWindowProcW(hWnd, msg, wParam, lParam);
