@@ -5,10 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Sync.Tools;
 using static RecentlyUserQuery.DefaultLanguage;
+using Sync.Command;
 
 namespace RecentlyUserQuery
 {
-    public class Record
+    public struct Record
     {
         public Record(int id,string userName,string message)
         {
@@ -17,8 +18,8 @@ namespace RecentlyUserQuery
             this.message = message;
         }
 
-        public int id=-1;
-        public string userName="???", message="";
+        public int id;
+        public string userName, message;
     }
 
     public class MessageRecorder
@@ -67,12 +68,11 @@ namespace RecentlyUserQuery
             historyList.Clear();
         }
 
-        public string ProcessCommonCommand(string[] args)
+        public string ProcessCommonCommand(Arguments args)
         {
-            for (int i = 0; i < args.Length; i++)
-                args[i] = args[i].Trim();
             int value = 0;
-            switch (args[1])
+
+            switch (args[0])
             {
                 case "--status":
                     return string.Format(LANG_MSG_STATUS, (string)(IsRecording ? LANG_RUNNING : LANG_STOP), GetHistoryList().Count, Capacity);
@@ -88,11 +88,11 @@ namespace RecentlyUserQuery
                     return LANG_MSG_START;
 
                 case "--realloc":
-                    if (args.Length < 3)
+                    if (args.Count < 2)
                         return LANG_MSG_REALLOC_ERR;
                     else
                     {
-                        value = Convert.ToInt32(args[2]);
+                        int.TryParse(args[1], out value);
                         Capacity = value;
                         return string.Format(LANG_MSG_REALLOC,Capacity);
                     }

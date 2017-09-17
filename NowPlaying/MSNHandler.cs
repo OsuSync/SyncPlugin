@@ -40,26 +40,14 @@ namespace NowPlaying
         }
     }
 
-    [Obsolete("Instead with standrad event dispatcher", true)]
-    public interface IOSUStatus
-    {
-        string artist { get; set; }
-        string title { get; set; }
-        string diff { get; set; }
-        string status { get; set; }
-        string prefix { get; set; }
-        string mode { get; set; }
-
-    }
-
     public struct OSUStatus
     {
-        public string artist { get; set; }
-        public string title { get; set; }
-        public string diff { get; set; }
-        public string status { get; set; }
-        public string prefix { get; set; }
-        public string mode { get; set; }
+        public string Artist { get; set; }
+        public string Title { get; set; }
+        public string Diff { get; set; }
+        public string Status { get; set; }
+        public string Prefix { get; set; }
+        public string Mode { get; set; }
 
         public static implicit operator OSUStatus(string[] arr)
         {
@@ -75,15 +63,15 @@ namespace NowPlaying
                     }
                     OSUStatus obj = new OSUStatus
                     {
-                        prefix = result[0],
-                        status = result[2].Split(' ')[0],
-                        artist = result[4],
-                        title = result[3],
-                        mode = result[5]
+                        Prefix = result[0],
+                        Status = result[2].Split(' ')[0],
+                        Artist = result[4],
+                        Title = result[3],
+                        Mode = result[5]
                     };
                     if(result.Length == 7)
                     {
-                        obj.diff = result[6];
+                        obj.Diff = result[6];
                     }
                     return obj;
 
@@ -101,11 +89,6 @@ namespace NowPlaying
         }
     }
 
-    [Obsolete("Instead with standrad event dispatcher", true)]
-    public interface IMSNHandler
-    {
-        void registerCallback(Func<IOSUStatus, Task<bool>> callback);
-    }
 
     public class MSNHandler
     {
@@ -150,22 +133,14 @@ namespace NowPlaying
 
         private IntPtr m_hWnd;
         private WNDCLASS lpWndClass;
-        private List<Func<OSUStatus, Task<bool>>> callbacks;
         private Thread t;
 
         public void Load()
         {
-            callbacks = new List<Func<OSUStatus, Task<bool>>>();
             t = new Thread(CreateMSNWindow);
             t.SetApartmentState(ApartmentState.STA);
             t.IsBackground = true;
             t.Name = "ActiveXThread";
-        }
-
-        [Obsolete("Instead with standrad event dispatcher", true)]
-        public void registerCallback(Func<IOSUStatus, Task<bool>> callback)
-        {
-            //callbacks.Add(callback);
         }
 
         public void StartHandler()
@@ -181,9 +156,11 @@ namespace NowPlaying
             Application.SetCompatibleTextRenderingDefault(false);
 
 
-            lpWndClass = new WNDCLASS();
-            lpWndClass.lpszClassName = CONST_CLASS_NAME;
-            lpWndClass.lpfnWndProc = new WNDPROC(WndProc);
+            lpWndClass = new WNDCLASS
+            {
+                lpszClassName = CONST_CLASS_NAME,
+                lpfnWndProc = new WNDPROC(WndProc)
+            };
 
             if (RegisterClass(lpWndClass).ToInt32() == 0 && Marshal.GetLastWin32Error() != 1410)
             {

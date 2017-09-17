@@ -23,7 +23,6 @@ namespace RecentlyUserQuery.Osu
         public void onMsg(ref IMessageBase msg)
         {
             string message = msg.Message.RawText, param = string.Empty;
-            BaseDanmakuEvent danmaku;
 
             if (message.StartsWith(queryUserIdCommand))
             {
@@ -40,11 +39,10 @@ namespace RecentlyUserQuery.Osu
             {
                 msg.Cancel = true;
                 param = message.Substring(queryUserNameCommand.Length).Trim();
-                int id = 0;
 
-                if (Int32.TryParse(param, out id))
+                if (Int32.TryParse(param, out int id))
                     return;
-                
+
                 string result= String.Format("userName \"{0}\" is {1} ", UserIdGenerator.GetUserName(id), param);
 
                 Sync.SyncHost.Instance.Messages.RaiseMessage<ISourceClient>(new IRCMessage("RecentQuery", result));

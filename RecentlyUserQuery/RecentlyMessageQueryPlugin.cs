@@ -35,14 +35,8 @@ namespace RecentlyUserQuery
 
         private bool onProcessCommand(Arguments args)
         {
-            string[] newArgs = new string[args.Count+1];
-            int i = 0;
-            newArgs[0] = "";
-            foreach(string argv in args)
-                newArgs[1 + i++]=argv;
-
             if (args.Count != 0 )
-                Sync.Tools.IO.CurrentIO.Write(recorder.ProcessCommonCommand(newArgs).Replace(" || ","\n"));
+                Sync.Tools.IO.CurrentIO.Write(recorder.ProcessCommonCommand(args).Replace(" || ","\n"));
             else
                 Sync.Tools.IO.CurrentIO.WriteColor(LANG_HELP,ConsoleColor.Yellow); 
             return true;
