@@ -90,13 +90,11 @@ namespace NowPlaying
     }
 
 
-    public class MSNHandler
+    internal static class NativeMethods
     {
-        #region WIN32API Import
-        private const string CONST_CLASS_NAME = "MsnMsgrUIManager";
-        public delegate IntPtr WNDPROC(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
+        internal delegate IntPtr WNDPROC(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-        public class WNDCLASS
+        internal class WNDCLASS
         {
             public int style = 0;
             public WNDPROC lpfnWndProc = null;
@@ -111,7 +109,7 @@ namespace NowPlaying
         }
 
         [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
-        private struct COPYDATASTRUCT
+        internal struct COPYDATASTRUCT
         {
             public IntPtr dwData;
             public int cbData;
@@ -119,20 +117,23 @@ namespace NowPlaying
         }
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        public static extern IntPtr RegisterClass(WNDCLASS wc);
+        internal static extern IntPtr RegisterClass(WNDCLASS wc);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        public static extern IntPtr CreateWindowEx(int dwExStyle, string lpszClassName, string lpszWindowName, int style, int x, int y, int width, int height, IntPtr hWndParent, IntPtr hMenu, IntPtr hInst, IntPtr lpParam);
+        internal static extern IntPtr CreateWindowEx(int dwExStyle, string lpszClassName, string lpszWindowName, int style, int x, int y, int width, int height, IntPtr hWndParent, IntPtr hMenu, IntPtr hInst, IntPtr lpParam);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern bool DestroyWindow(IntPtr hWnd);
+        internal static extern bool DestroyWindow(IntPtr hWnd);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        private static extern IntPtr DefWindowProcW(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
-        #endregion
+        internal static extern IntPtr DefWindowProcW(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
+    }
 
+    public class MSNHandler
+    {
+        private const string CONST_CLASS_NAME = "MsnMsgrUIManager";
         private IntPtr m_hWnd;
-        private WNDCLASS lpWndClass;
+        private NativeMethods.WNDCLASS lpWndClass;
         private Thread t;
 
         public void Load()
@@ -156,18 +157,18 @@ namespace NowPlaying
             Application.SetCompatibleTextRenderingDefault(false);
 
 
-            lpWndClass = new WNDCLASS
+            lpWndClass = new NativeMethods.WNDCLASS
             {
                 lpszClassName = CONST_CLASS_NAME,
-                lpfnWndProc = new WNDPROC(WndProc)
+                lpfnWndProc = new NativeMethods.WNDPROC(WndProc)
             };
 
-            if (RegisterClass(lpWndClass).ToInt32() == 0 && Marshal.GetLastWin32Error() != 1410)
+            if (NativeMethods.RegisterClass(lpWndClass).ToInt32() == 0 && Marshal.GetLastWin32Error() != 1410)
             {
                 Sync.Tools.IO.CurrentIO.WriteColor("无法注册MSN类", ConsoleColor.Red);
                 return;
             }
-            m_hWnd = CreateWindowEx(0, CONST_CLASS_NAME, string.Empty, 0, 0, 0, 0, 0, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero);
+            m_hWnd = NativeMethods.CreateWindowEx(0, CONST_CLASS_NAME, string.Empty, 0, 0, 0, 0, 0, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero);
             if(m_hWnd.ToInt32() > 0)
             {
                 Sync.Tools.IO.CurrentIO.WriteColor("MSN类注册成功！", ConsoleColor.Green);
@@ -181,7 +182,7 @@ namespace NowPlaying
         {
             if(m_hWnd.ToInt32() > 0)
             {
-                return DestroyWindow(m_hWnd);
+                return NativeMethods.DestroyWindow(m_hWnd);
             }
             return true;
         }
@@ -190,14 +191,14 @@ namespace NowPlaying
         {
             if(msg == 74)
             {
-                COPYDATASTRUCT cb = (COPYDATASTRUCT)Marshal.PtrToStructure(lParam, typeof(COPYDATASTRUCT));
+                NativeMethods.COPYDATASTRUCT cb = (NativeMethods.COPYDATASTRUCT)Marshal.PtrToStructure(lParam, typeof(NativeMethods.COPYDATASTRUCT));
                 string[] info = Marshal.PtrToStringUni(cb.lpData, cb.cbData / 2).Split("\0".ToCharArray(), StringSplitOptions.None);
                 OSUStatus stats = info;
                 NowPlayingEvents.Instance.RaiseEventAsync(new StatusChangeEvent(stats));
                 //callbacks.ForEach(p => p(stats).Start());
             }
 
-            return DefWindowProcW(hWnd, msg, wParam, lParam);
+            return NativeMethods.DefWindowProcW(hWnd, msg, wParam, lParam);
         }
         #endregion
     }
