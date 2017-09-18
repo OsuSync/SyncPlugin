@@ -59,7 +59,7 @@ namespace NowPlaying
         {
             osuStat = @event.CurrentStatus;
 #if (DEBUG)
-            Sync.Tools.IO.CurrentIO.WriteColor(osuStat.status + " " + osuStat.artist + " - " + osuStat.title, ConsoleColor.DarkCyan);
+            Sync.Tools.IO.CurrentIO.WriteColor(osuStat.Status + " " + osuStat.Artist + " - " + osuStat.Title, ConsoleColor.DarkCyan);
 #endif
         }
 
@@ -69,11 +69,10 @@ namespace NowPlaying
                 return;
 
             msg.Cancel = true;
-            string param = msg.Message.RawText.Replace("?np", string.Empty).Trim();
-            string key = param.Substring(1);
+            string param = msg.Message.RawText.Substring(3).TrimStart('-');
             object value = 0;
 
-            switch (key)
+            switch (param)
             {
                 case "":
                     SendCurrentStatus();
@@ -109,7 +108,7 @@ namespace NowPlaying
                     break;
             }
 
-            SendStatusMessage(key, value);
+            SendStatusMessage(param, value);
         }
 
         private void SendCurrentStatus()
