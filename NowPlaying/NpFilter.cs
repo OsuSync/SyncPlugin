@@ -33,24 +33,24 @@ namespace NowPlaying
             {
                 if (string.IsNullOrWhiteSpace(OsuFolderPath))
                 {
-                    IO.CurrentIO.WriteColor($"[NowPlaying]未设置osu文件夹路径，将自行搜寻当前运行中的osu程序来自动设置", ConsoleColor.Yellow);
+                    IO.CurrentIO.WriteColor(Languages.OSU_PATH_NOT_SET, ConsoleColor.Yellow);
 
                     var processes = Process.GetProcessesByName(@"osu!");
                     if (processes.Length != 0)
                     {
                         OsuFolderPath = processes[0].MainModule.FileName.Replace(@"osu!.exe", string.Empty);
-                        IO.CurrentIO.WriteColor($"[NowPlaying]Found osu!.exe ,Get osu folder:{OsuFolderPath}", ConsoleColor.Green);
+                        IO.CurrentIO.WriteColor(string.Format(Languages.FIND_OSU_PATH, OsuFolderPath), ConsoleColor.Green);
                     }
                     else
                     {
-                        IO.CurrentIO.WriteColor($"[NowPlaying]未设置osu文件夹路径，也没运行中的osu程序，无法使用此插件其他高级功能，请设置好路径并重新启动osuSync才能继续使用", ConsoleColor.Red);
+                        IO.CurrentIO.WriteColor(Languages.OSU_PATH_FAIL, ConsoleColor.Red);
                     }
                 }
                 sw.Stop();
             }
             catch (Exception e)
             {
-                IO.CurrentIO.WriteColor($"[NowPlaying]trying support advance features failed!,{e.Message}", ConsoleColor.Yellow);
+                IO.CurrentIO.WriteColor(string.Format(Languages.ERROR_WHILE_FIND_PATH, e.Message), ConsoleColor.Yellow);
                 OsuFolderPath = string.Empty;
             }
         }
@@ -70,41 +70,46 @@ namespace NowPlaying
 
             msg.Cancel = true;
             string param = msg.Message.RawText.Replace("?np", string.Empty).Trim();
-            switch (param)
+            string key = param.Substring(1);
+            object value = 0;
+
+            switch (key)
             {
                 case "":
                     SendCurrentStatus();
+                    return;
+
+                case "setid":
+                case "sid":
+                    value = CurrentPlayingBeatmap.BeatmapSetId;
                     break;
 
-                case "-setid":
-                case "-sid":
-                    SendCurrentBeatmapSetID();
+                case "hp":
+                    value = CurrentPlayingBeatmap.DiffHP;
                     break;
 
-                case "-hp":
-                    SendCurrentBeatmapHP();
+                case "od":
+                    value = CurrentPlayingBeatmap.DiffOD;
                     break;
 
-                case "-od":
-                    SendCurrentBeatmapOD();
+                case "cs":
+                    value = CurrentPlayingBeatmap.DiffCS;
                     break;
 
-                case "-cs":
-                    SendCurrentBeatmapCS();
+                case "ar":
+                    value = CurrentPlayingBeatmap.DiffAR;
                     break;
 
-                case "-ar":
-                    SendCurrentBeatmapAR();
-                    break;
-
-                case "-id":
-                    SendCurrentBeatmapID();
+                case "id":
+                    value = CurrentPlayingBeatmap.BeatmapId;
                     break;
 
                 default:
-                    SendRawMessage( $"无效的命令\"{param}\"");
+                    SendRawMessage(string.Format(Languages.UNKNOWN_COMMAND, param));
                     break;
             }
+
+            SendStatusMessage(key, value);
         }
 
         private void SendCurrentStatus()
@@ -112,23 +117,23 @@ namespace NowPlaying
             string strMsg = string.Empty;
             if (osuStat.Status == "Playing")
             {
-                strMsg = "玩";
+                strMsg = Languages.STATUS_PLAYING;
             }
             else if (osuStat.Status == "Editing")
             {
-                strMsg = "做";
+                strMsg = Languages.STATUS_EDITING;
             }
             else //include  Listening
             {
-                strMsg = "听";
+                strMsg = Languages.STATUS_OTHER;
             }
             if (osuStat.Title.Length > 17)
             {
-                SendRawMessage( "我在" + strMsg + osuStat.Title.Substring(0, 14) + "...");
+                SendRawMessage(string.Format(Languages.STATUS_TIP_INFO_WRAP, strMsg, osuStat.Title.Substring(0, 14) + "..."));
             }
             else
             {
-                SendRawMessage( "我在" + strMsg + osuStat.Title);
+                SendRawMessage(string.Format(Languages.STATUS_TIP_INFO, strMsg + osuStat.Title));
             }
         }
 
@@ -167,7 +172,7 @@ namespace NowPlaying
                 }
                 catch (Exception e)
                 {
-                    IO.CurrentIO.WriteColor($"[NowPlaying]try to get beatmap \"{currentOsuStat.Artist} - {currentOsuStat.Title} [{currentOsuStat.Diff}]\" failed,Message:{e.Message}",ConsoleColor.Red);
+                    IO.CurrentIO.WriteColor(string.Format(Languages.ERROR_WHILE_SEARCH_MAP, currentOsuStat.Artist, currentOsuStat.Title, currentOsuStat.Diff, e.Message), ConsoleColor.Red);
                     osu_file_path = string.Empty;
                 }
             }
@@ -200,7 +205,7 @@ namespace NowPlaying
                     NowPlayingEvents.Instance.RaiseEvent(new CurrentPlayingBeatmapChangedEvent(temp_beatmap));
 
                     if (temp_beatmap != null)
-                        IO.CurrentIO.WriteColor($"[NowPlaying]query files:{osu_file_path},time:{sw.ElapsedMilliseconds}ms,AR/CS/OD/HP:({temp_beatmap.DiffAR}/{temp_beatmap.DiffCS}/{temp_beatmap.DiffOD}/{temp_beatmap.DiffHP})", ConsoleColor.Green);
+                        IO.CurrentIO.WriteColor(string.Format(Languages.CONSOLE_OUTPUT_RESULT, osu_file_path, sw.ElapsedMilliseconds, temp_beatmap.DiffHP, temp_beatmap.DiffCS, temp_beatmap.DiffAR, temp_beatmap.DiffOD), ConsoleColor.Green);
 
                     CurrentPlayingBeatmap = temp_beatmap;
                 }
@@ -240,18 +245,6 @@ namespace NowPlaying
 
         }
 
-        public void SendCurrentBeatmapSetID() => SendRawMessage (CurrentPlayingBeatmap!= null ? $"当前铺面SetID:{CurrentPlayingBeatmap.BeatmapSetId}" : $"咕咕咕,当前并没打任何图");
-
-        public void SendCurrentBeatmapID() => SendRawMessage(CurrentPlayingBeatmap != null ? $"当前铺面ID:{CurrentPlayingBeatmap.BeatmapId}" : $"咕咕咕,当前并没打任何图");
-
-        public void SendCurrentBeatmapAR() => SendRawMessage(CurrentPlayingBeatmap != null ? $"当前铺面AR:{CurrentPlayingBeatmap.DiffAR}" : $"咕咕咕,当前并没打任何图");
-
-        public void SendCurrentBeatmapHP() => SendRawMessage(CurrentPlayingBeatmap != null ? $"当前铺面HP:{CurrentPlayingBeatmap.DiffHP}" : $"咕咕咕,当前并没打任何图");
-
-        public void SendCurrentBeatmapCS() => SendRawMessage(CurrentPlayingBeatmap != null ? $"当前铺面CS:{CurrentPlayingBeatmap.DiffCS}" : $"咕咕咕,当前并没打任何图");
-
-        public void SendCurrentBeatmapOD() => SendRawMessage(CurrentPlayingBeatmap != null ? $"当前铺面OD:{CurrentPlayingBeatmap.DiffOD}" : $"咕咕咕,当前并没打任何图");
-
         private void raiseCurrentStatus()
         {
             string strMsg = string.Empty;
@@ -277,6 +270,11 @@ namespace NowPlaying
             }
         }
         
+        public static void SendStatusMessage(string key, object value)
+        {
+            SendRawMessage(string.Format(Languages.OUTPUT_RESULT, key, value));
+        }
+
         public static void SendRawMessage(string message)
         {
             SyncHost.Instance.SourceWrapper.SendableSource.Send(new IRCMessage(string.Empty, message));

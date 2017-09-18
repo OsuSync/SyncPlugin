@@ -49,6 +49,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Languages.cs" />
     <Compile Include="MSNHandler.cs" />
     <Compile Include="NowPlaying.cs" />
     <Compile Include="NpFilter.cs" />

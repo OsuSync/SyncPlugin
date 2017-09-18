@@ -28,6 +28,8 @@ namespace NowPlaying
 
         public override void OnEnable()
         {
+            I18n.Instance.ApplyLanguage(new Languages());
+
             EventBus.BindEvent<LoadCompleteEvent>(evt => MainMessager = evt.Host.Messages);
 
             handler = new MSNHandler();
