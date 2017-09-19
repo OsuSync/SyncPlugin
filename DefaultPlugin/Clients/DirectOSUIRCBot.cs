@@ -166,7 +166,7 @@ namespace DefaultPlugin.Clients
 
         public override void StopWork()
         {
-            if(tcpClient.Connected)
+            if(tcpClient != null && tcpClient.Connected)
             {
                 sw.Write("QUIT");
                 sw.Flush();

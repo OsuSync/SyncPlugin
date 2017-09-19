@@ -23,5 +23,6 @@ namespace DefaultGUI
         public static LanguageElement UI_BOTTON_EXIT = "退出程序";
         public static LanguageElement UI_TIPS_LIVE_ID = "直播间";
         public static LanguageElement UI_TIPS_LIVE_SOURCE = "直播源";
+        public static LanguageElement UI_INFO_RESTART_REQ = "改变直播源重启之后才能生效。立即重启？";
     }
 }

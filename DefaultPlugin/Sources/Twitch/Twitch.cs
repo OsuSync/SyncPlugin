@@ -124,8 +124,8 @@ namespace DefaultPlugin.Sources.Twitch
             currentIRCIO = null;
             RaiseEvent(new BaseStatusEvent(SourceStatus.USER_DISCONNECTED));
 
-            viewerUpdateTimer.Stop();
-            viewerUpdateTimer.Dispose();
+            viewerUpdateTimer?.Stop();
+            viewerUpdateTimer?.Dispose();
         }
 
         public bool Stauts()

@@ -39,7 +39,7 @@ namespace DefaultPlugin.Sources.BiliBili
             client.ReceivedDanmaku += Dl_ReceivedDanmaku;
             client.ReceivedRoomCount += Dl_ReceivedRoomCount;
             client.Disconnected += Dl_Disconnected;
-            Task<bool> task = client.ConnectAsync(int.Parse(RoomID));
+            Task<bool> task = client.ConnectAsync(int.Parse(LiveID));
             if(task.Status == TaskStatus.Running)
             {
                 isConnected = true;

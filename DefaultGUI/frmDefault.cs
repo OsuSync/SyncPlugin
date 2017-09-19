@@ -16,6 +16,8 @@ using System.Drawing.Drawing2D;
 using static Sync.Tools.DefaultI18n;
 using DefaultPlugin.Clients;
 using Sync.Command;
+using System.Diagnostics;
+using System.Reflection;
 
 namespace DefaultGUI
 {
@@ -134,7 +136,6 @@ namespace DefaultGUI
         {
             while(DefaultGUI.InputFlag)
             {
-
                 Thread.Sleep(1);
             }
             DefaultGUI.InputFlag = true;
@@ -274,7 +275,12 @@ namespace DefaultGUI
 
         private void cbSources_SelectedIndexChanged(object sender, EventArgs e)
         {
+            if ((cbSources.SelectedItem as SourceBase).Name == Configuration.Source) return;
             Configuration.Source = (cbSources.SelectedItem as SourceBase).Name;
+            if(MessageBox.Show(this, Language.UI_INFO_RESTART_REQ, "Restart", MessageBoxButtons.YesNo) == DialogResult.Yes)
+            {
+                DefaultGUI.hoster.Commands.invokeCmdString("restart");
+            }
         }
 
         private void lblTitle_MouseDown(object sender, MouseEventArgs e)

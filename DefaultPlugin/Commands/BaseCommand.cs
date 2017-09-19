@@ -123,7 +123,7 @@ namespace DefaultPlugin.Commands
         private bool restart(Arguments arg)
         {
             Process.Start(Assembly.GetEntryAssembly().Location);
-            Environment.Exit(0);
+            Process.GetCurrentProcess().Kill();
             return true;
         }
 
@@ -170,8 +170,7 @@ namespace DefaultPlugin.Commands
 
         public bool exit(Arguments arg)
         {
-            MainClient?.Client?.StopWork();
-            MainSource?.Source?.Disconnect();
+            stop(arg);
             CurrentIO.Write(LANG_COMMANDS_EXIT_DONE);
             Environment.Exit(0);
             return true;
@@ -245,8 +244,8 @@ namespace DefaultPlugin.Commands
 
         public bool stop(Arguments arg)
         {
-            MainClient?.Client?.StopWork();
-            MainSource?.Source?.Disconnect();
+            if(MainClient.Client != null) MainClient.Client?.StopWork();
+            if (MainSource.Source != null) MainSource.Source?.Disconnect();
             return true;
         }
 
