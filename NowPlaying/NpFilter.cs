@@ -148,9 +148,9 @@ namespace NowPlaying
             {
                 try
                 {
-                    string folder_query_path = ConvertVaildPath($"*{currentOsuStat.Artist} - {currentOsuStat.Title}*");
+                    string folder_query_path = ConvertVaildPath($"*{currentOsuStat.Artist} - {currentOsuStat.Title}*",true);
 
-                    string file_query_path = ConvertVaildPath($"*[{currentOsuStat.Diff}]")+".osu";
+                    string file_query_path = ConvertVaildPath($"*[{currentOsuStat.Diff}]",false)+".osu";
 
                     var path_query_list = Directory.EnumerateDirectories(OsuFolderPath + "Songs\\", folder_query_path);
 
@@ -215,13 +215,15 @@ namespace NowPlaying
             return;
         }
 
-        private static string ConvertVaildPath(string raw_path)
+        private static string ConvertVaildPath(string raw_path, bool isFolder)
         {
             StringBuilder sb = new StringBuilder(raw_path);
-            
-            sb.Replace(".", string.Empty);
 
-            foreach (var invaild_char in Path.GetInvalidFileNameChars())
+            //特殊关照
+            sb.Replace(".", string.Empty);
+            sb.Replace("~", "*");
+
+            foreach (var invaild_char in isFolder?Path.GetInvalidPathChars():Path.GetInvalidFileNameChars())
             {
                 sb.Replace(invaild_char, '*');
             }
