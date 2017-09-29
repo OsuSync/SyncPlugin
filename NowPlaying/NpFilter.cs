@@ -220,8 +220,9 @@ namespace NowPlaying
             StringBuilder sb = new StringBuilder(raw_path);
 
             //特殊关照
-            sb.Replace(".", string.Empty);
             sb.Replace("~", "*");
+            sb.Replace(":", "*");
+            sb.Replace(".", "*");
 
             foreach (var invaild_char in isFolder?Path.GetInvalidPathChars():Path.GetInvalidFileNameChars())
             {
