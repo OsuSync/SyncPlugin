@@ -76,47 +76,59 @@ namespace DefaultPlugin.Clients
 
         private void ReciveLoop()
         {
-            while(workStatus)
+            try
             {
-                if (ns.DataAvailable)
+                while (workStatus)
                 {
-                    string message = sr.ReadLine();
+                    if (ns.DataAvailable)
+                    {
+                        string message = sr.ReadLine();
 
-                    ReciveRawMessage(message);
+                        ReciveRawMessage(message);
+                    }
+                    Thread.Sleep(1);
                 }
-                Thread.Sleep(1);
+            }
+            catch
+            {
+
             }
         }
 
         private void SendLoop()
         {
-            while (workStatus)
+            try
             {
-                Thread.Sleep(1);
-                if(messageQueue.Count > 0)
+                while (workStatus)
                 {
-                    if (!tcpClient.Connected)
+                    Thread.Sleep(1);
+                    if (messageQueue.Count > 0)
                     {
-                        ConnectAndLogin();
-                    }
+                        if (!tcpClient.Connected)
+                        {
+                            ConnectAndLogin();
+                        }
 
-                    string message = string.Empty;
-                    lock (messageQueue)
-                    {
-                        message = messageQueue.Dequeue();
+                        string message = string.Empty;
+                        lock (messageQueue)
+                        {
+                            message = messageQueue.Dequeue();
+                        }
+                        if (message == string.Empty) continue;
+                        if (!tcpClient.Connected)
+                        {
+                            workStatus = false;
+                            CurrentStatus = SourceStatus.REMOTE_DISCONNECTED;
+                            continue;
+                        }
+                        sw.WriteLine(message);
+                        sw.Flush();
+                        message = string.Empty;
                     }
-                    if (message == string.Empty) continue;
-                    if (!tcpClient.Connected)
-                    {
-                        workStatus = false;
-                        CurrentStatus = SourceStatus.REMOTE_DISCONNECTED;
-                        continue;
-                    }
-                    sw.WriteLine(message);
-                    sw.Flush();
-                    message = string.Empty;
                 }
             }
+            catch
+            { }
         }
 
 
@@ -135,19 +147,22 @@ namespace DefaultPlugin.Clients
             if (workStatus) return;
             tcpClient = new TcpClient();
             workStatus = true;
-
-            tcpClient.Connect("irc.ppy.sh", 6667);
-            if (!tcpClient.Connected)
+            try
             {
-                throw new Exception("Network error!");
+                tcpClient.Connect("irc.ppy.sh", 6667);
+                if (!tcpClient.Connected)
+                {
+                    throw new Exception("Network error!");
+                }
+                CurrentStatus = SourceStatus.CONNECTED_WAITING;
+                ns = tcpClient.GetStream();
+                sr = new StreamReader(ns);
+                sw = new StreamWriter(ns);
+
+                IRCLogin();
             }
-            CurrentStatus = SourceStatus.CONNECTED_WAITING;
-            ns = tcpClient.GetStream();
-            sr = new StreamReader(ns);
-            sw = new StreamWriter(ns);
-
-            IRCLogin();
-
+            catch
+            { }
         }
 
         private void IRCLogin()
