@@ -25,6 +25,7 @@ namespace DefaultPlugin
         public static ClientWorkWrapper MainClient = null;
         public static SendableSource MainSendable = null;
         public static ClientManager MainClients = null;
+        public static SyncHost MainHost = null;
         private BiliBili srcBili;
         private Twitch srcTwitch;
         private DirectOSUIRCBot clientOSU;
@@ -73,13 +74,13 @@ namespace DefaultPlugin
 
         private void DefaultPlugin_onLoadComplete(LoadCompleteEvent @event)
         {
-            SyncHost host = @event.Host;
-            MainFilters = host.Filters;
-            MainSources = host.Sources;
-            MainSource = host.SourceWrapper;
-            MainClient = host.ClientWrapper;
-            MainMessager = host.Messages;
-            MainClients = host.Clients;
+            MainHost = @event.Host;
+            MainFilters = MainHost.Filters;
+            MainSources = MainHost.Sources;
+            MainSource = MainHost.SourceWrapper;
+            MainClient = MainHost.ClientWrapper;
+            MainMessager = MainHost.Messages;
+            MainClients = MainHost.Clients;
 
             //config load
             Config = new PluginConfigurationManager(this);

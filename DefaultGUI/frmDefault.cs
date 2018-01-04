@@ -240,7 +240,7 @@ namespace DefaultGUI
 
         private void cmdExit_Click(object sender, EventArgs e)
         {
-            Environment.Exit(0);
+            DefaultGUI.hoster.ExitSync();
         }
 
         private void cmdConsole_Click(object sender, EventArgs e)

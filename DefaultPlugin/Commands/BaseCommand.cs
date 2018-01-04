@@ -173,8 +173,8 @@ namespace DefaultPlugin.Commands
         public bool exit(Arguments arg)
         {
             stop(arg);
+            MainHost.ExitSync();
             CurrentIO.Write(LANG_COMMANDS_EXIT_DONE);
-            Environment.Exit(0);
             return true;
         }
 
