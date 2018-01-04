@@ -50,7 +50,12 @@ namespace DefaultPlugin.Sources.BiliBili
 
         public override void Disconnect()
         {
-            client.Disconnect(); 
+            client.Disconnect();
+            //
+            Status = SourceStatus.USER_DISCONNECTED;
+            client.ReceivedDanmaku -= Dl_ReceivedDanmaku;
+            client.ReceivedRoomCount -= Dl_ReceivedRoomCount;
+            client.Disconnected -= Dl_Disconnected;
         }
         private void Dl_Disconnected(object sender, DisconnectEvtArgs args)
         {

@@ -39,6 +39,8 @@ namespace DefaultPlugin.Commands
             manager.Dispatch.bind("sourcemsg", sourcemsg, LANG_COMMANDS_SOURCEMSG);
             manager.Dispatch.bind("clientmsg", clientmsg, LANG_COMMANDS_CLIENTMSG);
 
+            manager.Dispatch.bind("clientusermsg", chatuser, LANG_COMMANDS_CLIENTUSERMSG);
+
             manager.Dispatch.bind("setbili", setBilibili, LANG_COMMANDS_BILIBILI);
             manager.Dispatch.bind("setosubot", setosubot, LANG_COMMANDS_SET_OSU_BOT);
             manager.Dispatch.bind("sourcelogin", sourcelogin, LANG_COMMANDS_SOURCELOGIN);
