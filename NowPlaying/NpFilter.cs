@@ -136,6 +136,47 @@ namespace NowPlaying
             }
         }
 
+        private string GetOsuFilePath(string diff,string artist,string title)
+        {
+            try
+            {
+                string folder_query_path = ConvertVaildPath($"*{artist} - {title}*", true);
+
+                string file_query_path = ConvertVaildPath($"*[{diff}]", false) + ".osu";
+
+                var path_query_list = Directory.EnumerateDirectories(OsuFolderPath + "Songs\\", folder_query_path);
+
+                if (path_query_list.Count() == 0)
+                {
+                    //Maybe beatmap is downloaded from inso that folder have no artist.
+
+                    folder_query_path = ConvertVaildPath($"*{title}*", true);
+
+                    path_query_list = Directory.EnumerateDirectories(OsuFolderPath + "Songs\\", folder_query_path);
+                }
+
+                if (path_query_list.Count() != 0)
+                {
+
+                    foreach (string path in path_query_list)
+                    {
+                        var files_query_list = Directory.EnumerateFiles(path, file_query_path);
+                        if (files_query_list.Count() != 0)
+                        {
+                            return files_query_list.First();
+                        }
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                IO.CurrentIO.WriteColor(string.Format(Languages.ERROR_WHILE_SEARCH_MAP, artist,title, diff, e.Message), ConsoleColor.Red);
+                return string.Empty;
+            }
+
+            return string.Empty;
+        }
+
         private void OnOsuStatusAdvanceChange(StatusChangeEvent stat)
         {
             var currentOsuStat = stat.CurrentStatus;
@@ -146,34 +187,7 @@ namespace NowPlaying
             string osu_file_path = string.Empty;
             if (!(/*osuStat.status != "Playing"*/string.IsNullOrWhiteSpace(currentOsuStat.Diff) || string.IsNullOrWhiteSpace(OsuFolderPath)))
             {
-                try
-                {
-                    string folder_query_path = ConvertVaildPath($"*{currentOsuStat.Artist} - {currentOsuStat.Title}*",true);
-
-                    string file_query_path = ConvertVaildPath($"*[{currentOsuStat.Diff}]",false)+".osu";
-
-                    var path_query_list = Directory.EnumerateDirectories(OsuFolderPath + "Songs\\", folder_query_path);
-
-                    if (path_query_list.Count() != 0)
-                    {
-                        foreach (string path in path_query_list)
-                        {
-                            var files_query_list = Directory.EnumerateFiles(path, file_query_path);
-                            if (files_query_list.Count() != 0)
-                            {
-                                osu_file_path = files_query_list.First();
-                                break;
-                            }
-                        }
-                    }
-
-
-                }
-                catch (Exception e)
-                {
-                    IO.CurrentIO.WriteColor(string.Format(Languages.ERROR_WHILE_SEARCH_MAP, currentOsuStat.Artist, currentOsuStat.Title, currentOsuStat.Diff, e.Message), ConsoleColor.Red);
-                    osu_file_path = string.Empty;
-                }
+                osu_file_path = GetOsuFilePath(currentOsuStat.Diff, currentOsuStat.Artist, currentOsuStat.Title);
             }
 
             BeatmapEntry temp_beatmap = null;
