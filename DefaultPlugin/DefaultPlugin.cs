@@ -31,6 +31,7 @@ namespace DefaultPlugin
         private DefaultFormat fltFormat;
         private GiftReceivePeeker fltGift;
         private OnlineChangePeeker fltOnline;
+        private MessageDeadLoopLimiter fltDeadunlock;
         
         public static PluginConfigurationManager Config { get; set; }
 
@@ -52,8 +53,9 @@ namespace DefaultPlugin
             fltFormat = new DefaultFormat();
             fltGift = new GiftReceivePeeker();
             fltOnline = new OnlineChangePeeker();
+            fltDeadunlock = new MessageDeadLoopLimiter();
 
-            base.EventBus.BindEvent<InitFilterEvent>(evt => evt.Filters.AddFilters(fltFormat, fltGift, fltOnline));
+            base.EventBus.BindEvent<InitFilterEvent>(evt => evt.Filters.AddFilters(fltFormat, fltGift, fltOnline, fltDeadunlock));
 
             base.EventBus.BindEvent<LoadCompleteEvent>(DefaultPlugin_onLoadComplete);
 
