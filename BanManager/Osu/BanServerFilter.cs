@@ -38,7 +38,7 @@ namespace BanManagerPlugin.Ban
         {
             string message = msg.Message.RawText;
             string[] args;
-            if (message[0] != '?')
+            if (msg.Cancel||message[0] != '?')
                 return;
             for (int i = 0; i < basecommandArray.Count; i++)
             {

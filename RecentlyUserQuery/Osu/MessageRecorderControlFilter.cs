@@ -8,6 +8,7 @@ using Sync.MessageFilter;
 using Sync.Tools;
 using Sync.Source;
 using Sync.Plugins;
+using Sync.Command;
 
 namespace RecentlyUserQuery.Osu
 {
@@ -15,6 +16,8 @@ namespace RecentlyUserQuery.Osu
     {
         MessageRecorder recorder = null;
         MessageDispatcher manager = null;
+
+        object locker=new object();
 
         public MessageRecorderControlFilter(MessageDispatcher manager,MessageRecorder recorder)
         {
@@ -28,20 +31,25 @@ namespace RecentlyUserQuery.Osu
         {
             string message = msg.Message.RawText;
 
-            if (msg.Message.RawText[0] != '?'|| recorder.IsRecording == false|| !message.StartsWith(recentlyCommand))
+            if (recorder.IsRecording == false|| !message.StartsWith(recentlyCommand))
                 return;
 
-            string[] args = message.Split(' ');
+            Arguments args = message.Split(' ');
+
             msg.Cancel = true;
-            if (args.Length > 1)
+
+            if (args.Count > 1)
+            {
+                args.RemoveAt(0);
                 SendResponseMessage(recorder.ProcessCommonCommand(args));
+            }
             else
-                SendResponseMessage(EnumRecentUser().Result);
+                SendEnumRecentUser();
         }
 
-        private async Task<string> EnumRecentUser()
+        private void SendEnumRecentUser()
         {
-            var task = new Task<string>(() =>
+            Task.Run(() =>
             {
                 Dictionary<string, int> result = new Dictionary<string, int>();
                 foreach (var record in recorder.GetHistoryList())
@@ -49,16 +57,16 @@ namespace RecentlyUserQuery.Osu
                 StringBuilder sb = new StringBuilder();
                 foreach (var pair in result)
                     sb.AppendFormat("{0}->{1} || ", pair.Value, pair.Key);
-                //SendResponseMessage(sb.ToString());
-                return sb.ToString();
+                SendResponseMessage(sb.ToString());
             });
-
-            return await task;
         }
 
         private void SendResponseMessage(string message)
         {
-            Sync.SyncHost.Instance.Messages.RaiseMessage<ISourceClient>(new IRCMessage("RecentQuery", message));
+            lock (locker)
+            {
+                Sync.SyncHost.Instance.Messages.RaiseMessage<ISourceClient>(new IRCMessage("RecentQuery", message));
+            }
         }
 
         public void Dispose()
