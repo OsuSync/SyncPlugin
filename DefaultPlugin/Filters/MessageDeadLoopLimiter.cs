@@ -13,8 +13,8 @@ namespace DefaultPlugin.Filters
         public void onMsg(ref IMessageBase msg)
         {
             if(DefaultPlugin.MainClient.Client is DirectOSUIRCBot client &&
-                DirectOSUIRCBot.IRCBotName == DirectOSUIRCBot.IRCNick &&
-                msg.User.RawText == DirectOSUIRCBot.IRCBotName)
+                DirectOSUIRCBot.IRCBotName.ToString() == DirectOSUIRCBot.IRCNick.ToString() &&
+                msg.User.RawText == DirectOSUIRCBot.IRCBotName.ToString())
             {
                 msg.Cancel = true;
             }
