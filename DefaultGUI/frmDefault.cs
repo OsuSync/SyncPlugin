@@ -21,7 +21,7 @@ using System.Reflection;
 
 namespace DefaultGUI
 {
-    public partial class frmDefault : Form, ISyncIO, IDisposable
+    public partial class frmDefault : Form, ISyncConsoleWriter, IDisposable
     {
 
         [DllImport("user32.dll", SetLastError = true)]
@@ -248,7 +248,7 @@ namespace DefaultGUI
             string formName = Console.Title;
             int h = FindWindow("ConsoleWindowClass", formName);
             ShowWindow(h, 1);
-            IO.SetIO(new NConsoleWriter());
+            IO.SetIO(IO.DefaultIO);
             DefaultGUI.InputFlag = false;
             Visible = false;
         }
