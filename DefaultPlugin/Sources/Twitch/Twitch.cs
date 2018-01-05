@@ -26,7 +26,7 @@ namespace DefaultPlugin.Sources.Twitch
 
         int onlineViewersCountInv = 6;
 
-        int viewersUpdateInterval = 3000;
+        int viewersUpdateInterval = 60000;
 
         public Timer viewerUpdateTimer;
 
@@ -159,7 +159,7 @@ namespace DefaultPlugin.Sources.Twitch
         public async void UpdateChannelViewersCount()
         {
             //currentIRCIO?.SendRawMessage(@"NAMES");
-            int nowViewersCount = await new Task<int>(() =>
+            int nowViewersCount = await Task.Run(() =>
             {
                 string uri = $"https://api.twitch.tv/kraken/streams/{currentIRCIO.ChannelName}&client_id={currentIRCIO.ClientID}";
 
