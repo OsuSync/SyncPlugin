@@ -60,7 +60,7 @@ namespace DefaultPlugin.Sources.Twitch
                 return;
             }
 
-            oauth = (oauth.StartsWith("oauth:") ? "" : "oauth") + oauth;
+            oauth = (oauth.StartsWith("oauth:") ? "" : "oauth:") + oauth;
 
             bindTwitchSource.OAuth = oauth;
 

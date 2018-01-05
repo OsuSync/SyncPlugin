@@ -150,7 +150,7 @@ namespace DefaultPlugin.Sources.Twitch
             string userName = result.Groups["UserName"].Value;
             string message = result.Groups["Message"].Value;
 
-            RaiseEvent(new BaseDanmakuEvent() { Danmuku = message, SenderName = userName });
+            base.RaiseEvent<IBaseDanmakuEvent>(new BaseDanmakuEvent(message, userName,DateTime.Now.ToString()));
         }
 
         /// <summary>
