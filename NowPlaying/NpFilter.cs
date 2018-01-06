@@ -69,7 +69,7 @@ namespace NowPlaying
                 return;
 
             msg.Cancel = true;
-            string param = msg.Message.RawText.Substring(3).TrimStart('-');
+            string param = msg.Message.RawText.Substring(3).Trim().TrimStart('-');
             object value = 0;
 
             switch (param)
@@ -132,7 +132,7 @@ namespace NowPlaying
             }
             else
             {
-                SendRawMessage(string.Format(Languages.STATUS_TIP_INFO, strMsg + osuStat.Title));
+                SendRawMessage(string.Format(Languages.STATUS_TIP_INFO, strMsg , osuStat.Title));
             }
         }
 
