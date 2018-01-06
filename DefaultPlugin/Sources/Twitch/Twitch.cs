@@ -77,9 +77,12 @@ namespace DefaultPlugin.Sources.Twitch
                 return;
             }
 
-            while (oauth.Length==0) {
-                TwitchAuthenticationDialog AuthDialog = new TwitchAuthenticationDialog(this);
-                AuthDialog.ShowDialog();
+            while (oauth.Length==0)
+            {
+                var result = RequestSetup();
+
+                if (result == false)
+                    return;
             }
 
             SaveConfig();
@@ -190,6 +193,13 @@ namespace DefaultPlugin.Sources.Twitch
             }
         }
 
+        private bool RequestSetup()
+        {
+            TwitchAuthenticationDialog AuthDialog = new TwitchAuthenticationDialog(this);
+            var result = AuthDialog.ShowDialog();
+            return result != System.Windows.Forms.DialogResult.Cancel;
+        }
+
         private string GetJSONValue(ref string text, string key)
         {
             var result = Regex.Match(text, $"{key}\":\"(.+?)\"");
@@ -221,6 +231,7 @@ namespace DefaultPlugin.Sources.Twitch
 
         public override void Login(string user, string password)
         {
+            RequestSetup();
         }
     }
 }
