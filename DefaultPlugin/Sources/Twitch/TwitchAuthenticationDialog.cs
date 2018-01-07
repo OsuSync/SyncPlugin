@@ -46,6 +46,7 @@ namespace DefaultPlugin.Sources.Twitch
         private void button2_Click(object sender, EventArgs e)
         {
             //Cannel
+            DialogResult = DialogResult.Cancel;
             Close();
         }
 
@@ -60,7 +61,7 @@ namespace DefaultPlugin.Sources.Twitch
                 return;
             }
 
-            oauth = (oauth.StartsWith("oauth:") ? "" : "oauth") + oauth;
+            oauth = (oauth.StartsWith("oauth:") ? "" : "oauth:") + oauth;
 
             bindTwitchSource.OAuth = oauth;
 
@@ -76,6 +77,7 @@ namespace DefaultPlugin.Sources.Twitch
 
             //Connect();
 
+            DialogResult = DialogResult.OK;
             Close();
         }
 
