@@ -26,7 +26,7 @@ namespace DefaultPlugin.Sources.Twitch
 
         int onlineViewersCountInv = 6;
 
-        int viewersUpdateInterval = 3000;
+        int viewersUpdateInterval = 60000;
 
         public Timer viewerUpdateTimer;
 
@@ -77,9 +77,12 @@ namespace DefaultPlugin.Sources.Twitch
                 return;
             }
 
-            while (oauth.Length==0) {
-                TwitchAuthenticationDialog AuthDialog = new TwitchAuthenticationDialog(this);
-                AuthDialog.ShowDialog();
+            while (oauth.Length==0)
+            {
+                var result = RequestSetup();
+
+                if (result == false)
+                    return;
             }
 
             SaveConfig();
@@ -150,7 +153,7 @@ namespace DefaultPlugin.Sources.Twitch
             string userName = result.Groups["UserName"].Value;
             string message = result.Groups["Message"].Value;
 
-            RaiseEvent(new BaseDanmakuEvent() { Danmuku = message, SenderName = userName });
+            base.RaiseEvent<IBaseDanmakuEvent>(new BaseDanmakuEvent(message, userName,DateTime.Now.ToString()));
         }
 
         /// <summary>
@@ -159,7 +162,7 @@ namespace DefaultPlugin.Sources.Twitch
         public async void UpdateChannelViewersCount()
         {
             //currentIRCIO?.SendRawMessage(@"NAMES");
-            int nowViewersCount = await new Task<int>(() =>
+            int nowViewersCount = await Task.Run(() =>
             {
                 string uri = $"https://api.twitch.tv/kraken/streams/{currentIRCIO.ChannelName}&client_id={currentIRCIO.ClientID}";
 
@@ -188,6 +191,13 @@ namespace DefaultPlugin.Sources.Twitch
                 RaiseEvent(new BaseOnlineCountEvent() { Count = nowViewersCount });
                 prev_ViewersCount = nowViewersCount;
             }
+        }
+
+        private bool RequestSetup()
+        {
+            TwitchAuthenticationDialog AuthDialog = new TwitchAuthenticationDialog(this);
+            var result = AuthDialog.ShowDialog();
+            return result != System.Windows.Forms.DialogResult.Cancel;
         }
 
         private string GetJSONValue(ref string text, string key)
@@ -221,6 +231,7 @@ namespace DefaultPlugin.Sources.Twitch
 
         public override void Login(string user, string password)
         {
+            RequestSetup();
         }
     }
 }
