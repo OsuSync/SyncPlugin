@@ -125,7 +125,7 @@ namespace DefaultPlugin.Commands
         private bool restart(Arguments arg)
         {
             Process.Start(Assembly.GetEntryAssembly().Location);
-            Process.GetCurrentProcess().Kill();
+            Environment.Exit(0);
             return true;
         }
 

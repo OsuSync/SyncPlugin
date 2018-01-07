@@ -10,6 +10,7 @@ using Sync.Command;
 
 namespace BeatmapSuggest
 {
+    [SyncPluginID("916fe745-7a33-4c20-b985-58c4810e261e")]
     public class BeatmapSuggestPlugin : Plugin
     {
         private Danmaku.BeatmapSuggestFilter filter = new Danmaku.BeatmapSuggestFilter();

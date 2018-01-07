@@ -15,6 +15,7 @@ using static Sync.Plugins.PluginEvents;
 
 namespace NowPlaying
 {
+    [SyncPluginID("b88d23bd-50bc-4b3d-9a81-9ba559c05aab")]
     public class NowPlaying : Plugin
     {
         private MessageDispatcher MainMessager = null;
