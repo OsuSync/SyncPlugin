@@ -8,13 +8,13 @@
 | **Author** |
 | **Description** |
 | **Download URL** |
-| **RepoURL or other SCM Address** |
+| **Source URL** |
 
 
 (Notice: `Name` and `Author` MUST equal with plugin constructor's `Name` and `Author`)
 
 
-(PS: To update your, just reply this issue with this format:)
+(PS: To update plugin, just reply this issue with this format:)
 ### Update
 
 | **Key** | Value|
