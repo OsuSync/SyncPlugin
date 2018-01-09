@@ -15,7 +15,7 @@ using Sync.Tools;
 namespace DefaultGUI
 {
     [Serializable]
-    [SyncPluginID("7b94f736-e1bd-4dc8-9706-2bf6d0dedbf9")]
+    [SyncPluginID("7b94f736-e1bd-4dc8-9706-2bf6d0dedbf9", "2.15.0")]
     public class DefaultGUI : Plugin
     {
         public const string PLUGIN_NAME = "Default GUI";

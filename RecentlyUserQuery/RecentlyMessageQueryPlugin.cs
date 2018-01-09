@@ -11,7 +11,7 @@ using static RecentlyUserQuery.DefaultLanguage;
 
 namespace RecentlyUserQuery
 {
-    [SyncPluginID("cc7b2265-e628-4ae6-9af6-6579f818ff0d")]
+    [SyncPluginID("cc7b2265-e628-4ae6-9af6-6579f818ff0d", "2.15.0")]
     public class RecentlyMessageQueryPlugin : Plugin
     {
         MessageRecorder recorder = new MessageRecorder();

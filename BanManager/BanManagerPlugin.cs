@@ -9,7 +9,7 @@ using BanManagerPlugin.Ban;
 
 namespace BanManagerPlugin
 {
-    [SyncPluginID("b08211ce-2899-4153-aba8-74dca477eba5")]
+    [SyncPluginID("b08211ce-2899-4153-aba8-74dca477eba5", "2.15.0")]
     public class BanManagerPlugin : Plugin
     {
         BanManager banManager = null;
