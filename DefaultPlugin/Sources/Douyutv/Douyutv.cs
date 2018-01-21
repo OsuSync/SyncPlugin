@@ -208,5 +208,9 @@ namespace DefaultPlugin.Sources.Douyutv
         {
             throw new NotImplementedException();
         }
+
+        public void onConfigurationReload()
+        {
+        }
     }
 }

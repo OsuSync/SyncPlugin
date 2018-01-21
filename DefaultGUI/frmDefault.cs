@@ -71,9 +71,6 @@ namespace DefaultGUI
                 if(DefaultGUI.hoster != null) c.AddRange(DefaultGUI.hoster?.Commands?.Dispatch?.getCommandsHelp().Keys.ToArray());
                 txtCmd.AutoCompleteCustomSource = c;
                 IO.SetIO(this);
-
-                this.WriteWelcome();
-
             }));
         }
 

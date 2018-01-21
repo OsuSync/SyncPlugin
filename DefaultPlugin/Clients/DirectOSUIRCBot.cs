@@ -209,5 +209,10 @@ namespace DefaultPlugin.Clients
         {
             
         }
+
+        public void onConfigurationReload()
+        {
+            this.NickName = IRCNick;
+        }
     }
 }

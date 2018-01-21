@@ -135,5 +135,9 @@ namespace DefaultPlugin.Sources.BiliBili
             RoomID = LiveID;
         }
 
+        public void onConfigurationReload()
+        {
+            onConfigurationLoad();
+        }
     }
 }

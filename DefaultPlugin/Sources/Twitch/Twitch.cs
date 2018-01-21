@@ -233,5 +233,10 @@ namespace DefaultPlugin.Sources.Twitch
         {
             RequestSetup();
         }
+
+        public void onConfigurationReload()
+        {
+            onConfigurationLoad();
+        }
     }
 }

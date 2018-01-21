@@ -15,7 +15,8 @@ using Sync.Tools;
 namespace DefaultGUI
 {
     [Serializable]
-    [SyncPluginID("7b94f736-e1bd-4dc8-9706-2bf6d0dedbf9", "2.15.0")]
+    [SyncPluginID("7b94f736-e1bd-4dc8-9706-2bf6d0dedbf9", "2.16.0")]
+    [SyncPluginDependency("c620c63a-32b6-4281-87a9-b7da62be0215", Version = "^2.15.0", Require = true)]
     public class DefaultGUI : Plugin
     {
         public const string PLUGIN_NAME = "Default GUI";
@@ -56,6 +57,10 @@ namespace DefaultGUI
                 SourceEvents.Instance.BindEvent<StartSourceEvent>(e => frmUI.UpdateStautsAuto());
                 SourceEvents.Instance.BindEvent<StopSyncEvent>(e => frmUI.UpdateStautsAuto());
 
+            });
+
+            EventBus.BindEvent<PluginEvents.ConfigurationChange>((e) => {
+                frmUI.ready();
             });
 
             EventBus.BindEvent<PluginEvents.ProgramReadyEvent>(evt => 

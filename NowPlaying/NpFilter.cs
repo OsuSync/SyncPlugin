@@ -256,6 +256,11 @@ namespace NowPlaying
             }
         }
 
+        public void onConfigurationReload()
+        {
+            onConfigurationLoad();
+        }
+
         public void onConfigurationSave()
         {
 

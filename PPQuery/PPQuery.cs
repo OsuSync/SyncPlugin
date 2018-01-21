@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace PPQuery
 {
     [SyncPluginDependency("c620c63a-32b6-4281-87a9-b7da62be0215", Version = "^2.15.0", Require = true)]
-    [SyncPluginID("5ab459a8-0f62-4500-8417-f71fab646493", "2.15.0")]
+    [SyncPluginID("5ab459a8-0f62-4500-8417-f71fab646493", "2.16.0")]
     public class PPQuery : Plugin, IFilter, ISourceClient
     {
         public PPQuery() : base("PP Query", "Deliay")
