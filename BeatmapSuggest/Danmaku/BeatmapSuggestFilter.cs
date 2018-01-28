@@ -16,17 +16,19 @@ using static BeatmapSuggest.DefaultLanguage;
 
 namespace BeatmapSuggest.Danmaku
 {
-    class BeatmapSuggestFilter : IFilter, ISourceDanmaku,IConfigurable
+    class BeatmapSuggestFilter : IFilter, ISourceDanmaku
     {
         private MessageDispatcher msgManager = null;
 
         private const string suggestCommand = "?suggest";
 
-        public ConfigurationElement EnableInsoMirrorLink { get; set; } = "False";
-        public ConfigurationElement OsuApiKey { get; set; } = string.Empty;
+        internal BeatmapDownloadScheduler Scheduler { get; set; }
+
+        internal bool EnableInsoMirrorLink { get; set; }
+        internal string OsuApiKey { get; set; }
 
         const int timeout = 6000;//ms
-
+        
         public void onMsg(ref IMessageBase msg)
         {
             string message = msg.Message.RawText;
@@ -87,6 +89,8 @@ namespace BeatmapSuggest.Danmaku
                 IO.CurrentIO.WriteColor(string.Format(LANG_GET_BEATMAP_FAILED, id, e.Message),ConsoleColor.Red);
                 return;
             }
+
+            Scheduler.Push(id, isSetId, $"{beatmapInfo[3]} - {beatmapInfo[2]}");
 
             string message = string.Format(LANG_SUGGEST_MEG,userName,GetLink(id,isSetId),$"{beatmapInfo[3]} - {beatmapInfo[2]}[{beatmapInfo[4]}]",GetDownloadLink(int.Parse(beatmapInfo[1])),GetMirrorDownloadLink(int.Parse(beatmapInfo[0])));
             msgManager.RaiseMessage<ISourceClient>(new IRCMessage(string.Empty, message));
@@ -166,7 +170,7 @@ namespace BeatmapSuggest.Danmaku
 
         private string GetMirrorDownloadLink(int beatmapSetId)
         {
-            if ((((string)EnableInsoMirrorLink).Trim() != "1")||(!bool.Parse(EnableInsoMirrorLink)))
+            if (EnableInsoMirrorLink)
             {
                 // Defualt
                 return $"http://osu.uu.gl/s/{beatmapSetId}";
@@ -186,21 +190,6 @@ namespace BeatmapSuggest.Danmaku
         public void Dispose()
         {
             //nothing to do
-        }
-
-        public void onConfigurationLoad()
-        {
-            
-        }
-
-        public void onConfigurationSave()
-        {
-            
-        }
-
-        public void onConfigurationReload()
-        {
-            
         }
     }
 }
