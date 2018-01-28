@@ -1,4 +1,5 @@
-﻿using Sync.Tools;
+﻿using Sync.MessageFilter;
+using Sync.Tools;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -56,15 +57,26 @@ namespace BeatmapSuggest
 
         public void DownloadLastSuggest()
         {
+            if (suggest_history_queue.Count==0)
+                return;
+
             BeatmapDownloadTask map = suggest_history_queue.Last();
             suggest_history_queue.RemoveLast();
+
+            SendIRCMessage($"开始下载谱面{map.name}");
+
             DownloadBeatmap(map);
         }
 
         public void DownloadAll()
         {
+            if (suggest_history_queue.Count == 0)
+                return;
+
             var copy_list = new LinkedList<BeatmapDownloadTask>(suggest_history_queue);
             suggest_history_queue.Clear();
+
+            SendIRCMessage($"开始下载共{copy_list.Count}张谱面.");
 
             foreach (var map in copy_list)
             {
@@ -130,18 +142,18 @@ namespace BeatmapSuggest
                         }
                     }
 
-                    IO.CurrentIO.WriteColor($"开始下载谱面{map.id}", ConsoleColor.Green);
+                    IO.CurrentIO.WriteColor($"开始下载谱面{map.name}", ConsoleColor.Green);
 
                     string download_url = $"http://osu.uu.gl/s/{beatmap_setid}";
 
                     WebClient wc = new WebClient();
                     wc.DownloadFile(new Uri(download_url), save_path + "\\" + $"{beatmap_setid}.osz");
-                    
-                    IO.CurrentIO.WriteColor($"下载谱面{map.id}完成", ConsoleColor.Green);
+
+                    IO.CurrentIO.WriteColor($"下载谱面{map.name}完成", ConsoleColor.Green);
                 }
                 catch (Exception e)
                 {
-                    IO.CurrentIO.WriteColor($"下载谱面{map.id}出错,原因{e.Message}", ConsoleColor.Red);
+                    IO.CurrentIO.WriteColor($"下载谱面{map.name}出错,原因{e.Message}", ConsoleColor.Red);
                 }
             });
         }
@@ -165,6 +177,11 @@ namespace BeatmapSuggest
                 return -1;
 
             return int.Parse(result.Groups[1].Value);
+        }
+
+        private void SendIRCMessage(string message)
+        {
+            Sync.SyncHost.Instance.Messages.RaiseMessage<ISourceClient>(new IRCMessage(string.Empty, message));
         }
     }
 }
