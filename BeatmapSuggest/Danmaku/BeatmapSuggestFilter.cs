@@ -82,7 +82,7 @@ namespace BeatmapSuggest.Danmaku
                 beatmapInfo = await GetBeatmapInfo(id,isSetId);
 
                 if (beatmapInfo == null)
-                    throw new Exception(string.Format(LANG_GET_BEATMAP_FAILED,id,"信息不完整"));
+                    throw new Exception(string.Format(LANG_GET_BEATMAP_FAILED,id, LANG_ERROR_INFO_IMCOMPLETE));
             }
             catch (Exception e)
             {

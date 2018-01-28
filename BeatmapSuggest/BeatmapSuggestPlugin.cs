@@ -25,6 +25,8 @@ namespace BeatmapSuggest
 
         public BeatmapSuggestPlugin() : base("Beatmap Suggest Command", "Dark Projector")
         {
+            I18n.Instance.ApplyLanguage(new DefaultLanguage());
+
             danmaku_filter = new Danmaku.BeatmapSuggestFilter();
             osu_filter = new Osu.BeatmapSuggestDownloadFilter();
 
@@ -49,7 +51,7 @@ namespace BeatmapSuggest
         {
             if (string.IsNullOrWhiteSpace(OsuApiKey))
             {
-                IO.CurrentIO.WriteColor("[BeatmapSuggestPlugin]没有ApiKey,请用户自己提供ApiKey以便使用谱面推荐功能.ApiKey申请地址:https://osu.ppy.sh/p/api", ConsoleColor.Red);
+                IO.CurrentIO.WriteColor("[BeatmapSuggestPlugin]"+DefaultLanguage.LANG_NO_API_KEY_NOFITY, ConsoleColor.Red);
                 return;
             }
 

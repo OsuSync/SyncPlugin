@@ -63,7 +63,7 @@ namespace BeatmapSuggest
             BeatmapDownloadTask map = suggest_history_queue.Last();
             suggest_history_queue.RemoveLast();
 
-            SendIRCMessage($"开始下载谱面{map.name}");
+            SendIRCMessage(string.Format(DefaultLanguage.LANG_START_DOWNLOAD,map.name));
 
             DownloadBeatmap(map);
         }
@@ -76,7 +76,7 @@ namespace BeatmapSuggest
             var copy_list = new LinkedList<BeatmapDownloadTask>(suggest_history_queue);
             suggest_history_queue.Clear();
 
-            SendIRCMessage($"开始下载共{copy_list.Count}张谱面.");
+            SendIRCMessage(string.Format(DefaultLanguage.LANG_DOWNLOAD_TASK_COUNT,copy_list.Count));
 
             foreach (var map in copy_list)
             {
@@ -142,18 +142,18 @@ namespace BeatmapSuggest
                         }
                     }
 
-                    IO.CurrentIO.WriteColor($"开始下载谱面{map.name}", ConsoleColor.Green);
+                    IO.CurrentIO.WriteColor(string.Format(DefaultLanguage.LANG_START_DOWNLOAD, map.name), ConsoleColor.Green);
 
                     string download_url = $"http://osu.uu.gl/s/{beatmap_setid}";
 
                     WebClient wc = new WebClient();
                     wc.DownloadFile(new Uri(download_url), save_path + "\\" + $"{beatmap_setid}.osz");
 
-                    IO.CurrentIO.WriteColor($"下载谱面{map.name}完成", ConsoleColor.Green);
+                    IO.CurrentIO.WriteColor(string.Format(DefaultLanguage.LANG_FINISH_DOWNLOAD, map.name), ConsoleColor.Green);
                 }
                 catch (Exception e)
                 {
-                    IO.CurrentIO.WriteColor($"下载谱面{map.name}出错,原因{e.Message}", ConsoleColor.Red);
+                    IO.CurrentIO.WriteColor(string.Format(DefaultLanguage.LANG_FAILED_DOWNLOAD, map.name,e.Message), ConsoleColor.Red);
                 }
             });
         }
