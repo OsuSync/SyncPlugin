@@ -84,6 +84,10 @@ namespace BeatmapSuggest
             }
         }
 
+        /// <summary>
+        /// 试图获取当前Songs文件夹路径
+        /// </summary>
+        /// <returns></returns>
         private bool TryGetOsuSongFolder()
         {
             if (string.IsNullOrWhiteSpace(save_path))
@@ -105,16 +109,12 @@ namespace BeatmapSuggest
                                 save_path = song_path;
                             else
                                 save_path = Path.Combine(osu_path, song_path);
-                            break;
+                            return true;
                         }
                     }
-                    return true;
                 }
-                else
-                {
-                    //not found
-                    return false;
-                }
+
+                return false;
             }
 
             return true;
@@ -133,6 +133,7 @@ namespace BeatmapSuggest
 
                     int beatmap_setid=map.id;
 
+                    //通过id获取对应的setid
                     if (!map.isSetId)
                     {
                         beatmap_setid = GetBeatmapSetID(map.id);
@@ -143,7 +144,7 @@ namespace BeatmapSuggest
                     }
 
                     IO.CurrentIO.WriteColor(string.Format(DefaultLanguage.LANG_START_DOWNLOAD, map.name), ConsoleColor.Green);
-
+                    
                     string download_url = $"http://osu.uu.gl/s/{beatmap_setid}";
 
                     WebClient wc = new WebClient();
@@ -158,6 +159,11 @@ namespace BeatmapSuggest
             });
         }
 
+        /// <summary>
+        /// 借助osu api,获取beatmapID对应的BeatmapSetID
+        /// </summary>
+        /// <param name="id">beatmapID</param>
+        /// <returns></returns>
         private int GetBeatmapSetID(int id)
         {
             string uri = @"https://osu.ppy.sh/api/get_beatmaps?" +
