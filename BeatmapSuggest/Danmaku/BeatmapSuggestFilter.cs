@@ -16,13 +16,14 @@ using static BeatmapSuggest.DefaultLanguage;
 
 namespace BeatmapSuggest.Danmaku
 {
-    class BeatmapSuggestFilter : IFilter, ISourceDanmaku
+    class BeatmapSuggestFilter : IFilter, ISourceDanmaku,IConfigurable
     {
         private MessageDispatcher msgManager = null;
 
         private const string suggestCommand = "?suggest";
 
-        public ConfigurationElement EnableInsoMirrorLink { get; set; } = "0";
+        public ConfigurationElement EnableInsoMirrorLink { get; set; } = "False";
+        public ConfigurationElement OsuApiKey { get; set; } = string.Empty;
 
         const int timeout = 6000;//ms
 
@@ -67,6 +68,12 @@ namespace BeatmapSuggest.Danmaku
 
         private async void SendSuggestMessage(int id, string userName, bool isSetId = true)
         {
+            //check if users provide their api key.
+            if (String.IsNullOrWhiteSpace(OsuApiKey))
+            {
+                return;
+            }
+
             string[] beatmapInfo = null;
             try
             {
@@ -92,7 +99,7 @@ namespace BeatmapSuggest.Danmaku
             var task = new Task<string[]>(() =>
             {
                 string uri = @"https://osu.ppy.sh/api/get_beatmaps?" +
-                $@"k=b9f8ca3fc035078a5b111380bc21cd0b8e79d7b5&{(isSetId ? "s" : "b")}={id}&limit=1";
+                $@"k={OsuApiKey}&{(isSetId ? "s" : "b")}={id}&limit=1";
 
                 HttpWebRequest request = HttpWebRequest.Create(uri) as HttpWebRequest;
                 request.Method = "GET";
@@ -159,7 +166,7 @@ namespace BeatmapSuggest.Danmaku
 
         private string GetMirrorDownloadLink(int beatmapSetId)
         {
-            if (((string)EnableInsoMirrorLink).Trim() != "1")
+            if ((((string)EnableInsoMirrorLink).Trim() != "1")||(!bool.Parse(EnableInsoMirrorLink)))
             {
                 // Defualt
                 return $"http://osu.uu.gl/s/{beatmapSetId}";
@@ -179,6 +186,21 @@ namespace BeatmapSuggest.Danmaku
         public void Dispose()
         {
             //nothing to do
+        }
+
+        public void onConfigurationLoad()
+        {
+            
+        }
+
+        public void onConfigurationSave()
+        {
+            
+        }
+
+        public void onConfigurationReload()
+        {
+            
         }
     }
 }
