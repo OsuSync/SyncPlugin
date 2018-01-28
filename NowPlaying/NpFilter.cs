@@ -15,7 +15,8 @@ namespace NowPlaying
 
         object locker = new object();
 
-        public static ConfigurationElement OsuFolderPath { get; set; } = "";
+        private string OsuFolderPath = string.Empty;
+
         public static ConfigurationElement EnableAdvanceFeature { get; set; } = "0";
         
         Stopwatch sw = new Stopwatch();
@@ -25,34 +26,6 @@ namespace NowPlaying
         public NpFilter()
         {
             NowPlayingEvents.Instance.BindEvent<StatusChangeEvent>(OnOSUStatusChange);
-        }
-
-        private void InitAdvance()
-        {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(OsuFolderPath))
-                {
-                    IO.CurrentIO.WriteColor(Languages.OSU_PATH_NOT_SET, ConsoleColor.Yellow);
-
-                    var processes = Process.GetProcessesByName(@"osu!");
-                    if (processes.Length != 0)
-                    {
-                        OsuFolderPath = processes[0].MainModule.FileName.Replace(@"osu!.exe", string.Empty);
-                        IO.CurrentIO.WriteColor(string.Format(Languages.FIND_OSU_PATH, OsuFolderPath), ConsoleColor.Green);
-                    }
-                    else
-                    {
-                        IO.CurrentIO.WriteColor(Languages.OSU_PATH_FAIL, ConsoleColor.Red);
-                    }
-                }
-                sw.Stop();
-            }
-            catch (Exception e)
-            {
-                IO.CurrentIO.WriteColor(string.Format(Languages.ERROR_WHILE_FIND_PATH, e.Message), ConsoleColor.Yellow);
-                OsuFolderPath = string.Empty;
-            }
         }
 
         private void OnOSUStatusChange(StatusChangeEvent @event)
@@ -177,15 +150,43 @@ namespace NowPlaying
             return string.Empty;
         }
 
+        private bool TryGetOsuFolder()
+        {
+            if (string.IsNullOrWhiteSpace(OsuFolderPath))
+            {
+                IO.CurrentIO.WriteColor(Languages.OSU_PATH_NOT_SET, ConsoleColor.Yellow);
+
+                var processes = Process.GetProcessesByName(@"osu!");
+                if (processes.Length != 0)
+                {
+                    OsuFolderPath = processes[0].MainModule.FileName.Replace(@"osu!.exe", string.Empty);
+                    IO.CurrentIO.WriteColor(string.Format(Languages.FIND_OSU_PATH, OsuFolderPath), ConsoleColor.Green);
+                    return true;
+                }
+                else
+                {
+                    //not found
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         private void OnOsuStatusAdvanceChange(StatusChangeEvent stat)
         {
+            if (!TryGetOsuFolder())
+            {
+                return;
+            }
+
             var currentOsuStat = stat.CurrentStatus;
 
             sw.Reset();
             sw.Start();
 
             string osu_file_path = string.Empty;
-            if (!(/*osuStat.status != "Playing"*/string.IsNullOrWhiteSpace(currentOsuStat.Diff) || string.IsNullOrWhiteSpace(OsuFolderPath)))
+            if (!(/*osuStat.status != "Playing"*/string.IsNullOrWhiteSpace(currentOsuStat.Diff)))
             {
                 osu_file_path = GetOsuFilePath(currentOsuStat.Diff, currentOsuStat.Artist, currentOsuStat.Title);
             }
@@ -250,9 +251,7 @@ namespace NowPlaying
         {
             if (int.TryParse(EnableAdvanceFeature, out int value) && value == 1)
             {
-                InitAdvance();
-                if (!string.IsNullOrWhiteSpace(OsuFolderPath))
-                    NowPlayingEvents.Instance.BindEvent<StatusChangeEvent>(OnOsuStatusAdvanceChange);
+                NowPlayingEvents.Instance.BindEvent<StatusChangeEvent>(OnOsuStatusAdvanceChange);
             }
         }
 
