@@ -15,7 +15,7 @@ namespace NowPlaying
 
         object locker = new object();
 
-        private string OsuFolderPath = string.Empty;
+        private string OsuSongFolderPath = string.Empty;
 
         public static ConfigurationElement EnableAdvanceFeature { get; set; } = "0";
         
@@ -117,7 +117,7 @@ namespace NowPlaying
 
                 string file_query_path = ConvertVaildPath($"*[{diff}]", false) + ".osu";
 
-                var path_query_list = Directory.EnumerateDirectories(OsuFolderPath + "Songs\\", folder_query_path);
+                var path_query_list = Directory.EnumerateDirectories(OsuSongFolderPath , folder_query_path);
 
                 if (path_query_list.Count() == 0)
                 {
@@ -125,7 +125,7 @@ namespace NowPlaying
 
                     folder_query_path = ConvertVaildPath($"*{title}*", true);
 
-                    path_query_list = Directory.EnumerateDirectories(OsuFolderPath + "Songs\\", folder_query_path);
+                    path_query_list = Directory.EnumerateDirectories(OsuSongFolderPath , folder_query_path);
                 }
 
                 if (path_query_list.Count() != 0)
@@ -150,17 +150,34 @@ namespace NowPlaying
             return string.Empty;
         }
 
-        private bool TryGetOsuFolder()
+        private bool TryGetOsuSongFolder()
         {
-            if (string.IsNullOrWhiteSpace(OsuFolderPath))
+            if (string.IsNullOrWhiteSpace(OsuSongFolderPath))
             {
                 IO.CurrentIO.WriteColor(Languages.OSU_PATH_NOT_SET, ConsoleColor.Yellow);
 
                 var processes = Process.GetProcessesByName(@"osu!");
                 if (processes.Length != 0)
                 {
-                    OsuFolderPath = processes[0].MainModule.FileName.Replace(@"osu!.exe", string.Empty);
-                    IO.CurrentIO.WriteColor(string.Format(Languages.FIND_OSU_PATH, OsuFolderPath), ConsoleColor.Green);
+                    string osu_path = processes[0].MainModule.FileName.Replace(@"osu!.exe", string.Empty);
+                    
+                    string osu_config_file = Path.Combine(osu_path, $"osu!.{Environment.UserName}.cfg");
+                    var lines = File.ReadLines(osu_config_file);
+                    string song_path;
+                    foreach (var line in lines)
+                    {
+                        if (line.StartsWith("BeatmapDirectory"))
+                        {
+                            song_path = line.Split('=')[1].Trim();
+                            if (Path.IsPathRooted(song_path))
+                                OsuSongFolderPath = song_path;
+                            else
+                                OsuSongFolderPath = Path.Combine(osu_path, song_path);
+                            break;
+                        }
+                    }
+
+                    IO.CurrentIO.WriteColor(string.Format(Languages.FIND_OSU_PATH, OsuSongFolderPath), ConsoleColor.Green);
                     return true;
                 }
                 else
@@ -175,7 +192,7 @@ namespace NowPlaying
 
         private void OnOsuStatusAdvanceChange(StatusChangeEvent stat)
         {
-            if (!TryGetOsuFolder())
+            if (!TryGetOsuSongFolder())
             {
                 return;
             }
