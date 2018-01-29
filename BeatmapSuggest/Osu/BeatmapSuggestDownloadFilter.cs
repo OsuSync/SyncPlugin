@@ -18,6 +18,8 @@ namespace BeatmapSuggest.Osu
             if ((!msg.Message.RawText.StartsWith(DownloadCommand))||Scheduler == null)
                 return;
 
+            msg.Cancel = true;
+
             string param = msg.Message.RawText.Replace(DownloadCommand, string.Empty).Trim();
 
             switch (param)

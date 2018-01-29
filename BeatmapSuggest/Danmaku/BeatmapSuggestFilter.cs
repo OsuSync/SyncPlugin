@@ -22,6 +22,8 @@ namespace BeatmapSuggest.Danmaku
 
         private const string suggestCommand = "?suggest";
 
+        Regex simple_command_regex = new Regex(@"^((http(s)?://)?(osu\.ppy\.sh/)?)?(\w)/?(\d+)$", RegexOptions.IgnoreCase| RegexOptions.Multiline);
+        
         internal BeatmapDownloadScheduler Scheduler { get; set; }
 
         internal bool EnableInsoMirrorLink { get; set; }
@@ -31,40 +33,62 @@ namespace BeatmapSuggest.Danmaku
         
         public void onMsg(ref IMessageBase msg)
         {
-            string message = msg.Message.RawText;
-            int id = 0;
+            if (msgManager == null)
+                return; //没完全初始化，发送不了信息
+
+            string message = msg.Message.RawText.Trim();
+            string user = msg.User.RawText;
+
             if (message.StartsWith(suggestCommand))
             {
                 msg.Cancel = true;
-                if (msgManager == null)
-                    return; //没完全初始化，发送不了信息
+                TryParseNormalCommand(msg.User.RawText, message);
+                return;
+            }
 
-                var param = message.Split(' ');
+            Match match = simple_command_regex.Match(message);
+            if (match.Success)
+            {
+                int id = int.Parse(match.Groups[6].ToString());
+                char isSetID=  match.Groups[5].ToString()[0];
 
-                if (param.Length > 2)
+                if (isSetID=='s'||isSetID=='b')
                 {
-                    if (!Int32.TryParse(param[2], out id))
-                    {
-                        IO.CurrentIO.WriteColor(string.Format(LANG_INVAILD_ID,message),ConsoleColor.Red);
-                    }
+                    SendSuggestMessage(id, user, isSetID == 's');
+                    msg.Cancel = true;
+                }
+            }
+        }
 
-                    switch (param[1])
-                    {
-                        case "-b":
-                            SendSuggestMessage(id, msg.User.RawText,false);
-                            break;
-                        case "-s":
-                            SendSuggestMessage(id, msg.User.RawText);
-                            break;
-                        default:
-                            IO.CurrentIO.WriteColor(string.Format(LANG_UNKOWN_PARAM, param[1]), ConsoleColor.Red);
-                            break;
-                    }
-                }
-                else if (Int32.TryParse(message.Substring(suggestCommand.Length).Trim(), out id))
+        private void TryParseNormalCommand(string user_name,string message)
+        {
+            int id;
+
+            string[] param = message.Split(' ');
+
+            if (param.Length > 2)
+            {
+                if (!Int32.TryParse(param[2], out id))
                 {
-                    SendSuggestMessage(id, msg.User.RawText);
+                    IO.CurrentIO.WriteColor(string.Format(LANG_INVAILD_ID, message), ConsoleColor.Red);
                 }
+
+                switch (param[1])
+                {
+                    case "-b":
+                        SendSuggestMessage(id, user_name, false);
+                        break;
+                    case "-s":
+                        SendSuggestMessage(id, user_name);
+                        break;
+                    default:
+                        IO.CurrentIO.WriteColor(string.Format(LANG_UNKOWN_PARAM, param[1]), ConsoleColor.Red);
+                        break;
+                }
+            }
+            else if (Int32.TryParse(message.Substring(suggestCommand.Length).Trim(), out id))
+            {
+                SendSuggestMessage(id, user_name);
             }
         }
 
