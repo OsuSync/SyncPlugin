@@ -15,7 +15,8 @@ namespace NowPlaying
 
         object locker = new object();
 
-        public static ConfigurationElement OsuFolderPath { get; set; } = "";
+        private string OsuSongFolderPath = string.Empty;
+
         public static ConfigurationElement EnableAdvanceFeature { get; set; } = "0";
         
         Stopwatch sw = new Stopwatch();
@@ -25,34 +26,6 @@ namespace NowPlaying
         public NpFilter()
         {
             NowPlayingEvents.Instance.BindEvent<StatusChangeEvent>(OnOSUStatusChange);
-        }
-
-        private void InitAdvance()
-        {
-            try
-            {
-                if (string.IsNullOrWhiteSpace(OsuFolderPath))
-                {
-                    IO.CurrentIO.WriteColor(Languages.OSU_PATH_NOT_SET, ConsoleColor.Yellow);
-
-                    var processes = Process.GetProcessesByName(@"osu!");
-                    if (processes.Length != 0)
-                    {
-                        OsuFolderPath = processes[0].MainModule.FileName.Replace(@"osu!.exe", string.Empty);
-                        IO.CurrentIO.WriteColor(string.Format(Languages.FIND_OSU_PATH, OsuFolderPath), ConsoleColor.Green);
-                    }
-                    else
-                    {
-                        IO.CurrentIO.WriteColor(Languages.OSU_PATH_FAIL, ConsoleColor.Red);
-                    }
-                }
-                sw.Stop();
-            }
-            catch (Exception e)
-            {
-                IO.CurrentIO.WriteColor(string.Format(Languages.ERROR_WHILE_FIND_PATH, e.Message), ConsoleColor.Yellow);
-                OsuFolderPath = string.Empty;
-            }
         }
 
         private void OnOSUStatusChange(StatusChangeEvent @event)
@@ -144,7 +117,7 @@ namespace NowPlaying
 
                 string file_query_path = ConvertVaildPath($"*[{diff}]", false) + ".osu";
 
-                var path_query_list = Directory.EnumerateDirectories(OsuFolderPath + "Songs\\", folder_query_path);
+                var path_query_list = Directory.EnumerateDirectories(OsuSongFolderPath , folder_query_path);
 
                 if (path_query_list.Count() == 0)
                 {
@@ -152,7 +125,7 @@ namespace NowPlaying
 
                     folder_query_path = ConvertVaildPath($"*{title}*", true);
 
-                    path_query_list = Directory.EnumerateDirectories(OsuFolderPath + "Songs\\", folder_query_path);
+                    path_query_list = Directory.EnumerateDirectories(OsuSongFolderPath , folder_query_path);
                 }
 
                 if (path_query_list.Count() != 0)
@@ -177,15 +150,60 @@ namespace NowPlaying
             return string.Empty;
         }
 
+        private bool TryGetOsuSongFolder()
+        {
+            if (string.IsNullOrWhiteSpace(OsuSongFolderPath))
+            {
+                IO.CurrentIO.WriteColor(Languages.OSU_PATH_NOT_SET, ConsoleColor.Yellow);
+
+                var processes = Process.GetProcessesByName(@"osu!");
+                if (processes.Length != 0)
+                {
+                    string osu_path = processes[0].MainModule.FileName.Replace(@"osu!.exe", string.Empty);
+                    
+                    string osu_config_file = Path.Combine(osu_path, $"osu!.{Environment.UserName}.cfg");
+                    var lines = File.ReadLines(osu_config_file);
+                    string song_path;
+                    foreach (var line in lines)
+                    {
+                        if (line.StartsWith("BeatmapDirectory"))
+                        {
+                            song_path = line.Split('=')[1].Trim();
+                            if (Path.IsPathRooted(song_path))
+                                OsuSongFolderPath = song_path;
+                            else
+                                OsuSongFolderPath = Path.Combine(osu_path, song_path);
+                            break;
+                        }
+                    }
+
+                    IO.CurrentIO.WriteColor(string.Format(Languages.FIND_OSU_PATH, OsuSongFolderPath), ConsoleColor.Green);
+                    return true;
+                }
+                else
+                {
+                    //not found
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
         private void OnOsuStatusAdvanceChange(StatusChangeEvent stat)
         {
+            if (!TryGetOsuSongFolder())
+            {
+                return;
+            }
+
             var currentOsuStat = stat.CurrentStatus;
 
             sw.Reset();
             sw.Start();
 
             string osu_file_path = string.Empty;
-            if (!(/*osuStat.status != "Playing"*/string.IsNullOrWhiteSpace(currentOsuStat.Diff) || string.IsNullOrWhiteSpace(OsuFolderPath)))
+            if (!(/*osuStat.status != "Playing"*/string.IsNullOrWhiteSpace(currentOsuStat.Diff)))
             {
                 osu_file_path = GetOsuFilePath(currentOsuStat.Diff, currentOsuStat.Artist, currentOsuStat.Title);
             }
@@ -250,9 +268,7 @@ namespace NowPlaying
         {
             if (int.TryParse(EnableAdvanceFeature, out int value) && value == 1)
             {
-                InitAdvance();
-                if (!string.IsNullOrWhiteSpace(OsuFolderPath))
-                    NowPlayingEvents.Instance.BindEvent<StatusChangeEvent>(OnOsuStatusAdvanceChange);
+                NowPlayingEvents.Instance.BindEvent<StatusChangeEvent>(OnOsuStatusAdvanceChange);
             }
         }
 

@@ -22,64 +22,99 @@ namespace BeatmapSuggest.Danmaku
 
         private const string suggestCommand = "?suggest";
 
-        public ConfigurationElement EnableInsoMirrorLink { get; set; } = "0";
+        Regex simple_command_regex = new Regex(@"^((http(s)?://)?(osu\.ppy\.sh/)?)?(\w)/?(\d+)$", RegexOptions.IgnoreCase| RegexOptions.Multiline);
+        
+        internal BeatmapDownloadScheduler Scheduler { get; set; }
+
+        internal bool EnableInsoMirrorLink { get; set; }
+        internal string OsuApiKey { get; set; }
 
         const int timeout = 6000;//ms
-
+        
         public void onMsg(ref IMessageBase msg)
         {
-            string message = msg.Message.RawText;
-            int id = 0;
+            if (msgManager == null)
+                return; //没完全初始化，发送不了信息
+
+            string message = msg.Message.RawText.Trim();
+            string user = msg.User.RawText;
+
             if (message.StartsWith(suggestCommand))
             {
                 msg.Cancel = true;
-                if (msgManager == null)
-                    return; //没完全初始化，发送不了信息
+                TryParseNormalCommand(msg.User.RawText, message);
+                return;
+            }
 
-                var param = message.Split(' ');
+            Match match = simple_command_regex.Match(message);
+            if (match.Success)
+            {
+                int id = int.Parse(match.Groups[6].ToString());
+                char isSetID=  match.Groups[5].ToString()[0];
 
-                if (param.Length > 2)
+                if (isSetID=='s'||isSetID=='b')
                 {
-                    if (!Int32.TryParse(param[2], out id))
-                    {
-                        IO.CurrentIO.WriteColor(string.Format(LANG_INVAILD_ID,message),ConsoleColor.Red);
-                    }
+                    SendSuggestMessage(id, user, isSetID == 's');
+                    msg.Cancel = true;
+                }
+            }
+        }
 
-                    switch (param[1])
-                    {
-                        case "-b":
-                            SendSuggestMessage(id, msg.User.RawText,false);
-                            break;
-                        case "-s":
-                            SendSuggestMessage(id, msg.User.RawText);
-                            break;
-                        default:
-                            IO.CurrentIO.WriteColor(string.Format(LANG_UNKOWN_PARAM, param[1]), ConsoleColor.Red);
-                            break;
-                    }
-                }
-                else if (Int32.TryParse(message.Substring(suggestCommand.Length).Trim(), out id))
+        private void TryParseNormalCommand(string user_name,string message)
+        {
+            int id;
+
+            string[] param = message.Split(' ');
+
+            if (param.Length > 2)
+            {
+                if (!Int32.TryParse(param[2], out id))
                 {
-                    SendSuggestMessage(id, msg.User.RawText);
+                    IO.CurrentIO.WriteColor(string.Format(LANG_INVAILD_ID, message), ConsoleColor.Red);
                 }
+
+                switch (param[1])
+                {
+                    case "-b":
+                        SendSuggestMessage(id, user_name, false);
+                        break;
+                    case "-s":
+                        SendSuggestMessage(id, user_name);
+                        break;
+                    default:
+                        IO.CurrentIO.WriteColor(string.Format(LANG_UNKOWN_PARAM, param[1]), ConsoleColor.Red);
+                        break;
+                }
+            }
+            else if (Int32.TryParse(message.Substring(suggestCommand.Length).Trim(), out id))
+            {
+                SendSuggestMessage(id, user_name);
             }
         }
 
         private async void SendSuggestMessage(int id, string userName, bool isSetId = true)
         {
+            //check if users provide their api key.
+            if (String.IsNullOrWhiteSpace(OsuApiKey))
+            {
+                return;
+            }
+
             string[] beatmapInfo = null;
             try
             {
                 beatmapInfo = await GetBeatmapInfo(id,isSetId);
 
                 if (beatmapInfo == null)
-                    throw new Exception(string.Format(LANG_GET_BEATMAP_FAILED,id,"信息不完整"));
+                    throw new Exception(string.Format(LANG_GET_BEATMAP_FAILED,id, LANG_ERROR_INFO_IMCOMPLETE));
             }
             catch (Exception e)
             {
                 IO.CurrentIO.WriteColor(string.Format(LANG_GET_BEATMAP_FAILED, id, e.Message),ConsoleColor.Red);
                 return;
             }
+
+            Scheduler.Push(id, isSetId, $"{beatmapInfo[3]} - {beatmapInfo[2]}");
 
             string message = string.Format(LANG_SUGGEST_MEG,userName,GetLink(id,isSetId),$"{beatmapInfo[3]} - {beatmapInfo[2]}[{beatmapInfo[4]}]",GetDownloadLink(int.Parse(beatmapInfo[1])),GetMirrorDownloadLink(int.Parse(beatmapInfo[0])));
             msgManager.RaiseMessage<ISourceClient>(new IRCMessage(string.Empty, message));
@@ -92,7 +127,7 @@ namespace BeatmapSuggest.Danmaku
             var task = new Task<string[]>(() =>
             {
                 string uri = @"https://osu.ppy.sh/api/get_beatmaps?" +
-                $@"k=b9f8ca3fc035078a5b111380bc21cd0b8e79d7b5&{(isSetId ? "s" : "b")}={id}&limit=1";
+                $@"k={OsuApiKey}&{(isSetId ? "s" : "b")}={id}&limit=1";
 
                 HttpWebRequest request = HttpWebRequest.Create(uri) as HttpWebRequest;
                 request.Method = "GET";
@@ -159,7 +194,7 @@ namespace BeatmapSuggest.Danmaku
 
         private string GetMirrorDownloadLink(int beatmapSetId)
         {
-            if (((string)EnableInsoMirrorLink).Trim() != "1")
+            if (EnableInsoMirrorLink)
             {
                 // Defualt
                 return $"http://osu.uu.gl/s/{beatmapSetId}";
