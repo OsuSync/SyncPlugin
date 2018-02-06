@@ -148,7 +148,7 @@ namespace BeatmapSuggest
                     string download_url = $"http://osu.uu.gl/s/{beatmap_setid}";
 
                     WebClient wc = new WebClient();
-                    wc.DownloadFile(new Uri(download_url), save_path + "\\" + $"{beatmap_setid}.osz");
+                    wc.DownloadFile(new Uri(download_url), save_path + "\\" + $"{beatmap_setid} {map.name}.osz");
 
                     IO.CurrentIO.WriteColor(string.Format(DefaultLanguage.LANG_FINISH_DOWNLOAD, map.name), ConsoleColor.Green);
                 }
