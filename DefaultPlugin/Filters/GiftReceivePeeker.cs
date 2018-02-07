@@ -30,13 +30,21 @@ namespace DefaultPlugin.Filters
             }
         }
 
-
         internal void StartRecycler()
         {
             giftRecyler = new Thread(giftShowRecycle);
             giftRecyler.IsBackground = true;
             giftRecyler.Start();
             isRunning = true;
+        }
+
+        internal void TermRecycler()
+        {
+            if (isRunning)
+            {
+                giftRecyler.Abort();
+                isRunning = false;
+            }
         }
 
         public void AddGift(IBaseGiftEvent gift)

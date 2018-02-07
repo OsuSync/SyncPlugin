@@ -87,6 +87,16 @@ namespace DefaultPlugin
             Config.AddItem(srcBili);
             Config.AddItem(srcTwitch);
             Config.AddItem(clientOSU);
+
+            //start gift
+            fltGift.StartRecycler();
+        }
+
+        public override void OnExit()
+        {
+            base.OnExit();
+
+            fltGift.TermRecycler();
         }
     }
 }
