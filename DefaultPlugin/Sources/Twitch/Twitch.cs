@@ -113,11 +113,15 @@ namespace DefaultPlugin.Sources.Twitch
                 viewerUpdateTimer = new Timer(viewersUpdateInterval);
                 viewerUpdateTimer.Elapsed += (z,zz) => UpdateChannelViewersCount();
                 viewerUpdateTimer.Start();
+
+                Status = SourceStatus.CONNECTED_WORKING;
                 
             }
             catch (Exception e)
             {
                 IO.CurrentIO.WriteColor("twitch connect error!" + e.Message, ConsoleColor.Red);
+
+                Status = SourceStatus.USER_DISCONNECTED;
             }
         }
 
@@ -129,6 +133,8 @@ namespace DefaultPlugin.Sources.Twitch
 
             viewerUpdateTimer?.Stop();
             viewerUpdateTimer?.Dispose();
+
+            Status = SourceStatus.USER_DISCONNECTED;
         }
 
         public bool Stauts()
