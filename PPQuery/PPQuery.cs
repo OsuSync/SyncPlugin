@@ -36,6 +36,10 @@ namespace PPQuery
                     msg.Cancel = true;
                     SyncHost.Instance.ClientWrapper.Client.SendMessage(new IRCMessage("tillerino", msg.Message.RawText));
                 }
+                else if (msg.Message.RawText.Contains("?with "))
+                {
+                    SyncHost.Instance.ClientWrapper.Client.SendMessage(new IRCMessage("tillerino", "!"+msg.Message.RawText.Substring(1)));
+                }
             }
 
             if (msg.User.Result.ToLower().Equals("tillerino"))
