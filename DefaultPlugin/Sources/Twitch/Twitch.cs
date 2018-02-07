@@ -69,6 +69,11 @@ namespace DefaultPlugin.Sources.Twitch
 
         public void Connect(string roomName)
         {
+            if (Status==SourceStatus.CONNECTING)
+            {
+                Disconnect();
+            }
+
             channelName = roomName;
 
             if (channelName.Length == 0)
