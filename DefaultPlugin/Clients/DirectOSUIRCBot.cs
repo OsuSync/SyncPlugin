@@ -80,19 +80,30 @@ namespace DefaultPlugin.Clients
             {
                 while (workStatus)
                 {
+                    Thread.Sleep(1);
+
+                    if ((tcpClient.Client.Poll(20, SelectMode.SelectRead)) && (tcpClient.Client.Available == 0))
+                    {
+                        IO.CurrentIO.WriteColor("[Osu!IRC]网络连接中断,正在尝试重连.", ConsoleColor.Red);
+                        ConnectAndLogin();
+                        continue;
+                    }
+
                     if (ns.DataAvailable)
                     {
                         string message = sr.ReadLine();
 
                         ReciveRawMessage(message);
                     }
-                    Thread.Sleep(1);
                 }
             }
-            catch
+            catch(Exception e)
             {
-
+                IO.CurrentIO.WriteColor("[Osu!IRC]Reciver occured error:"+e.Message,ConsoleColor.Red);
+                CurrentStatus = SourceStatus.REMOTE_DISCONNECTED;
             }
+
+            IO.CurrentIO.WriteColor("[Osu!IRC]Reciver thread finish", ConsoleColor.Yellow);
         }
 
         private void SendLoop()
@@ -106,7 +117,8 @@ namespace DefaultPlugin.Clients
                     {
                         if (!tcpClient.Connected)
                         {
-                            ConnectAndLogin();
+                            //等Reciver线程处理即可
+                            continue;
                         }
 
                         string message = string.Empty;
@@ -127,26 +139,35 @@ namespace DefaultPlugin.Clients
                     }
                 }
             }
-            catch
-            { }
+            catch(Exception e)
+            {
+                IO.CurrentIO.WriteColor("[Osu!IRC]Sender occured error:" + e.Message, ConsoleColor.Red);
+                CurrentStatus = SourceStatus.REMOTE_DISCONNECTED;
+            }
+
+            IO.CurrentIO.WriteColor("[Osu!IRC]Sender thread finish", ConsoleColor.Yellow);
         }
 
 
         public override void StartWork()
         {
+            if (workStatus) return;
             EventBus.RaiseEvent(new ClientStartWorkEvent());
+
             ConnectAndLogin();
+
+            workStatus = true;
             recive = new Thread(ReciveLoop);
             send = new Thread(SendLoop);
             recive.Start();
             send.Start();
+
+            SendMessage(new IRCMessage(IRCNick.ToString(), "[DirectOSUIRCBot]Welcome!"));
         }
 
         private void ConnectAndLogin()
         {
-            if (workStatus) return;
             tcpClient = new TcpClient();
-            workStatus = true;
             try
             {
                 tcpClient.Connect("irc.ppy.sh", 6667);
@@ -160,9 +181,14 @@ namespace DefaultPlugin.Clients
                 sw = new StreamWriter(ns);
 
                 IRCLogin();
+
+                IO.CurrentIO.WriteColor("[Osu!IRC]登陆成功.", ConsoleColor.Green);
             }
-            catch
-            { }
+            catch(Exception e)
+            {
+                IO.CurrentIO.WriteColor("[Osu!IRC]尝试重新连接Osu!IRC服务器失败,原因"+e.Message, ConsoleColor.Yellow);
+            }
+
         }
 
         private void IRCLogin()
@@ -170,13 +196,11 @@ namespace DefaultPlugin.Clients
             sw.WriteLine($"PASS {IRCBotPasswd}");
             sw.WriteLine($"USER {IRCBotName} 1 * : {IRCBotName}");
             sw.WriteLine($"NICK {IRCBotName}");
-            SendMessage(new IRCMessage(IRCNick.ToString(), "[DirectOSUIRCBot]Welcome!"));
             sw.Flush();
 
             this.NickName = IRCNick;
 
             CurrentStatus = SourceStatus.CONNECTED_WORKING;
-
         }
 
         public override void StopWork()
