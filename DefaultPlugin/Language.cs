@@ -62,5 +62,9 @@ namespace DefaultPlugin
         public static LanguageElement LANG_DOUYU_DANMAKU = "收到弹幕: {0}:{1}";
         public static LanguageElement LANG_DOUYU_GIFT = "酬勤";
         public static LanguageElement LANG_BILIBILI_ONLINECHANGE = "直播间人数变化 {0}";
+        public static LanguageElement LANG_OSUIRC_LOGIN_SUCCESS = "登陆成功.";      
+        public static LanguageElement LANG_OSUIRC_LOGIN_FAILED = "尝试重新连接Osu!IRC服务器失败,原因:{0}";
+        public static LanguageElement LANG_OSUIRC_NETWORK_INTERRUPTED = "网络连接中断,正在尝试重连.";
+        public static LanguageElement LANG_OSUIRC_RECIVER_FINISHED = "消息接收线程执行结束";
     }
 }

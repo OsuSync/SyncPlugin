@@ -84,7 +84,7 @@ namespace DefaultPlugin.Clients
 
                     if ((tcpClient.Client.Poll(20, SelectMode.SelectRead)) && (tcpClient.Client.Available == 0))
                     {
-                        IO.CurrentIO.WriteColor("[Osu!IRC]网络连接中断,正在尝试重连.", ConsoleColor.Red);
+                        IO.CurrentIO.WriteColor("[Osu!IRC]"+Language.LANG_OSUIRC_NETWORK_INTERRUPTED, ConsoleColor.Red);
                         ConnectAndLogin();
                         continue;
                     }
@@ -182,11 +182,11 @@ namespace DefaultPlugin.Clients
 
                 IRCLogin();
 
-                IO.CurrentIO.WriteColor("[Osu!IRC]登陆成功.", ConsoleColor.Green);
+                IO.CurrentIO.WriteColor("[Osu!IRC]"+Language.LANG_OSUIRC_LOGIN_SUCCESS, ConsoleColor.Green);
             }
             catch(Exception e)
             {
-                IO.CurrentIO.WriteColor("[Osu!IRC]尝试重新连接Osu!IRC服务器失败,原因"+e.Message, ConsoleColor.Yellow);
+                IO.CurrentIO.WriteColor("[Osu!IRC]"+string.Format(Language.LANG_OSUIRC_LOGIN_FAILED,e.Message), ConsoleColor.Yellow);
             }
 
         }
