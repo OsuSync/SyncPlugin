@@ -160,7 +160,13 @@ namespace ConfigGUI
                             slider.Value = ivalue;
                         uIElement.Children.Add(slider);
 
-                        var num_view = new TextBox() { Text = $"{(int)slider.Value}", Width = 50, VerticalContentAlignment = VerticalAlignment.Center };
+                        var num_view = new TextBox()
+                        {
+                            Text = $"{(int)slider.Value}",
+                            Width = 50,
+                            VerticalContentAlignment = VerticalAlignment.Center,
+                            Margin = new Thickness(5, 0, 0, 0)
+                        };
                         uIElement.Children.Add(num_view);
 
                         num_view.SetBinding(TextBox.TextProperty, new Binding("Value") { Source = slider });
@@ -185,7 +191,13 @@ namespace ConfigGUI
                             slider.Value = fvalue;
                         uIElement.Children.Add(slider);
 
-                        var num_view = new TextBox() { Text = $"{slider.Value}" ,Width = 50, VerticalContentAlignment = VerticalAlignment.Center };
+                        var num_view = new TextBox()
+                        {
+                            Text = $"{slider.Value}" ,
+                            Width = 50,
+                            VerticalContentAlignment = VerticalAlignment.Center,
+                            Margin =new Thickness(5,0,0,0)
+                        };
                         uIElement.Children.Add(num_view);
 
                         num_view.SetBinding(TextBox.TextProperty, new Binding("Value") { Source = slider });
