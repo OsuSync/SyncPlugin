@@ -249,6 +249,26 @@ namespace ConfigGUI
                         };
                     }
                     break;
+                case ConfigFontAttribute fattr:
+                    {
+                        var font_box = new TextBox() { Text = evalue, Width = 160, VerticalContentAlignment = VerticalAlignment.Center };
+                        var button = new Button() { Content = "Font", Width = 75, Margin = new Thickness(5, 0, 5, 0) };
+
+                        uIElement.Children.Add(font_box);
+                        uIElement.Children.Add(button);
+
+                        button.Click += (s, e) =>
+                          {
+                              var fontDialog = new System.Windows.Forms.FontDialog();
+                              var font_str = GetConigValue(prop, config_instance);
+
+                              fontDialog.Font=new System.Drawing.Font(font_str,20);
+                              if (fontDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                                  font_box.Text = fontDialog.Font.Name;
+                              prop.SetValue(config_instance, new ConfigurationElement($"{font_box.Text}"));
+                          };
+                    }
+                    break;
                 case ConfigListAttribute lattr:
                     {
                         if(lattr.AllowMultiSelect)
