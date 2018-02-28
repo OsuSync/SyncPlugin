@@ -9,7 +9,7 @@
     <Grid Name="grid">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200"/>
-            <ColumnDefinition Width="456"/>
+            <ColumnDefinition Width="465"/>
         </Grid.ColumnDefinitions>
 
         <TreeView Name="configsTreeView" Margin="5"/>

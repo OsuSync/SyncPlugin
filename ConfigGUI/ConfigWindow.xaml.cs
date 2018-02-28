@@ -292,30 +292,57 @@ namespace ConfigGUI
                               }
                               prop.SetValue(config_instance, new ConfigurationElement($"{path_box.Text}"));
                           };
-                          path_box.LostFocus+=(s,e)=>
-                              prop.SetValue(config_instance, new ConfigurationElement($"{path_box.Text}"));
+                        path_box.TextChanged += (s, e) =>
+                         {
+                             if (pattr.Check(path_box.Text))
+                                 prop.SetValue(config_instance, new ConfigurationElement($"{path_box.Text}"));
+                         };
                     }
                     break;
                 case ConfigColorAttribute cattr:
                     {
                         var color_box = new TextBox() { Text = evalue, Width = 160, VerticalContentAlignment = VerticalAlignment.Center };
+                        var bound = new Border() {
+                            BorderBrush = Brushes.Black,
+                            BorderThickness = new Thickness(1),
+                            Width = 15, Height = 15,
+                            Margin = new Thickness(5, 0, 0, 0)
+                        };
+                        var color_rect = new Rectangle() {};
                         var button = new Button() {Content=DefaultLanguage.BUTTON_COLOR, Width = 75, Margin = new Thickness(5, 0, 5, 0) };
 
+                        bound.Child = color_rect;
                         uIElement.Children.Add(color_box);
+                        uIElement.Children.Add(bound);
                         uIElement.Children.Add(button);
+
+                        var color=StringToColor(evalue);
+                        color_rect.Fill = new SolidColorBrush() { Color = Color.FromArgb(color.A, color.R, color.G, color.B) };
+
                         button.Click += (s, e) =>
                         {
                             var colorDialog=new System.Windows.Forms.ColorDialog();
                             var color_str = GetConigValue(prop, config_instance);
 
-                            colorDialog.Color = StringToColor(color_str);
+                            color= StringToColor(color_str);
+                            colorDialog.Color = color;
                             colorDialog.FullOpen = true;
+
                             if (colorDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                                color_box.Text = RgbaToString(colorDialog.Color.R, colorDialog.Color.G, colorDialog.Color.B, colorDialog.Color.A);
-                            prop.SetValue(config_instance, new ConfigurationElement($"{color_box.Text}"));
+                            {
+                                color = colorDialog.Color;
+                                color_box.Text = RgbaToString(color.R, color.G, color.B, color.A);
+                            }
                         };
-                        color_box.LostFocus += (s, e) =>
-                            prop.SetValue(config_instance, new ConfigurationElement($"{color_box.Text}"));
+
+                        color_box.TextChanged += (s, e) =>
+                        {
+                            color = StringToColor(color_box.Text);
+                            color_rect.Fill = new SolidColorBrush() { Color = Color.FromArgb(color.A, color.R, color.G, color.B) };
+
+                            if (cattr.Check(color_box.Text))
+                                prop.SetValue(config_instance, new ConfigurationElement($"{color_box.Text}"));
+                        };
                     }
                     break;
                 case ConfigFontAttribute fattr:
@@ -337,7 +364,10 @@ namespace ConfigGUI
                               prop.SetValue(config_instance, new ConfigurationElement($"{font_box.Text}"));
                           };
                         font_box.LostFocus += (s, e) =>
-                            prop.SetValue(config_instance, new ConfigurationElement($"{font_box.Text}"));
+                        {
+                            if (fattr.Check(font_box.Text))
+                                prop.SetValue(config_instance, new ConfigurationElement($"{font_box.Text}"));
+                        };
                     }
                     break;
                 case ConfigListAttribute lattr:
@@ -403,6 +433,8 @@ namespace ConfigGUI
 
         private System.Drawing.Color StringToColor(string rgba)
         {
+            if (rgba.Length != 9) return System.Drawing.Color.Black;
+
             var color = System.Drawing.Color.FromArgb(
                 Convert.ToByte(rgba.Substring(7, 2), 16),
                 Convert.ToByte(rgba.Substring(1, 2), 16),
