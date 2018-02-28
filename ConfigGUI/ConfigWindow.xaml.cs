@@ -1,4 +1,5 @@
-﻿using Sync.Plugins;
+﻿using MultiSelect;
+using Sync.Plugins;
 using Sync.Tools;
 using Sync.Tools.ConfigGUI;
 using System;
@@ -93,26 +94,26 @@ namespace ConfigGUI
             StackPanel uIElement = new StackPanel();
             uIElement.Orientation = Orientation.Horizontal;
             uIElement.Margin = new Thickness(0,5,0,5);
-            
+
+            Control desc_label = desc_label = new Label() { Content = $"{prop.Name}:" };
+
             var evalue = GetConigValue(prop, config_instance);
 
             switch (attr)
             {
                 case ConfigBoolAttribute battr:
-                    var checkbox = new CheckBox() { Content = prop.Name};
+                    var checkbox = new CheckBox() { Content = $"{prop.Name}",Margin =new Thickness(0,-2,0,0)};
                     if (bool.TryParse(evalue, out bool bvalue))
                         checkbox.IsChecked=bvalue;
-                    uIElement.Children.Add(checkbox);
 
                     checkbox.Click += (s, e) =>
                     {
                         prop.SetValue(config_instance, new ConfigurationElement(checkbox.IsChecked.ToString()));
                     };
+                    desc_label = checkbox;
                     break;
                 case ConfigIntegerAttribute iattr:
                     {
-                        uIElement.Children.Add(new Label() { Content = $"{prop.Name}:" });
-
                         var slider = new Slider()
                         {
                             Maximum = iattr.MaxValue,
@@ -138,13 +139,10 @@ namespace ConfigGUI
                     break;
                 case ConfigFloatAttribute dattr:
                     {
-                        uIElement.Children.Add(new Label() { Content = $"{prop.Name}:" });
-
                         var slider = new Slider()
                         {
                             Maximum = dattr.MaxValue,
                             Minimum = dattr.MinValue,
-                            TickFrequency=dattr.Step,
                             Width = 200,
                             IsSnapToTickEnabled = true,
                         };
@@ -166,7 +164,6 @@ namespace ConfigGUI
                     break;
                 case ConfigPathAttribute pattr:
                     {
-                        uIElement.Children.Add(new Label() { Content = $"{prop.Name}:" });
                         var path_box = new TextBox() { Text = evalue, Width = 160,VerticalContentAlignment=VerticalAlignment.Center };
                         var button = new Button() {Width=75,Margin=new Thickness(5,0,5,0)};
 
@@ -200,7 +197,6 @@ namespace ConfigGUI
                     break;
                 case ConfigColorAttribute cattr:
                     {
-                        uIElement.Children.Add(new Label() { Content = $"{prop.Name}:" });
                         var color_box = new TextBox() { Text = evalue, Width = 160, VerticalContentAlignment = VerticalAlignment.Center };
                         var button = new Button() {Content="Select", Width = 75, Margin = new Thickness(5, 0, 5, 0) };
 
@@ -220,8 +216,47 @@ namespace ConfigGUI
                     }
                     break;
                 case ConfigListAttribute lattr:
+                    {
+                        if(lattr.AllowMultiSelect)
+                        {
+                            string[] values = lattr.ValueList;
+                            IEnumerable<string> default_values = evalue.ToString().Split(lattr.SplitSeparator).Select(s => s.Trim());
+
+                            var multi_list = new MultiSelectComboBox() { Width=250};
+                            var dict= new Dictionary<string, object>();
+                            var default_dict = new Dictionary<string, object>();
+
+                            if (values != null)
+                            {
+                                foreach (var val in values)
+                                    dict.Add(val, val);
+                                foreach (var val in default_values)
+                                    default_dict.Add(val, val);
+                            }
+                            multi_list.ItemsSource = dict;
+                            multi_list.SelectedItems = default_dict;
+                            multi_list.Click += (s, e) =>
+                              {
+                                  prop.SetValue(config_instance, new ConfigurationElement(string.Join(lattr.SplitSeparator.ToString(), multi_list.SelectedItems.Keys)));
+                              };
+
+                            uIElement.Children.Add(multi_list);
+                        }
+                        else
+                        {
+                            var combo_list = new ComboBox() { Width=150};
+                            combo_list.ItemsSource = lattr.ValueList;
+                            combo_list.SelectedIndex = Array.IndexOf(lattr.ValueList, evalue.ToString());
+                            uIElement.Children.Add(combo_list);
+
+                            combo_list.SelectionChanged += (s, e) =>
+                              {
+                                  prop.SetValue(config_instance, new ConfigurationElement($"{combo_list.SelectedValue}"));
+                              };
+                        }
+                    }
+                    break;
                 case ConfigStringAttribute sattr:
-                    uIElement.Children.Add(new Label() { Content = $"{prop.Name}:"});
                     var text=new TextBox() { Text = evalue,Width = 160, VerticalContentAlignment = VerticalAlignment.Center };
                     uIElement.Children.Add(text);
 
@@ -231,6 +266,8 @@ namespace ConfigGUI
                       };
                     break;
             }
+
+            uIElement.Children.Insert(0, desc_label);
             return uIElement;
         }
 
