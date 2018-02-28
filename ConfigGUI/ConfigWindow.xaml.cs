@@ -129,7 +129,7 @@ namespace ConfigGUI
             uIElement.Orientation = Orientation.Horizontal;
             uIElement.Margin = new Thickness(0,5,0,5);
 
-            Control desc_label = desc_label = new Label() { Content = $"{name}:",Margin=new Thickness(0,-5,0,0) };
+            Control desc_label = desc_label = new Label() { Content = $"{name}:",Margin=new Thickness(0,-3,0,0) };
 
             var evalue = GetConigValue(prop, config_instance);
 
@@ -202,21 +202,21 @@ namespace ConfigGUI
                         var button = new Button() {Width=75,Margin=new Thickness(5,0,5,0)};
 
                         if(pattr.IsFilePath)
-                            button.Content = "Open";
+                            button.Content = DefaultLanguage.BUTTON_OPEN;
                         else
-                            button.Content = "Browse";
+                            button.Content = DefaultLanguage.BUTTON_BROWSE;
 
                         uIElement.Children.Add(path_box);
                         uIElement.Children.Add(button);
 
                         button.Click += (s, e) =>
                           {
-                              if(pattr.IsFilePath)
+                              if (pattr.IsFilePath)
                               {
                                   var fileDialog = new System.Windows.Forms.OpenFileDialog();
                                   fileDialog.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory;
                                   fileDialog.RestoreDirectory = true;
-                                  if(fileDialog.ShowDialog()==System.Windows.Forms.DialogResult.OK)
+                                  if (fileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                                       path_box.Text = fileDialog.FileName;
                               }
                               else
@@ -227,12 +227,14 @@ namespace ConfigGUI
                               }
                               prop.SetValue(config_instance, new ConfigurationElement($"{path_box.Text}"));
                           };
+                          path_box.LostFocus+=(s,e)=>
+                              prop.SetValue(config_instance, new ConfigurationElement($"{path_box.Text}"));
                     }
                     break;
                 case ConfigColorAttribute cattr:
                     {
                         var color_box = new TextBox() { Text = evalue, Width = 160, VerticalContentAlignment = VerticalAlignment.Center };
-                        var button = new Button() {Content="Select", Width = 75, Margin = new Thickness(5, 0, 5, 0) };
+                        var button = new Button() {Content=DefaultLanguage.BUTTON_COLOR, Width = 75, Margin = new Thickness(5, 0, 5, 0) };
 
                         uIElement.Children.Add(color_box);
                         uIElement.Children.Add(button);
@@ -247,12 +249,14 @@ namespace ConfigGUI
                                 color_box.Text = RgbaToString(colorDialog.Color.R, colorDialog.Color.G, colorDialog.Color.B, colorDialog.Color.A);
                             prop.SetValue(config_instance, new ConfigurationElement($"{color_box.Text}"));
                         };
+                        color_box.LostFocus += (s, e) =>
+                            prop.SetValue(config_instance, new ConfigurationElement($"{color_box.Text}"));
                     }
                     break;
                 case ConfigFontAttribute fattr:
                     {
                         var font_box = new TextBox() { Text = evalue, Width = 160, VerticalContentAlignment = VerticalAlignment.Center };
-                        var button = new Button() { Content = "Font", Width = 75, Margin = new Thickness(5, 0, 5, 0) };
+                        var button = new Button() { Content = DefaultLanguage.BUTTON_FONT, Width = 75, Margin = new Thickness(5, 0, 5, 0) };
 
                         uIElement.Children.Add(font_box);
                         uIElement.Children.Add(button);
@@ -267,6 +271,8 @@ namespace ConfigGUI
                                   font_box.Text = fontDialog.Font.Name;
                               prop.SetValue(config_instance, new ConfigurationElement($"{font_box.Text}"));
                           };
+                        font_box.LostFocus += (s, e) =>
+                            prop.SetValue(config_instance, new ConfigurationElement($"{font_box.Text}"));
                     }
                     break;
                 case ConfigListAttribute lattr:
@@ -311,7 +317,7 @@ namespace ConfigGUI
                     }
                     break;
                 case ConfigStringAttribute sattr:
-                    var text=new TextBox() { Text = evalue,Width = 160, VerticalContentAlignment = VerticalAlignment.Center };
+                    var text=new TextBox() { Text = evalue,Width = 240, VerticalContentAlignment = VerticalAlignment.Center };
                     uIElement.Children.Add(text);
 
                     text.TextChanged += (s, e) =>

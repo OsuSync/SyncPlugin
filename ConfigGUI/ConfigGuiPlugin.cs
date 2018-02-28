@@ -1,4 +1,5 @@
 ﻿using Sync.Plugins;
+using Sync.Tools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +23,8 @@ namespace ConfigGUI
 
         public override void OnEnable()
         {
+            I18n.Instance.ApplyLanguage(new DefaultLanguage());
+
             base.EventBus.BindEvent<PluginEvents.InitCommandEvent>((t) =>
             {
                 t.Commands.Dispatch.bind("config", args =>
