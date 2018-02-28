@@ -189,7 +189,7 @@ namespace ConfigGUI
             switch (attr)
             {
                 case ConfigBoolAttribute battr:
-                    var checkbox = new CheckBox() { Content = $"{name}",Margin =new Thickness(0,-2,0,0)};
+                    var checkbox = new CheckBox() { Content = $"{name}",Margin =new Thickness(5,-2,0,0)};
                     if (bool.TryParse(evalue, out bool bvalue))
                         checkbox.IsChecked=bvalue;
 

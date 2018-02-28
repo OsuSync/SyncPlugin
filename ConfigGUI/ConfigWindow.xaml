@@ -13,8 +13,10 @@
         </Grid.ColumnDefinitions>
 
         <TreeView Name="configsTreeView" Margin="5"/>
-        <ScrollViewer Name="configRegion" VerticalScrollBarVisibility="auto"  Grid.Column="1" Margin="5,5,0,5">
-            <StackPanel/>
-        </ScrollViewer>
+        <Border Margin="5" BorderBrush="Black" BorderThickness="1" Background="White" Grid.Column="1" >
+            <ScrollViewer Name="configRegion" VerticalScrollBarVisibility="auto">
+                <StackPanel/>
+            </ScrollViewer>
+        </Border>
     </Grid>
 </Window>
