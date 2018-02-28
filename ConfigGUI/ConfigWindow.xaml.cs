@@ -29,30 +29,58 @@ namespace ConfigGUI
         public ConfigWindow()
         {
             InitializeComponent();
+            InitializeI18n();
+            InitializeConfigPanel();
+        }
 
-            Type config_manager_type= typeof(PluginConfigurationManager);
-            var config_manager_list=config_manager_type.GetField("ConfigurationSet", BindingFlags.Static | BindingFlags.NonPublic)
+        private Dictionary<string, Dictionary<string, string>> m_i18n_dict = new Dictionary<string, Dictionary<string, string>>();
+
+        private void InitializeI18n()
+        {
+            var i18n_list = typeof(I18n).GetField("ApplyedProvider",BindingFlags.Static|BindingFlags.NonPublic).GetValue(null) as List<I18nProvider>;
+            foreach(var i18n in i18n_list)
+            {
+                var type = i18n.GetType();
+                var i18n_dict = new Dictionary<string,string>();
+                m_i18n_dict.Add(type.Namespace, i18n_dict);
+                
+                foreach (var field in type.GetFields())
+                {
+                    if(field.GetCustomAttribute<ConfigI18nAttribute>()!=null)
+                    {
+                        string name=field.Name;
+                        string value = (LanguageElement)field.GetValue(i18n);
+                        i18n_dict.Add(name, value);
+                    }
+                }
+            }
+        }
+
+        private void InitializeConfigPanel()
+        {
+            Type config_manager_type = typeof(PluginConfigurationManager);
+            var config_manager_list = config_manager_type.GetField("ConfigurationSet", BindingFlags.Static | BindingFlags.NonPublic)
                 .GetValue(null) as LinkedList<PluginConfigurationManager>;
 
             foreach (var manager in config_manager_list)
             {
-                var plguin=config_manager_type.GetField("instance", BindingFlags.NonPublic|BindingFlags.Instance).GetValue(manager) as Plugin;
+                var plguin = config_manager_type.GetField("instance", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(manager) as Plugin;
                 var config_items_field = config_manager_type.GetField("items", BindingFlags.NonPublic | BindingFlags.Instance);
                 var config_items_list = config_items_field.GetValue(manager);
                 var enumerator = config_items_field.FieldType.GetMethod("GetEnumerator", BindingFlags.Public | BindingFlags.Instance)
-                    .Invoke(config_items_list,null) as IEnumerator;
+                    .Invoke(config_items_list, null) as IEnumerator;
 
                 var tree_item = new TreeViewItem() { Header = plguin.Name };
 
-                
+
                 while (enumerator.MoveNext())
                 {
                     var config_item = enumerator.Current;
                     var config_instance = config_item.GetType().GetField("config", BindingFlags.NonPublic | BindingFlags.Instance)
                         .GetValue(config_item);
-                    var config_type= config_instance.GetType();
+                    var config_type = config_instance.GetType();
 
-                    var sub_tree_item=new TreeViewItem() { Header = config_type.Name };
+                    var sub_tree_item = new TreeViewItem() { Header = config_type.Name };
 
                     sub_tree_item.Selected += (s, e) =>
                     {
@@ -82,27 +110,33 @@ namespace ConfigGUI
                 var attr=prop.GetCustomAttribute<ConfigAttributeBase>();
                 if (attr == null) attr = new ConfigStringAttribute();
 
-                stack_panel.Children.Add(CreateControlFromAttribute(prop,config_instance,attr));
+                string label_content = prop.Name;
+                if (m_i18n_dict.TryGetValue(config_type.Namespace, out var dict))
+                    if(dict.TryGetValue(prop.Name,out var name))
+                        label_content = name;
+
+
+                stack_panel.Children.Add(CreateControlFromAttribute(prop,label_content,config_instance,attr));
             }
 
             stackPanelDictionary.Add(config_instance, stack_panel);
             return stack_panel;
         }
 
-        private UIElement CreateControlFromAttribute(PropertyInfo prop,object config_instance, ConfigAttributeBase attr)
+        private UIElement CreateControlFromAttribute(PropertyInfo prop,string name,object config_instance, ConfigAttributeBase attr)
         {
             StackPanel uIElement = new StackPanel();
             uIElement.Orientation = Orientation.Horizontal;
             uIElement.Margin = new Thickness(0,5,0,5);
 
-            Control desc_label = desc_label = new Label() { Content = $"{prop.Name}:" };
+            Control desc_label = desc_label = new Label() { Content = $"{name}:",Margin=new Thickness(0,-5,0,0) };
 
             var evalue = GetConigValue(prop, config_instance);
 
             switch (attr)
             {
                 case ConfigBoolAttribute battr:
-                    var checkbox = new CheckBox() { Content = $"{prop.Name}",Margin =new Thickness(0,-2,0,0)};
+                    var checkbox = new CheckBox() { Content = $"{name}",Margin =new Thickness(0,-2,0,0)};
                     if (bool.TryParse(evalue, out bool bvalue))
                         checkbox.IsChecked=bvalue;
 
