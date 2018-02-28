@@ -30,6 +30,7 @@ namespace ConfigGUI
         {
             InitializeComponent();
             InitializeI18n();
+            InitializeSyncConfigPanel();
             InitializeConfigPanel();
         }
 
@@ -54,6 +55,58 @@ namespace ConfigGUI
                     }
                 }
             }
+        }
+
+        private StackPanel m_sync_config_panel = null;
+
+        private void InitializeSyncConfigPanel()
+        {
+            var tree_item = new TreeViewItem() { Header = "config" };
+            configsTreeView.Items.Add(tree_item);
+            tree_item.Selected += (s, e) =>
+              {
+                  if (m_sync_config_panel==null)
+                  {
+                      var sync_config_type = typeof(Configuration);
+                      StackPanel panel = new StackPanel();
+
+                      foreach (var prop in sync_config_type.GetProperties())
+                      {
+                          StackPanel uIElement = new StackPanel();
+                          uIElement.Orientation = Orientation.Horizontal;
+                          uIElement.Margin = new Thickness(0, 5, 0, 5);
+                          panel.Children.Add(uIElement);
+
+                          Control desc_label = desc_label = new Label() { Content = $"{prop.Name}:", Margin = new Thickness(0, -3, 0, 0) };
+
+                          if (prop.PropertyType == typeof(bool))
+                          {
+                              var checkbox = new CheckBox() { Content = $"{prop.Name}", Margin = new Thickness(0, -2, 0, 0) };
+                              checkbox.IsChecked = (bool)prop.GetValue(null);
+
+                              checkbox.Click += (sender, @event) =>
+                              {
+                                  prop.SetValue(null, checkbox.IsChecked);
+                              };
+                              desc_label = checkbox;
+                          }
+                          else if (prop.PropertyType == typeof(string))
+                          {
+                              var text = new TextBox() { Text = (string)prop.GetValue(null), Width = 240, VerticalContentAlignment = VerticalAlignment.Center };
+                              uIElement.Children.Add(text);
+
+                              text.TextChanged += (sender, @event) =>
+                              {
+                                  prop.SetValue(null, text.Text);
+                              };
+                          }
+
+                          uIElement.Children.Insert(0,desc_label);
+                      }
+                      m_sync_config_panel = panel;
+                  }
+                  configRegion.Content = m_sync_config_panel;
+              };
         }
 
         private void InitializeConfigPanel()
