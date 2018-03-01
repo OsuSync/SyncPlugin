@@ -1,4 +1,6 @@
-﻿using MultiSelect;
+﻿using ConfigGUI.ConfigurationI18n;
+using ConfigGUI.ConfigurationRegion;
+using ConfigGUI.MultiSelect;
 using Sync.Plugins;
 using Sync.Tools;
 using Sync.Tools.ConfigGUI;
@@ -26,106 +28,80 @@ namespace ConfigGUI
     /// </summary>
     public partial class ConfigWindow : Window
     {
+        private static I18nManager s_i18n_manager = new I18nManager();
+        private static ConfigurationItemFactory s_item_factory = new ConfigurationItemFactory();
+
+        private Panel m_sync_config_panel = null;
+
         public ConfigWindow()
         {
             InitializeComponent();
-            InitializeI18n();
+
+            m_sync_config_panel = CreateSyncConfigPanel();
+
             InitializeSyncConfigPanel();
             InitializeConfigPanel();
+
+            Title = DefaultLanguage.WINDOW_TITLE;
         }
 
-        private Dictionary<string, Dictionary<string, string>> m_i18n_dict = new Dictionary<string, Dictionary<string, string>>();
-
-        private void InitializeI18n()
-        {
-            var i18n_list = typeof(I18n).GetField("ApplyedProvider",BindingFlags.Static|BindingFlags.NonPublic).GetValue(null) as List<I18nProvider>;
-            foreach(var i18n in i18n_list)
-            {
-                var type = i18n.GetType();
-                var i18n_dict = new Dictionary<string,string>();
-                m_i18n_dict.Add(type.Namespace, i18n_dict);
-                
-                foreach (var field in type.GetFields())
-                {
-                    if(field.GetCustomAttribute<ConfigI18nAttribute>()!=null)
-                    {
-                        string name=field.Name;
-                        string value = (LanguageElement)field.GetValue(i18n);
-                        i18n_dict.Add(name, value);
-                    }
-                }
-            }
-        }
-
-        private StackPanel m_sync_config_panel = null;
-
+        #region Sync Config
         private void InitializeSyncConfigPanel()
         {
-            var tree_item = new TreeViewItem() { Header = "config" };
+            var tree_item = new TreeViewItem() { Header = "Sync" };
             configsTreeView.Items.Add(tree_item);
             tree_item.Selected += (s, e) =>
               {
-                  if (m_sync_config_panel==null)
-                  {
-                      var sync_config_type = typeof(Configuration);
-                      StackPanel panel = new StackPanel();
-
-                      foreach (var prop in sync_config_type.GetProperties())
-                      {
-                          StackPanel uIElement = new StackPanel();
-                          uIElement.Orientation = Orientation.Horizontal;
-                          uIElement.Margin = new Thickness(0, 5, 0, 5);
-                          panel.Children.Add(uIElement);
-
-                          Control desc_label = desc_label = new Label() { Content = $"{prop.Name}:", Margin = new Thickness(0, -3, 0, 0) };
-
-                          if (prop.PropertyType == typeof(bool))
-                          {
-                              var checkbox = new CheckBox() { Content = $"{prop.Name}", Margin = new Thickness(0, -2, 0, 0) };
-                              checkbox.IsChecked = (bool)prop.GetValue(null);
-
-                              checkbox.Click += (sender, @event) =>
-                              {
-                                  prop.SetValue(null, checkbox.IsChecked);
-                              };
-                              desc_label = checkbox;
-                          }
-                          else if (prop.PropertyType == typeof(string))
-                          {
-                              var text = new TextBox() { Text = (string)prop.GetValue(null), Width = 240, VerticalContentAlignment = VerticalAlignment.Center };
-                              uIElement.Children.Add(text);
-
-                              text.TextChanged += (sender, @event) =>
-                              {
-                                  prop.SetValue(null, text.Text);
-                              };
-                          }
-
-                          uIElement.Children.Insert(0,desc_label);
-                      }
-                      m_sync_config_panel = panel;
-                  }
                   configRegion.Content = m_sync_config_panel;
               };
         }
 
+        private Panel CreateSyncConfigPanel()
+        {
+            var sync_config_type = typeof(Configuration);
+            StackPanel panel = new StackPanel();
+
+            foreach (var prop in sync_config_type.GetProperties())
+            {
+                ConfigAttributeBase attr=null;
+
+                if (prop.PropertyType == typeof(bool))
+                    attr = new ConfigBoolAttribute();
+                else if (prop.PropertyType == typeof(string))
+                    attr= new ConfigStringAttribute();
+
+                var item_panel=ConfigurationItemFactory.Instance.CreateItemPanel(attr, prop, null);
+                panel.Children.Insert(0, item_panel);
+            }
+
+            return panel;
+        }
+        #endregion
+
+        #region Plugins Config
         private void InitializeConfigPanel()
         {
             Type config_manager_type = typeof(PluginConfigurationManager);
             var config_manager_list = config_manager_type.GetField("ConfigurationSet", BindingFlags.Static | BindingFlags.NonPublic)
                 .GetValue(null) as LinkedList<PluginConfigurationManager>;
 
+            List<TreeViewItem> tree_view_list= new List<TreeViewItem>();
+            //each configuration manager
             foreach (var manager in config_manager_list)
             {
+                //get plguin name
                 var plguin = config_manager_type.GetField("instance", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(manager) as Plugin;
+                var tree_item = new TreeViewItem() { Header = plguin.Name };
+
+                //get List<PluginConfiuration>
                 var config_items_field = config_manager_type.GetField("items", BindingFlags.NonPublic | BindingFlags.Instance);
                 var config_items_list = config_items_field.GetValue(manager);
+
+                //List<PluginConfiuration>.GetEnumerator
                 var enumerator = config_items_field.FieldType.GetMethod("GetEnumerator", BindingFlags.Public | BindingFlags.Instance)
                     .Invoke(config_items_list, null) as IEnumerator;
 
-                var tree_item = new TreeViewItem() { Header = plguin.Name };
-
-
+                //each List<PluginConfiuration>
                 while (enumerator.MoveNext())
                 {
                     var config_item = enumerator.Current;
@@ -143,310 +119,28 @@ namespace ConfigGUI
 
                     tree_item.Items.Add(sub_tree_item);
                 }
-                configsTreeView.Items.Add(tree_item);
-            }
-        }
-
-        private Dictionary<object, StackPanel> stackPanelDictionary = new Dictionary<object, StackPanel>();
-
-        private StackPanel GetConfigPanel(Type config_type,object config_instance)
-        {
-            if (stackPanelDictionary.TryGetValue(config_instance, out var stack_panel))
-                return stack_panel;
-
-            stack_panel=new StackPanel();
-
-            foreach(var prop in config_type.GetProperties())
-            {
-                if (prop.PropertyType != typeof(ConfigurationElement)) continue;
-
-                var attr=prop.GetCustomAttribute<ConfigAttributeBase>();
-                if (attr == null) attr = new ConfigStringAttribute();
-
-                string label_content = prop.Name;
-                if (m_i18n_dict.TryGetValue(config_type.Namespace, out var dict))
-                    if(dict.TryGetValue(prop.Name,out var name))
-                        label_content = name;
-
-
-                stack_panel.Children.Add(CreateControlFromAttribute(prop,label_content,config_instance,attr));
+                tree_view_list.Add(tree_item);
             }
 
-            stackPanelDictionary.Add(config_instance, stack_panel);
-            return stack_panel;
+            tree_view_list.Sort((a, b) => ((string)a.Header).CompareTo((string)b.Header));
+
+            foreach (var view in tree_view_list)
+                configsTreeView.Items.Add(view);
         }
 
-        private UIElement CreateControlFromAttribute(PropertyInfo prop,string name,object config_instance, ConfigAttributeBase attr)
+        private Dictionary<object, ConfigurationPanel> m_configuration_region_dict = new Dictionary<object, ConfigurationPanel>();
+
+        private Panel GetConfigPanel(Type config_type,object config_instance)
         {
-            StackPanel uIElement = new StackPanel();
-            uIElement.Orientation = Orientation.Horizontal;
-            uIElement.Margin = new Thickness(0,5,0,5);
+            if (m_configuration_region_dict.TryGetValue(config_instance, out var region))
+                return region.Panel;
 
-            Control desc_label = desc_label = new Label() { Content = $"{name}:",Margin=new Thickness(0,-3,0,0) };
+            region = new ConfigurationPanel(config_type, config_instance);
 
-            var evalue = GetConigValue(prop, config_instance);
-
-            switch (attr)
-            {
-                case ConfigBoolAttribute battr:
-                    var checkbox = new CheckBox() { Content = $"{name}",Margin =new Thickness(5,-2,0,0)};
-                    if (bool.TryParse(evalue, out bool bvalue))
-                        checkbox.IsChecked=bvalue;
-
-                    checkbox.Click += (s, e) =>
-                    {
-                        prop.SetValue(config_instance, new ConfigurationElement(checkbox.IsChecked.ToString()));
-                    };
-                    desc_label = checkbox;
-                    break;
-                case ConfigIntegerAttribute iattr:
-                    {
-                        var slider = new Slider()
-                        {
-                            Maximum = iattr.MaxValue,
-                            Minimum = iattr.MinValue,
-                            Width = 200,
-                            IsSnapToTickEnabled = true,
-                        };
-
-                        if (int.TryParse(evalue, out int ivalue))
-                            slider.Value = ivalue;
-                        uIElement.Children.Add(slider);
-
-                        var num_view = new TextBox()
-                        {
-                            Text = $"{(int)slider.Value}",
-                            Width = 50,
-                            VerticalContentAlignment = VerticalAlignment.Center,
-                            Margin = new Thickness(5, 0, 0, 0)
-                        };
-                        uIElement.Children.Add(num_view);
-
-                        num_view.SetBinding(TextBox.TextProperty, new Binding("Value") { Source = slider });
-
-                        slider.ValueChanged += (s, e) =>
-                          {
-                              prop.SetValue(config_instance, new ConfigurationElement($"{(int)slider.Value}"));
-                          };
-                    }
-                    break;
-                case ConfigFloatAttribute dattr:
-                    {
-                        var slider = new Slider()
-                        {
-                            Maximum = dattr.MaxValue,
-                            Minimum = dattr.MinValue,
-                            Width = 200,
-                            IsSnapToTickEnabled = true,
-                        };
-
-                        if (float.TryParse(evalue, out float fvalue))
-                            slider.Value = fvalue;
-                        uIElement.Children.Add(slider);
-
-                        var num_view = new TextBox()
-                        {
-                            Text = $"{slider.Value}" ,
-                            Width = 50,
-                            VerticalContentAlignment = VerticalAlignment.Center,
-                            Margin =new Thickness(5,0,0,0)
-                        };
-                        uIElement.Children.Add(num_view);
-
-                        num_view.SetBinding(TextBox.TextProperty, new Binding("Value") { Source = slider });
-
-                        slider.ValueChanged += (s, e) =>
-                        {
-                            prop.SetValue(config_instance, new ConfigurationElement($"{slider.Value:F4}"));
-                        };
-                    }
-                    break;
-                case ConfigPathAttribute pattr:
-                    {
-                        var path_box = new TextBox() { Text = evalue, Width = 160,VerticalContentAlignment=VerticalAlignment.Center };
-                        var button = new Button() {Width=75,Margin=new Thickness(5,0,5,0)};
-
-                        if(pattr.IsFilePath)
-                            button.Content = DefaultLanguage.BUTTON_OPEN;
-                        else
-                            button.Content = DefaultLanguage.BUTTON_BROWSE;
-
-                        uIElement.Children.Add(path_box);
-                        uIElement.Children.Add(button);
-
-                        button.Click += (s, e) =>
-                          {
-                              if (pattr.IsFilePath)
-                              {
-                                  var fileDialog = new System.Windows.Forms.OpenFileDialog();
-                                  fileDialog.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory;
-                                  fileDialog.RestoreDirectory = true;
-                                  if (fileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                                      path_box.Text = fileDialog.FileName;
-                              }
-                              else
-                              {
-                                  var folderDialog = new System.Windows.Forms.FolderBrowserDialog();
-                                  if (folderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                                      path_box.Text = folderDialog.SelectedPath;
-                              }
-                              prop.SetValue(config_instance, new ConfigurationElement($"{path_box.Text}"));
-                          };
-                        path_box.TextChanged += (s, e) =>
-                         {
-                             if (pattr.Check(path_box.Text))
-                                 prop.SetValue(config_instance, new ConfigurationElement($"{path_box.Text}"));
-                         };
-                    }
-                    break;
-                case ConfigColorAttribute cattr:
-                    {
-                        var color_box = new TextBox() { Text = evalue, Width = 160, VerticalContentAlignment = VerticalAlignment.Center };
-                        var bound = new Border() {
-                            BorderBrush = Brushes.Black,
-                            BorderThickness = new Thickness(1),
-                            Width = 15, Height = 15,
-                            Margin = new Thickness(5, 0, 0, 0)
-                        };
-                        var color_rect = new Rectangle() {};
-                        var button = new Button() {Content=DefaultLanguage.BUTTON_COLOR, Width = 75, Margin = new Thickness(5, 0, 5, 0) };
-
-                        bound.Child = color_rect;
-                        uIElement.Children.Add(color_box);
-                        uIElement.Children.Add(bound);
-                        uIElement.Children.Add(button);
-
-                        var color=StringToColor(evalue);
-                        color_rect.Fill = new SolidColorBrush() { Color = Color.FromArgb(color.A, color.R, color.G, color.B) };
-
-                        button.Click += (s, e) =>
-                        {
-                            var colorDialog=new System.Windows.Forms.ColorDialog();
-                            var color_str = GetConigValue(prop, config_instance);
-
-                            color= StringToColor(color_str);
-                            colorDialog.Color = color;
-                            colorDialog.FullOpen = true;
-
-                            if (colorDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                            {
-                                color = colorDialog.Color;
-                                color_box.Text = RgbaToString(color.R, color.G, color.B, color.A);
-                            }
-                        };
-
-                        color_box.TextChanged += (s, e) =>
-                        {
-                            color = StringToColor(color_box.Text);
-                            color_rect.Fill = new SolidColorBrush() { Color = Color.FromArgb(color.A, color.R, color.G, color.B) };
-
-                            if (cattr.Check(color_box.Text))
-                                prop.SetValue(config_instance, new ConfigurationElement($"{color_box.Text}"));
-                        };
-                    }
-                    break;
-                case ConfigFontAttribute fattr:
-                    {
-                        var font_box = new TextBox() { Text = evalue, Width = 160, VerticalContentAlignment = VerticalAlignment.Center };
-                        var button = new Button() { Content = DefaultLanguage.BUTTON_FONT, Width = 75, Margin = new Thickness(5, 0, 5, 0) };
-
-                        uIElement.Children.Add(font_box);
-                        uIElement.Children.Add(button);
-
-                        button.Click += (s, e) =>
-                          {
-                              var fontDialog = new System.Windows.Forms.FontDialog();
-                              var font_str = GetConigValue(prop, config_instance);
-
-                              fontDialog.Font=new System.Drawing.Font(font_str,20);
-                              if (fontDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
-                                  font_box.Text = fontDialog.Font.Name;
-                              prop.SetValue(config_instance, new ConfigurationElement($"{font_box.Text}"));
-                          };
-                        font_box.LostFocus += (s, e) =>
-                        {
-                            if (fattr.Check(font_box.Text))
-                                prop.SetValue(config_instance, new ConfigurationElement($"{font_box.Text}"));
-                        };
-                    }
-                    break;
-                case ConfigListAttribute lattr:
-                    {
-                        if(lattr.AllowMultiSelect)
-                        {
-                            string[] values = lattr.ValueList;
-                            IEnumerable<string> default_values = evalue.ToString().Split(lattr.SplitSeparator).Select(s => s.Trim());
-
-                            var multi_list = new MultiSelectComboBox() { Width=250};
-                            var dict= new Dictionary<string, object>();
-                            var default_dict = new Dictionary<string, object>();
-
-                            if (values != null)
-                            {
-                                foreach (var val in values)
-                                    dict.Add(val, val);
-                                foreach (var val in default_values)
-                                    default_dict.Add(val, val);
-                            }
-                            multi_list.ItemsSource = dict;
-                            multi_list.SelectedItems = default_dict;
-                            multi_list.Click += (s, e) =>
-                              {
-                                  prop.SetValue(config_instance, new ConfigurationElement(string.Join(lattr.SplitSeparator.ToString(), multi_list.SelectedItems.Keys)));
-                              };
-
-                            uIElement.Children.Add(multi_list);
-                        }
-                        else
-                        {
-                            var combo_list = new ComboBox() { Width=150};
-                            combo_list.ItemsSource = lattr.ValueList;
-                            combo_list.SelectedIndex = Array.IndexOf(lattr.ValueList, evalue.ToString());
-                            uIElement.Children.Add(combo_list);
-
-                            combo_list.SelectionChanged += (s, e) =>
-                              {
-                                  prop.SetValue(config_instance, new ConfigurationElement($"{combo_list.SelectedValue}"));
-                              };
-                        }
-                    }
-                    break;
-                case ConfigStringAttribute sattr:
-                    var text=new TextBox() { Text = evalue,Width = 240, VerticalContentAlignment = VerticalAlignment.Center };
-                    uIElement.Children.Add(text);
-
-                    text.TextChanged += (s, e) =>
-                      {
-                          prop.SetValue(config_instance, new ConfigurationElement($"{text.Text}"));
-                      };
-                    break;
-            }
-
-            uIElement.Children.Insert(0, desc_label);
-            return uIElement;
+            m_configuration_region_dict.Add(config_instance, region);
+            return region.Panel;
         }
-
-        private ConfigurationElement GetConigValue(PropertyInfo prop, object config_instance)
-        {
-            return prop.GetValue(config_instance) as ConfigurationElement;
-        }
-
-        private System.Drawing.Color StringToColor(string rgba)
-        {
-            if (rgba.Length != 9) return System.Drawing.Color.Black;
-
-            var color = System.Drawing.Color.FromArgb(
-                Convert.ToByte(rgba.Substring(7, 2), 16),
-                Convert.ToByte(rgba.Substring(1, 2), 16),
-                Convert.ToByte(rgba.Substring(3, 2), 16),
-                Convert.ToByte(rgba.Substring(5, 2), 16));
-            return color;
-        }
-
-        private string RgbaToString(byte r,byte g,byte b,byte a)
-        {
-            return $"#{r:X2}{g:X2}{b:X2}{a:X2}";
-        }
+        #endregion
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {

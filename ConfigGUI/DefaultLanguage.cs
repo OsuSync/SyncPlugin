@@ -9,5 +9,6 @@ namespace ConfigGUI
         public static LanguageElement BUTTON_BROWSE= "Browse";
         public static LanguageElement BUTTON_FONT = "Font";
         public static LanguageElement BUTTON_COLOR = "Color";
+        public static LanguageElement WINDOW_TITLE = "Config";
     }
 }

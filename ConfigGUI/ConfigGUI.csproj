@@ -49,13 +49,26 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConfigGuiPlugin.cs" />
+    <Compile Include="ConfigurationRegion\ConfigurationItemCreators\BoolConfigurationItemCreator.cs" />
+    <Compile Include="ConfigurationRegion\ConfigurationItemCreators\ColorConfigurationItemCreator.cs" />
+    <Compile Include="ConfigurationRegion\ConfigurationItemCreators\FloatConfigurationItemCreator.cs" />
+    <Compile Include="ConfigurationRegion\ConfigurationItemCreators\FontConfigurationItemCreator.cs" />
+    <Compile Include="ConfigurationRegion\ConfigurationItemCreators\IntegerConfigurationItemCreator.cs" />
+    <Compile Include="ConfigurationRegion\ConfigurationItemCreators\ListConfigurationItemCreator.cs" />
+    <Compile Include="ConfigurationRegion\ConfigurationItemCreators\PathConfigurationItemCreator.cs" />
+    <Compile Include="ConfigurationRegion\ConfigurationItemCreators\SliderConfigurationItemCreator.cs" />
     <Compile Include="ConfigWindow.xaml.cs">
       <DependentUpon>ConfigWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="DefaultLanguage.cs" />
+    <Compile Include="ConfigurationI18n\I18nManager.cs" />
     <Compile Include="MultiSelect\MultiSelectComboBox.xaml.cs">
       <DependentUpon>MultiSelectComboBox.xaml</DependentUpon>
     </Compile>
+    <Compile Include="ConfigurationRegion\ConfigurationItemFactory.cs" />
+    <Compile Include="ConfigurationRegion\ConfigurationItemCreators\ConfigurationItemCreatorBase.cs" />
+    <Compile Include="ConfigurationRegion\ConfigurationItemCreators\StringConfigurationItemCreator.cs" />
+    <Compile Include="ConfigurationRegion\ConfigurationRegion.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -74,5 +87,6 @@
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
