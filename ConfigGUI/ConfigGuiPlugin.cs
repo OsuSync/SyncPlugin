@@ -37,6 +37,7 @@ namespace ConfigGUI
             base.EventBus.BindEvent<PluginEvents.ProgramReadyEvent>((e) =>
             {
                 var thread = new Thread(InitWindow);
+                thread.Name= "STA WPF Application Thread";
                 thread.SetApartmentState(ApartmentState.STA);
                 thread.Start();
             });
