@@ -68,7 +68,7 @@
     <Compile Include="ConfigurationRegion\ConfigurationItemFactory.cs" />
     <Compile Include="ConfigurationRegion\ConfigurationItemCreators\ConfigurationItemCreatorBase.cs" />
     <Compile Include="ConfigurationRegion\ConfigurationItemCreators\StringConfigurationItemCreator.cs" />
-    <Compile Include="ConfigurationRegion\ConfigurationRegion.cs" />
+    <Compile Include="ConfigurationRegion\ConfigurationPanel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
