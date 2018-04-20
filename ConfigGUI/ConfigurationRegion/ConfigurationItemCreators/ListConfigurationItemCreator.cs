@@ -13,13 +13,13 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 {
     class ListConfigurationItemCreator:ConfigurationItemCreatorBase
     {
-        public override Panel CreateControl(ConfigAttributeBase attr, PropertyInfo prop, object configuration_instance)
+        public override Panel CreateControl(BaseConfigurationAttribute attr, PropertyInfo prop, object configuration_instance)
         {
-            ConfigListAttribute lattr = attr as ConfigListAttribute;
+            ListAttribute lattr = attr as ListAttribute;
             return lattr.AllowMultiSelect ? CreateMultiSelectList(lattr, prop, configuration_instance) : CreateSingleSelectList(lattr, prop, configuration_instance);
         }
 
-        public Panel CreateSingleSelectList(ConfigListAttribute lattr, PropertyInfo prop, object configuration_instance)
+        public Panel CreateSingleSelectList(ListAttribute lattr, PropertyInfo prop, object configuration_instance)
         {
             var evalue = Tools.GetConigValue(prop, configuration_instance);
             var panel = base.CreateControl(lattr, prop, configuration_instance);
@@ -38,7 +38,7 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
             return panel;
         }
 
-        public Panel CreateMultiSelectList(ConfigListAttribute lattr, PropertyInfo prop, object configuration_instance)
+        public Panel CreateMultiSelectList(ListAttribute lattr, PropertyInfo prop, object configuration_instance)
         {
             var evalue = Tools.GetConigValue(prop, configuration_instance);
             var panel = base.CreateControl(lattr, prop, configuration_instance);

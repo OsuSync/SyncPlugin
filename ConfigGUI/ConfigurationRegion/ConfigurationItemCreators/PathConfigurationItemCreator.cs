@@ -13,18 +13,18 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 {
     class PathConfigurationItemCreator:ConfigurationItemCreatorBase
     {
-        public override Panel CreateControl(ConfigAttributeBase attr, PropertyInfo prop, object configuration_instance)
+        public override Panel CreateControl(BaseConfigurationAttribute attr, PropertyInfo prop, object configuration_instance)
         {
             var panel = base.CreateControl(attr, prop, configuration_instance);
 
-            ConfigPathAttribute pattr = attr as ConfigPathAttribute;
+            PathAttribute pattr = attr as PathAttribute;
 
             var evalue = Tools.GetConigValue(prop, configuration_instance);
 
             var path_box = new TextBox() { Text = evalue, Width = 160, VerticalContentAlignment = VerticalAlignment.Center };
             var button = new Button() { Width = 75, Margin = new Thickness(5, 0, 5, 0) };
 
-            if (pattr.IsFilePath)
+            if (!pattr.IsDirectory)
                 button.Content = DefaultLanguage.BUTTON_OPEN;
             else
                 button.Content = DefaultLanguage.BUTTON_BROWSE;
@@ -34,7 +34,7 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 
             button.Click += (s, e) =>
             {
-                if (pattr.IsFilePath)
+                if (!pattr.IsDirectory)
                 {
                     var fileDialog = new System.Windows.Forms.OpenFileDialog();
                     fileDialog.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory;

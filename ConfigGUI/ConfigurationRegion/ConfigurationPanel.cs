@@ -24,8 +24,8 @@ namespace ConfigGUI.ConfigurationRegion
             {
                 if (prop.PropertyType != typeof(ConfigurationElement)) continue;
 
-                var attr = prop.GetCustomAttribute<ConfigAttributeBase>();
-                if (attr == null) attr = new ConfigStringAttribute();
+                var attr = prop.GetCustomAttribute<BaseConfigurationAttribute>();
+                if (attr == null) attr = new StringAttribute();
 
                 string name = prop.Name;
 

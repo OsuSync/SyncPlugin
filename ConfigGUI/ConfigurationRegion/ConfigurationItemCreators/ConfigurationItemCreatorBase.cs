@@ -14,7 +14,7 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 {
     abstract class ConfigurationItemCreatorBase
     {
-        public virtual Panel CreateControl(ConfigAttributeBase attr, PropertyInfo prop,object configuration_instance)
+        public virtual Panel CreateControl(BaseConfigurationAttribute attr, PropertyInfo prop,object configuration_instance)
         {
             StackPanel panel = new StackPanel();
             panel.Orientation = Orientation.Horizontal;
@@ -34,7 +34,7 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
     {
         public static string GetConigValue(PropertyInfo prop, object config_instance)
         {
-            return prop.GetValue(config_instance).ToString();
+            return prop.GetValue(config_instance)?.ToString()??"";
         }
     }
 }

@@ -20,18 +20,18 @@ namespace ConfigGUI.ConfigurationRegion
         {
             Instance = this;
 
-            m_items_mapping.Add(typeof(ConfigStringAttribute),new StringConfigurationItemCreator());
-            m_items_mapping.Add(typeof(ConfigBoolAttribute), new BoolConfigurationItemCreator());
-            m_items_mapping.Add(typeof(ConfigFloatAttribute), new FloatConfigurationItemCreator());
-            m_items_mapping.Add(typeof(ConfigIntegerAttribute), new IntegerConfigurationItemCreator());
-            m_items_mapping.Add(typeof(ConfigFontAttribute), new FontConfigurationItemCreator());
-            m_items_mapping.Add(typeof(ConfigColorAttribute), new ColorConfigurationItemCreator());
-            m_items_mapping.Add(typeof(ConfigListAttribute), new ListConfigurationItemCreator());
-            m_items_mapping.Add(typeof(ConfigReflectListAttribute), new ListConfigurationItemCreator());
-            m_items_mapping.Add(typeof(ConfigPathAttribute), new PathConfigurationItemCreator());
+            m_items_mapping.Add(typeof(StringAttribute),new StringConfigurationItemCreator());
+            m_items_mapping.Add(typeof(BoolAttribute), new BoolConfigurationItemCreator());
+            m_items_mapping.Add(typeof(FloatAttribute), new FloatConfigurationItemCreator());
+            m_items_mapping.Add(typeof(IntegerAttribute), new IntegerConfigurationItemCreator());
+            m_items_mapping.Add(typeof(FontAttribute), new FontConfigurationItemCreator());
+            m_items_mapping.Add(typeof(ColorAttribute), new ColorConfigurationItemCreator());
+            m_items_mapping.Add(typeof(ListAttribute), new ListConfigurationItemCreator());
+            m_items_mapping.Add(typeof(ReflectListAttribute), new ListConfigurationItemCreator());
+            m_items_mapping.Add(typeof(PathAttribute), new PathConfigurationItemCreator());
         }
 
-        public Panel CreateItemPanel(ConfigAttributeBase attr, PropertyInfo prop, object configuration_instance)
+        public Panel CreateItemPanel(BaseConfigurationAttribute attr, PropertyInfo prop, object configuration_instance)
         {
             return m_items_mapping[attr.GetType()].CreateControl(attr,prop, configuration_instance);
         }

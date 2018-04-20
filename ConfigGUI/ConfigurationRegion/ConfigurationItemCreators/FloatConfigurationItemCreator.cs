@@ -12,11 +12,11 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 {
     class FloatConfigurationItemCreator : SliderConfigurationItemCreator
     {
-        public override Panel CreateControl(ConfigAttributeBase attr, PropertyInfo prop, object configuration_instance)
+        public override Panel CreateControl(BaseConfigurationAttribute attr, PropertyInfo prop, object configuration_instance)
         {
             var panel = base.CreateControl(attr, prop, configuration_instance);
 
-            ConfigFloatAttribute iattr = attr as ConfigFloatAttribute;
+            FloatAttribute iattr = attr as FloatAttribute;
 
             var slider = panel.Children[1] as Slider;
             var num_view = panel.Children[2] as TextBox;

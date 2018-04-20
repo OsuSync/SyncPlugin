@@ -63,12 +63,12 @@ namespace ConfigGUI
 
             foreach (var prop in sync_config_type.GetProperties())
             {
-                ConfigAttributeBase attr=null;
+                BaseConfigurationAttribute attr =null;
 
                 if (prop.PropertyType == typeof(bool))
-                    attr = new ConfigBoolAttribute();
+                    attr = new BoolAttribute();
                 else if (prop.PropertyType == typeof(string))
-                    attr= new ConfigStringAttribute();
+                    attr= new StringAttribute();
 
                 var item_panel=ConfigurationItemFactory.Instance.CreateItemPanel(attr, prop, null);
                 panel.Children.Insert(0, item_panel);

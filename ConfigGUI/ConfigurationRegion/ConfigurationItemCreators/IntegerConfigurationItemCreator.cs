@@ -11,11 +11,11 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 {
     class IntegerConfigurationItemCreator: SliderConfigurationItemCreator
     {
-        public override Panel CreateControl(ConfigAttributeBase attr, PropertyInfo prop, object configuration_instance)
+        public override Panel CreateControl(BaseConfigurationAttribute attr, PropertyInfo prop, object configuration_instance)
         {
             var panel = base.CreateControl(attr, prop, configuration_instance);
 
-            ConfigIntegerAttribute iattr = attr as ConfigIntegerAttribute;
+            IntegerAttribute iattr = attr as IntegerAttribute;
 
             var slider = panel.Children[1] as Slider;
 

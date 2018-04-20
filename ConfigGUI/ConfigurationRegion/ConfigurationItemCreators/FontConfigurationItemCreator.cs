@@ -13,10 +13,10 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 {
     class FontConfigurationItemCreator:ConfigurationItemCreatorBase
     {
-        public override Panel CreateControl(ConfigAttributeBase attr, PropertyInfo prop, object configuration_instance)
+        public override Panel CreateControl(BaseConfigurationAttribute attr, PropertyInfo prop, object configuration_instance)
         {
             var font_str = Tools.GetConigValue(prop, configuration_instance);
-            ConfigFontAttribute fattr = attr as ConfigFontAttribute;
+            FontAttribute fattr = attr as FontAttribute;
 
             var panel = base.CreateControl(attr, prop, configuration_instance);
             var font_box = new TextBox() { Text = font_str, Width = 160, VerticalContentAlignment = VerticalAlignment.Center };

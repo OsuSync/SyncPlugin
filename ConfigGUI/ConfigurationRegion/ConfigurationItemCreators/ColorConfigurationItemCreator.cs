@@ -15,11 +15,11 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 {
     class ColorConfigurationItemCreator:ConfigurationItemCreatorBase
     {
-        public override Panel CreateControl(ConfigAttributeBase attr, PropertyInfo prop, object configuration_instance)
+        public override Panel CreateControl(BaseConfigurationAttribute attr, PropertyInfo prop, object configuration_instance)
         {
             var panel = base.CreateControl(attr, prop, configuration_instance);
 
-            ConfigColorAttribute cattr = attr as ConfigColorAttribute;
+            ColorAttribute cattr = attr as ColorAttribute;
 
             var color_str = Tools.GetConigValue(prop, configuration_instance);
 

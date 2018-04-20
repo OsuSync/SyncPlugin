@@ -13,7 +13,7 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 {
     class StringConfigurationItemCreator : ConfigurationItemCreatorBase
     {
-        public override Panel CreateControl(ConfigAttributeBase attr, PropertyInfo prop, object configuration_instance)
+        public override Panel CreateControl(BaseConfigurationAttribute attr, PropertyInfo prop, object configuration_instance)
         {
             var panel = base.CreateControl(attr,prop, configuration_instance);
 

@@ -26,10 +26,10 @@ namespace ConfigGUI.ConfigurationI18n
 
                 foreach (var field in type.GetFields())
                 {
-                    if (field.GetCustomAttribute<ConfigI18nAttribute>() != null)
+                    if (field.FieldType==typeof(GuiLanguageElement))
                     {
                         string name = field.Name;
-                        string value = (LanguageElement)field.GetValue(i18n);
+                        string value = (GuiLanguageElement)field.GetValue(i18n);
                         i18n_dict.Add(name, value);
                     }
                 }
