@@ -36,15 +36,13 @@ namespace ConfigGUI.MultiSelect
 
         public static readonly DependencyProperty SelectedItemsProperty =
          DependencyProperty.Register("SelectedItems", typeof(Dictionary<string, object>), typeof(MultiSelectComboBox), new FrameworkPropertyMetadata(null,
-     new PropertyChangedCallback(MultiSelectComboBox.OnSelectedItemsChanged)));
+             new PropertyChangedCallback(MultiSelectComboBox.OnSelectedItemsChanged)));
 
         public static readonly DependencyProperty TextProperty =
            DependencyProperty.Register("Text", typeof(string), typeof(MultiSelectComboBox), new UIPropertyMetadata(string.Empty));
 
         public static readonly DependencyProperty DefaultTextProperty =
             DependencyProperty.Register("DefaultText", typeof(string), typeof(MultiSelectComboBox), new UIPropertyMetadata(string.Empty));
-
-
 
         public Dictionary<string, object> ItemsSource
         {
@@ -113,7 +111,6 @@ namespace ConfigGUI.MultiSelect
                         node.IsSelected = false;
                     }
                 }
-
             }
             else
             {
@@ -202,52 +199,52 @@ namespace ConfigGUI.MultiSelect
             }
         }
         #endregion
-    }
 
-    public class Node : INotifyPropertyChanged
-    {
-        private string _title;
-        private bool _isSelected;
-        #region ctor
-        public Node(string title)
+        public class Node : INotifyPropertyChanged
         {
-            Title = title;
-        }
-        #endregion
+            private string _title;
+            private bool _isSelected;
+            #region ctor
+            public Node(string title)
+            {
+                Title = title;
+            }
+            #endregion
 
-        #region Properties
-        public string Title
-        {
-            get
+            #region Properties
+            public string Title
             {
-                return _title;
+                get
+                {
+                    return _title;
+                }
+                set
+                {
+                    _title = value;
+                    NotifyPropertyChanged("Title");
+                }
             }
-            set
+            public bool IsSelected
             {
-                _title = value;
-                NotifyPropertyChanged("Title");
+                get
+                {
+                    return _isSelected;
+                }
+                set
+                {
+                    _isSelected = value;
+                    NotifyPropertyChanged("IsSelected");
+                }
             }
-        }
-        public bool IsSelected
-        {
-            get
-            {
-                return _isSelected;
-            }
-            set
-            {
-                _isSelected = value;
-                NotifyPropertyChanged("IsSelected");
-            }
-        }
-        #endregion
+            #endregion
 
-        public event PropertyChangedEventHandler PropertyChanged;
-        protected void NotifyPropertyChanged(string propertyName)
-        {
-            if (PropertyChanged != null)
+            public event PropertyChangedEventHandler PropertyChanged;
+            protected void NotifyPropertyChanged(string propertyName)
             {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                if (PropertyChanged != null)
+                {
+                    PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+                }
             }
         }
     }
