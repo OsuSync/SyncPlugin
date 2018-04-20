@@ -57,6 +57,7 @@
     <Compile Include="ConfigurationRegion\ConfigurationItemCreators\ListConfigurationItemCreator.cs" />
     <Compile Include="ConfigurationRegion\ConfigurationItemCreators\PathConfigurationItemCreator.cs" />
     <Compile Include="ConfigurationRegion\ConfigurationItemCreators\SliderConfigurationItemCreator.cs" />
+    <Compile Include="ConfigurationRegion\ConfigurationItemCreators\Tools.cs" />
     <Compile Include="ConfigWindow.xaml.cs">
       <DependentUpon>ConfigWindow.xaml</DependentUpon>
     </Compile>

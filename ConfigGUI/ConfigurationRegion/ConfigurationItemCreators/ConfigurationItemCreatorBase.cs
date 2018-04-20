@@ -29,12 +29,4 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
             return panel;
         }
     }
-
-    static class Tools
-    {
-        public static string GetConigValue(PropertyInfo prop, object config_instance)
-        {
-            return prop.GetValue(config_instance)?.ToString()??"";
-        }
-    }
 }
