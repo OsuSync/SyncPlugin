@@ -49,25 +49,25 @@ namespace ConfigGUI
             application = new ConfigApplication();
             application.Run();
         }
-    }
 
-    class ConfigApplication:Application
-    {
-        private ConfigWindow configWindow;
-
-        protected override void OnStartup(StartupEventArgs e)
+        class ConfigApplication : Application
         {
-            base.OnStartup(e);
+            private ConfigWindow configWindow;
 
-            configWindow = new ConfigWindow();
-        }
-
-        public void ShowWindow()
-        {
-            configWindow.Dispatcher.Invoke(() =>
+            protected override void OnStartup(StartupEventArgs e)
             {
-                configWindow.Show();
-            });
+                base.OnStartup(e);
+
+                configWindow = new ConfigWindow();
+            }
+
+            public void ShowWindow()
+            {
+                configWindow.Dispatcher.Invoke(() =>
+                {
+                    configWindow.Show();
+                });
+            }
         }
     }
 }

@@ -134,7 +134,6 @@ namespace ConfigGUI.MultiSelect
         }
         #endregion
 
-
         #region Methods
         private void SelectNodes()
         {
@@ -202,14 +201,11 @@ namespace ConfigGUI.MultiSelect
                 this.Text = this.DefaultText;
             }
         }
-
-       
         #endregion
     }
 
     public class Node : INotifyPropertyChanged
     {
-
         private string _title;
         private bool _isSelected;
         #region ctor
@@ -254,6 +250,5 @@ namespace ConfigGUI.MultiSelect
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
         }
-
     }
 }

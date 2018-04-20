@@ -14,7 +14,6 @@ namespace ConfigGUI.ConfigurationI18n
         private Dictionary<string, Dictionary<string, string>> m_i18n_dict = new Dictionary<string, Dictionary<string, string>>();
         public static I18nManager Instance;
 
-
         public I18nManager()
         {
             var i18n_list = typeof(Sync.Tools.I18n).GetField("ApplyedProvider", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null) as List<I18nProvider>;
