@@ -15,10 +15,17 @@ namespace ConfigGUI
         public const string PLUGIN_NAME="ConfigGUI";
         public const string PLUGIN_AUTHOR = "KedamaOvO";
         public const string PLGUIN_VERSION = "0.0.1";
-        ConfigApplication application;
 
         public ConfigGuiPlugin() : base(PLUGIN_NAME, PLUGIN_AUTHOR)
         {
+            var thread = new Thread(() =>
+            {
+                if (Application.Current == null)
+                    new Application().Run();
+            });
+            thread.Name = "STA WPF Application Thread";
+            thread.SetApartmentState(ApartmentState.STA);
+            thread.Start();
         }
 
         public override void OnEnable()
@@ -29,45 +36,10 @@ namespace ConfigGUI
             {
                 t.Commands.Dispatch.bind("config", args =>
                  {
-                     application.ShowWindow();
+                     Application.Current.Dispatcher.Invoke(()=>new ConfigWindow().Show());
                      return true;
                  }, "show config window");
             });
-
-            base.EventBus.BindEvent<PluginEvents.ProgramReadyEvent>((e) =>
-            {
-                var thread = new Thread(InitWindow);
-                thread.Name= "STA WPF Application Thread";
-                thread.SetApartmentState(ApartmentState.STA);
-                thread.Start();
-            });
-        }
-
-        [STAThread]
-        private void InitWindow()
-        {
-            application = new ConfigApplication();
-            application.Run();
-        }
-
-        class ConfigApplication : Application
-        {
-            private ConfigWindow configWindow;
-
-            protected override void OnStartup(StartupEventArgs e)
-            {
-                base.OnStartup(e);
-
-                configWindow = new ConfigWindow();
-            }
-
-            public void ShowWindow()
-            {
-                configWindow.Dispatcher.Invoke(() =>
-                {
-                    configWindow.Show();
-                });
-            }
         }
     }
 }
