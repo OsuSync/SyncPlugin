@@ -23,7 +23,7 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
                 || !I18nManager.Instance.TryGetLanguageValue(configuration_instance.GetType().Namespace, prop.Name, out string checkbox_content))
                 checkbox_content = prop.Name;
 
-            var checkbox = new CheckBox() { Content = $"{checkbox_content}", Margin = new Thickness(5, -2, 0, 0) };
+            var checkbox = new CheckBox() { Content = $"{checkbox_content}{(attr.RequireRestart ? "(*)" : "")}", Margin = new Thickness(5, -2, 0, 0) };
 
             //set default value
             var evalue = Tools.GetConigValue(prop, configuration_instance);

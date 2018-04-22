@@ -24,7 +24,7 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
                 ||!I18nManager.Instance.TryGetLanguageValue(configuration_instance.GetType().Namespace, prop.Name, out string label_content))
                 label_content = prop.Name;
 
-            Control label = new Label() { Content = $"{label_content}:", Margin = new Thickness(0, -3, 0, 0) };
+            Control label = new Label() { Content = $"{label_content}{(attr.RequireRestart?"(*)":"")}:", Margin = new Thickness(0, -3, 0, 0) };
             panel.Children.Add(label);
             return panel;
         }
