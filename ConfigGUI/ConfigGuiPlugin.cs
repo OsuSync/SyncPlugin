@@ -18,14 +18,13 @@ namespace ConfigGUI
 
         public ConfigGuiPlugin() : base(PLUGIN_NAME, PLUGIN_AUTHOR)
         {
-            var thread = new Thread(() =>
+            if (Application.Current == null)
             {
-                if (Application.Current == null)
-                    new Application().Run();
-            });
-            thread.Name = "STA WPF Application Thread";
-            thread.SetApartmentState(ApartmentState.STA);
-            thread.Start();
+                var thread = new Thread(() => new Application().Run());
+                thread.Name = "STA WPF Application Thread";
+                thread.SetApartmentState(ApartmentState.STA);
+                thread.Start();
+            }
         }
 
         public override void OnEnable()
