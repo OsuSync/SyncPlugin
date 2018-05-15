@@ -50,28 +50,32 @@ namespace DefaultGUI
 
         public void ready()
         {
-            Invoke(new MethodInvoker(() => {
-                string formName = Console.Title;
-                int h = FindWindow("ConsoleWindowClass", formName);
-                Task.Delay(400);
-                ShowWindow(h, 0);
-                txtBotIRC.Text = DirectOSUIRCBot.IRCBotName;
-                txtBotIRCPassword.Text = DirectOSUIRCBot.IRCBotPasswd;
-                txtTargetIRC.Text = DirectOSUIRCBot.IRCNick;
-                txtLiveID.Text = SyncHost.Instance.SourceWrapper.Source.LiveID;
-                cbSources.Items.Clear();
-                if(DefaultGUI.hoster?.Sources != null)
-                foreach (var item in DefaultGUI.hoster?.Sources?.SourceList)
+            if (Created)
+            {
+                Invoke(new MethodInvoker(() =>
                 {
-                    cbSources.Items.Add(item);
-                }
-                cbSources.SelectedItem = DefaultGUI.hoster?.SourceWrapper?.Source;
+                    string formName = Console.Title;
+                    int h = FindWindow("ConsoleWindowClass", formName);
+                    Task.Delay(400);
+                    ShowWindow(h, 0);
+                    txtBotIRC.Text = DirectOSUIRCBot.IRCBotName;
+                    txtBotIRCPassword.Text = DirectOSUIRCBot.IRCBotPasswd;
+                    txtTargetIRC.Text = DirectOSUIRCBot.IRCNick;
+                    txtLiveID.Text = SyncHost.Instance.SourceWrapper.Source.LiveID;
+                    cbSources.Items.Clear();
+                    if (DefaultGUI.hoster?.Sources != null)
+                        foreach (var item in DefaultGUI.hoster?.Sources?.SourceList)
+                        {
+                            cbSources.Items.Add(item);
+                        }
+                    cbSources.SelectedItem = DefaultGUI.hoster?.SourceWrapper?.Source;
 
-                var c = new AutoCompleteStringCollection();
-                if(DefaultGUI.hoster != null) c.AddRange(DefaultGUI.hoster?.Commands?.Dispatch?.getCommandsHelp().Keys.ToArray());
-                txtCmd.AutoCompleteCustomSource = c;
-                IO.SetIO(this);
-            }));
+                    var c = new AutoCompleteStringCollection();
+                    if (DefaultGUI.hoster != null) c.AddRange(DefaultGUI.hoster?.Commands?.Dispatch?.getCommandsHelp().Keys.ToArray());
+                    txtCmd.AutoCompleteCustomSource = c;
+                    IO.SetIO(this);
+                }));
+            }
         }
 
         delegate void AppendTextDelegate(string text);
