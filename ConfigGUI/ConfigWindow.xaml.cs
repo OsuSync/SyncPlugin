@@ -83,7 +83,7 @@ namespace ConfigGUI
         {
             Type config_manager_type = typeof(PluginConfigurationManager);
             var config_manager_list = config_manager_type.GetField("ConfigurationSet", BindingFlags.Static | BindingFlags.NonPublic)
-                .GetValue(null) as LinkedList<PluginConfigurationManager>;
+                .GetValue(null) as IEnumerable<PluginConfigurationManager>;
 
             List<TreeViewItem> tree_view_list= new List<TreeViewItem>();
             //each configuration manager
