@@ -124,7 +124,7 @@ namespace DefaultPlugin.Commands
 
         private bool restart(Arguments arg)
         {
-            Process.Start(Assembly.GetEntryAssembly().Location);
+            Process.Start(Assembly.GetEntryAssembly().Location, "--delay-initialize=3");
             Environment.Exit(0);
             return true;
         }
