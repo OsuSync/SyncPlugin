@@ -272,8 +272,8 @@ namespace DefaultGUI
 
         private void cbSources_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if ((cbSources.SelectedItem as SourceBase).Name == Configuration.Source) return;
-            Configuration.Source = (cbSources.SelectedItem as SourceBase).Name;
+            if ((cbSources.SelectedItem as SourceBase).Name == Configuration.Instance.Source) return;
+            Configuration.Instance.Source = (cbSources.SelectedItem as SourceBase).Name;
             if(MessageBox.Show(this, Language.UI_INFO_RESTART_REQ, "Restart", MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
                 DefaultGUI.hoster.Commands.invokeCmdString("restart");
