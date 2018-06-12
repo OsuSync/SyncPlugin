@@ -13,11 +13,11 @@ using Sync.Tools;
 using System.Runtime.InteropServices;
 using Sync.Source;
 using System.Drawing.Drawing2D;
-using static Sync.Tools.DefaultI18n;
 using DefaultPlugin.Clients;
 using Sync.Command;
 using System.Diagnostics;
 using System.Reflection;
+using static Sync.Tools.DefaultI18n;
 
 namespace DefaultGUI
 {

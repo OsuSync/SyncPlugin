@@ -2,9 +2,6 @@
 using System;
 using System.Reflection;
 using System.Linq;
-using static DefaultPlugin.DefaultPlugin;
-using static Sync.Tools.IO;
-using static DefaultPlugin.Language;
 using Sync.MessageFilter;
 using Sync.Command;
 using Sync.Tools;
@@ -13,6 +10,9 @@ using System.Diagnostics;
 using System.Globalization;
 using DefaultPlugin.Sources.BiliBili;
 using DefaultPlugin.Clients;
+using static Sync.Tools.IO;
+using static DefaultPlugin.DefaultPlugin;
+using static DefaultPlugin.Language;
 
 namespace DefaultPlugin.Commands
 {

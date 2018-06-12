@@ -121,7 +121,6 @@ namespace DefaultPlugin.Sources.Twitch
 
                 Status = SourceStatus.CONNECTED_WORKING;
                 SendStatus = true;
-
             }
             catch (Exception e)
             {
