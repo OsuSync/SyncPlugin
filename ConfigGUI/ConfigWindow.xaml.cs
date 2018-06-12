@@ -37,9 +37,9 @@ namespace ConfigGUI
         {
             InitializeComponent();
 
-            m_sync_config_panel = CreateSyncConfigPanel();
+            //m_sync_config_panel = CreateSyncConfigPanel();
 
-            InitializeSyncConfigPanel();
+            //InitializeSyncConfigPanel();
             InitializeConfigPanel();
 
             Title = DefaultLanguage.WINDOW_TITLE;
@@ -90,8 +90,9 @@ namespace ConfigGUI
             foreach (var manager in config_manager_list)
             {
                 //get plguin name
-                var plguin = config_manager_type.GetField("instance", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(manager) as Plugin;
-                var tree_item = new TreeViewItem() { Header = plguin.Name };
+                string plugin_name = config_manager_type.GetField("name", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(manager) as string;
+
+                var tree_item = new TreeViewItem() { Header = plugin_name };
 
                 //get List<PluginConfiuration>
                 var config_items_field = config_manager_type.GetField("items", BindingFlags.NonPublic | BindingFlags.Instance);
