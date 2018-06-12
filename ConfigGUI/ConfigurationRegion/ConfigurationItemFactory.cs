@@ -10,7 +10,7 @@ using System.Windows.Controls;
 
 namespace ConfigGUI.ConfigurationRegion
 {
-    class ConfigurationItemFactory
+    public class ConfigurationItemFactory
     {
         public static ConfigurationItemFactory Instance;
 
@@ -27,13 +27,34 @@ namespace ConfigGUI.ConfigurationRegion
             m_items_mapping.Add(typeof(FontAttribute), new FontConfigurationItemCreator());
             m_items_mapping.Add(typeof(ColorAttribute), new ColorConfigurationItemCreator());
             m_items_mapping.Add(typeof(ListAttribute), new ListConfigurationItemCreator());
-            m_items_mapping.Add(typeof(ReflectListAttribute), new ListConfigurationItemCreator());
             m_items_mapping.Add(typeof(PathAttribute), new PathConfigurationItemCreator());
+        }
+
+        public void RegisterItemCreator<T>(ConfigurationItemCreatorBase creator) where T: BaseConfigurationAttribute
+        {
+            m_items_mapping.Add(typeof(T),creator);
         }
 
         public Panel CreateItemPanel(BaseConfigurationAttribute attr, PropertyInfo prop, object configuration_instance)
         {
-            return m_items_mapping[attr.GetType()].CreateControl(attr,prop, configuration_instance);
+            ConfigurationItemCreatorBase creator;
+            Type type = attr.GetType();
+
+            if (!m_items_mapping.TryGetValue(type, out creator))
+            {
+                var list = m_items_mapping.Where(p => type.IsSubclassOf(p.Key));
+                var pair = list.FirstOrDefault();
+
+                while (list.Count()>1)
+                {
+                    list = list.Take(1);
+                    list = list.Where(p => pair.Key.IsSubclassOf(p.Key));
+                }
+
+                type = pair.Key;
+                creator = pair.Value;
+            }
+            return creator.CreateControl(attr,prop, configuration_instance);
         }
     }
 }

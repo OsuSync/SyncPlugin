@@ -11,7 +11,7 @@ using System.Windows.Controls;
 
 namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 {
-    class StringConfigurationItemCreator : ConfigurationItemCreatorBase
+    public class StringConfigurationItemCreator : ConfigurationItemCreatorBase
     {
         public override Panel CreateControl(BaseConfigurationAttribute attr, PropertyInfo prop, object configuration_instance)
         {

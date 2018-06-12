@@ -13,7 +13,7 @@ using Sync.Tools.ConfigGUI;
 
 namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 {
-    class ColorConfigurationItemCreator:ConfigurationItemCreatorBase
+    public class ColorConfigurationItemCreator:ConfigurationItemCreatorBase
     {
         public override Panel CreateControl(BaseConfigurationAttribute attr, PropertyInfo prop, object configuration_instance)
         {
@@ -71,7 +71,7 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
             return panel;
         }
 
-        private System.Drawing.Color StringToColor(string rgba)
+        protected System.Drawing.Color StringToColor(string rgba)
         {
             if (rgba.Length != 9) return System.Drawing.Color.Black;
 
@@ -83,7 +83,7 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
             return color;
         }
 
-        private string RgbaToString(byte r, byte g, byte b, byte a)
+        protected string RgbaToString(byte r, byte g, byte b, byte a)
         {
             return $"#{r:X2}{g:X2}{b:X2}{a:X2}";
         }

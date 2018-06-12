@@ -8,14 +8,19 @@ using Sync.Plugins;
 using Sync;
 using Sync.Command;
 using Sync.Tools;
+using Sync.Tools.ConfigGUI;
 
 namespace BeatmapSuggest
 {
     [SyncPluginID("916fe745-7a33-4c20-b985-58c4810e261e", "2.15.0")]
     public class BeatmapSuggestPlugin : Plugin,IConfigurable
     {
+        [Bool]
         public ConfigurationElement EnableInsoMirrorLink { get; set; } = "False";
+
         public ConfigurationElement OsuApiKey { get; set; } = string.Empty;
+
+        [Integer(MinValue = 1,MaxValue = 100)]
         public ConfigurationElement SuggestHistoryCapacity { get; set; } = "10";
 
         private Danmaku.BeatmapSuggestFilter danmaku_filter;

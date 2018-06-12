@@ -6,6 +6,7 @@ using Sync.MessageFilter;
 using Sync.Tools;
 using System.IO;
 using System.Diagnostics;
+using Sync.Tools.ConfigGUI;
 
 namespace NowPlaying
 {
@@ -17,7 +18,8 @@ namespace NowPlaying
 
         private string OsuSongFolderPath = string.Empty;
 
-        public static ConfigurationElement EnableAdvanceFeature { get; set; } = "0";
+        [Bool]
+        public static ConfigurationElement EnableAdvanceFeature { get; set; } = "False";
         
         Stopwatch sw = new Stopwatch();
 
@@ -266,7 +268,7 @@ namespace NowPlaying
 
         public void onConfigurationLoad()
         {
-            if (int.TryParse(EnableAdvanceFeature, out int value) && value == 1)
+            if (bool.TryParse(EnableAdvanceFeature, out bool value) && value == true)
             {
                 NowPlayingEvents.Instance.BindEvent<StatusChangeEvent>(OnOsuStatusAdvanceChange);
             }

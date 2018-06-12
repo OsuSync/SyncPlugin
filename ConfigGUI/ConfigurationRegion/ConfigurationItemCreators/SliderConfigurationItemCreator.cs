@@ -12,7 +12,7 @@ using System.Windows.Data;
 
 namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 {
-    abstract class SliderConfigurationItemCreator:ConfigurationItemCreatorBase
+    public abstract class SliderConfigurationItemCreator:ConfigurationItemCreatorBase
     {
         public override Panel CreateControl(BaseConfigurationAttribute attr, PropertyInfo prop, object configuration_instance)
         {

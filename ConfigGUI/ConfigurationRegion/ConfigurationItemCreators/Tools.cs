@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 {
-    static class Tools
+    public static class Tools
     {
         public static string GetConigValue(PropertyInfo prop, object config_instance)
         {
