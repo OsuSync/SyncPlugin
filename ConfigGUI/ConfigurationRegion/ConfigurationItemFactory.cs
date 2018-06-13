@@ -42,17 +42,19 @@ namespace ConfigGUI.ConfigurationRegion
 
             if (!m_items_mapping.TryGetValue(type, out creator))
             {
-                var list = m_items_mapping.Where(p => type.IsSubclassOf(p.Key));
-                var pair = list.FirstOrDefault();
+                IEnumerable<KeyValuePair<Type, ConfigurationItemCreatorBase>> list = m_items_mapping;
+                KeyValuePair<Type, ConfigurationItemCreatorBase> pair;
 
                 while (list.Count()>1)
                 {
-                    list = list.Take(1);
-                    list = list.Where(p => pair.Key.IsSubclassOf(p.Key));
-                }
+                    list = list.Where(p => type.IsSubclassOf(p.Key) || p.Key.IsAssignableFrom(type));
 
-                type = pair.Key;
-                creator = pair.Value;
+                    pair = list.FirstOrDefault();
+                    type = pair.Key;
+                    creator = pair.Value;
+
+                    list = list.Take(1);
+                }
             }
             return creator.CreateControl(attr,prop, configuration_instance);
         }
