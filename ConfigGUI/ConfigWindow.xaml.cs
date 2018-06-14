@@ -64,14 +64,16 @@ namespace ConfigGUI
                         .GetValue(config_item);
                     var config_type = config_instance.GetType();
 
-                    var panle = GetConfigPanel(config_type, config_instance);//Create config panle
+                    //Create config panle
+                    var panle = GetConfigPanel(config_type, config_instance);
                     if (panle.Children.Count != 0)
                     {
                         var sub_tree_item = new TreeViewItem() { Header = config_type.Name };
 
                         sub_tree_item.Selected += (s, e) =>
                         {
-                            var content = GetConfigPanel(config_type, config_instance);//Get config panle
+                            //Get config panle
+                            var content = GetConfigPanel(config_type, config_instance);
                             configRegion.Content = content;
                         };
 
