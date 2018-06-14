@@ -12,7 +12,7 @@ using System.Windows.Controls;
 
 namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 {
-    public abstract class ConfigurationItemCreatorBase
+    public abstract class BaseConfigurationItemCreator
     {
         public virtual Panel CreateControl(BaseConfigurationAttribute attr, PropertyInfo prop,object configuration_instance)
         {

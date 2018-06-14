@@ -26,49 +26,10 @@ namespace ConfigGUI
             m_item_factory = itemFactory;
 
             InitializeComponent();
-
-            //m_sync_config_panel = CreateSyncConfigPanel();
-
-            //InitializeSyncConfigPanel();
             InitializeConfigPanel();
 
             Title = DefaultLanguage.WINDOW_TITLE;
         }
-
-        #region Sync Config
-
-        private void InitializeSyncConfigPanel()
-        {
-            var tree_item = new TreeViewItem() { Header = "Sync" };
-            configsTreeView.Items.Add(tree_item);
-            tree_item.Selected += (s, e) =>
-              {
-                  configRegion.Content = m_sync_config_panel;
-              };
-        }
-
-        private Panel CreateSyncConfigPanel()
-        {
-            var sync_config_type = typeof(Configuration);
-            StackPanel panel = new StackPanel();
-
-            foreach (var prop in sync_config_type.GetProperties())
-            {
-                BaseConfigurationAttribute attr = null;
-
-                if (prop.PropertyType == typeof(bool))
-                    attr = new BoolAttribute();
-                else if (prop.PropertyType == typeof(string))
-                    attr = new StringAttribute();
-
-                var item_panel = ConfigurationItemFactory.Instance.CreateItemPanel(attr, prop, null);
-                panel.Children.Insert(0, item_panel);
-            }
-
-            return panel;
-        }
-
-        #endregion Sync Config
 
         #region Plugins Config
 
@@ -103,17 +64,23 @@ namespace ConfigGUI
                         .GetValue(config_item);
                     var config_type = config_instance.GetType();
 
-                    var sub_tree_item = new TreeViewItem() { Header = config_type.Name };
-
-                    sub_tree_item.Selected += (s, e) =>
+                    var panle = GetConfigPanel(config_type, config_instance);//Create config panle
+                    if (panle.Children.Count != 0)
                     {
-                        var panle = GetConfigPanel(config_type, config_instance);
-                        configRegion.Content = panle;
-                    };
+                        var sub_tree_item = new TreeViewItem() { Header = config_type.Name };
 
-                    tree_item.Items.Add(sub_tree_item);
+                        sub_tree_item.Selected += (s, e) =>
+                        {
+                            var content = GetConfigPanel(config_type, config_instance);//Get config panle
+                            configRegion.Content = content;
+                        };
+
+                        tree_item.Items.Add(sub_tree_item);
+                    }
                 }
-                tree_view_list.Add(tree_item);
+
+                if(tree_item.Items.Count != 0)
+                    tree_view_list.Add(tree_item);
             }
 
             tree_view_list.Sort((a, b) => ((string)a.Header).CompareTo((string)b.Header));
@@ -130,8 +97,8 @@ namespace ConfigGUI
                 return region.Panel;
 
             region = new ConfigurationPanel(config_type, config_instance);
-
-            m_configuration_region_dict.Add(config_instance, region);
+            if (region.Panel.Children.Count != 0)
+                m_configuration_region_dict.Add(config_instance, region);
             return region.Panel;
         }
 

@@ -12,7 +12,7 @@ using System.Windows.Controls;
 
 namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 {
-    public class BoolConfigurationItemCreator:ConfigurationItemCreatorBase
+    public class BoolConfigurationItemCreator:BaseConfigurationItemCreator
     {
         public override Panel CreateControl(BaseConfigurationAttribute attr, PropertyInfo prop, object configuration_instance)
         {

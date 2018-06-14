@@ -15,7 +15,6 @@ namespace ConfigGUI.ConfigurationRegion
     class ConfigurationPanel
     {
         public Panel Panel { private set; get; } = new StackPanel();
-        public List<UIElement> ConfigurationItems { private set; get; } = new List<UIElement>();
 
         public ConfigurationPanel(Type configuration_type, object configuration_instance)
         {
@@ -23,6 +22,7 @@ namespace ConfigGUI.ConfigurationRegion
             foreach (var prop in configuration_type.GetProperties())
             {
                 if (prop.PropertyType != typeof(ConfigurationElement)) continue;
+                if (prop.GetCustomAttribute<HideAttribute>() != null) continue;
 
                 var attr = prop.GetCustomAttribute<BaseConfigurationAttribute>();
                 if (attr == null) attr = new StringAttribute();
@@ -30,8 +30,8 @@ namespace ConfigGUI.ConfigurationRegion
                 string name = prop.Name;
 
                 var item_panel = ConfigurationItemFactory.Instance.CreateItemPanel(attr, prop, configuration_instance);
-
-                ConfigurationItems.Add(item_panel);
+                if (item_panel == null)
+                    throw new NullReferenceException($"Creator return null! Config attribute type: {attr}");
                 Panel.Children.Add(item_panel);
             }
         }

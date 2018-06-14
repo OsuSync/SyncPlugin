@@ -14,7 +14,7 @@ namespace ConfigGUI.ConfigurationRegion
     {
         public static ConfigurationItemFactory Instance;
 
-        public Dictionary<Type,ConfigurationItemCreatorBase> m_items_mapping = new Dictionary<Type, ConfigurationItemCreatorBase>();
+        public Dictionary<Type,BaseConfigurationItemCreator> m_items_mapping = new Dictionary<Type, BaseConfigurationItemCreator>();
 
         public ConfigurationItemFactory()
         {
@@ -30,20 +30,20 @@ namespace ConfigGUI.ConfigurationRegion
             m_items_mapping.Add(typeof(PathAttribute), new PathConfigurationItemCreator());
         }
 
-        public void RegisterItemCreator<T>(ConfigurationItemCreatorBase creator) where T: BaseConfigurationAttribute
+        public void RegisterItemCreator<T>(BaseConfigurationItemCreator creator) where T: BaseConfigurationAttribute
         {
             m_items_mapping.Add(typeof(T),creator);
         }
 
         public Panel CreateItemPanel(BaseConfigurationAttribute attr, PropertyInfo prop, object configuration_instance)
         {
-            ConfigurationItemCreatorBase creator;
+            BaseConfigurationItemCreator creator;
             Type type = attr.GetType();
 
             if (!m_items_mapping.TryGetValue(type, out creator))
             {
-                IEnumerable<KeyValuePair<Type, ConfigurationItemCreatorBase>> list = m_items_mapping;
-                KeyValuePair<Type, ConfigurationItemCreatorBase> pair;
+                IEnumerable<KeyValuePair<Type, BaseConfigurationItemCreator>> list = m_items_mapping;
+                KeyValuePair<Type, BaseConfigurationItemCreator> pair;
 
                 while (list.Count()>1)
                 {

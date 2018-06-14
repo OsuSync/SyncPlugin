@@ -13,7 +13,7 @@ using Sync.Tools.ConfigGUI;
 
 namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 {
-    public class ColorConfigurationItemCreator:ConfigurationItemCreatorBase
+    public class ColorConfigurationItemCreator:BaseConfigurationItemCreator
     {
         public override Panel CreateControl(BaseConfigurationAttribute attr, PropertyInfo prop, object configuration_instance)
         {

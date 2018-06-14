@@ -11,7 +11,7 @@ using Sync.Tools.ConfigGUI;
 
 namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 {
-    public class ListConfigurationItemCreator:ConfigurationItemCreatorBase
+    public class ListConfigurationItemCreator:BaseConfigurationItemCreator
     {
         public override Panel CreateControl(BaseConfigurationAttribute attr, PropertyInfo prop, object configuration_instance)
         {
