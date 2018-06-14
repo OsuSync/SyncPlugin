@@ -64,6 +64,8 @@ namespace ConfigGUI
                         .GetValue(config_item);
                     var config_type = config_instance.GetType();
 
+                    if (config_type.GetCustomAttribute<HideAttribute>() != null) continue;
+
                     //Create config panle
                     var panle = GetConfigPanel(config_type, config_instance);
                     if (panle.Children.Count != 0)
