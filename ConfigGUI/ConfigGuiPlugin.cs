@@ -17,7 +17,7 @@ namespace ConfigGUI
         public const string PLUGIN_AUTHOR = "KedamaOvO";
         public const string PLGUIN_VERSION = "0.0.1";
 
-        public static ConfigurationItemFactory ItemFactory { get; } = new ConfigurationItemFactory();
+        public ConfigurationItemFactory ItemFactory { get; } = new ConfigurationItemFactory();
 
         public ConfigGuiPlugin() : base(PLUGIN_NAME, PLUGIN_AUTHOR)
         {
