@@ -19,7 +19,7 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 
             PathAttribute pattr = attr as PathAttribute;
 
-            var evalue = Tools.GetConigValue(prop, configuration_instance);
+            var evalue = GetConfigValue(prop, configuration_instance);
 
             var path_box = new TextBox() { Text = evalue, Width = 160, VerticalContentAlignment = VerticalAlignment.Center };
             var button = new Button() { Width = 75, Margin = new Thickness(5, 0, 5, 0) };
@@ -48,13 +48,13 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
                     if (folderDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                         path_box.Text = folderDialog.SelectedPath;
                 }
-                prop.SetValue(configuration_instance, new ConfigurationElement($"{path_box.Text}"));
+                SetConfigValue(prop,configuration_instance, path_box.Text);
             };
 
             path_box.TextChanged += (s, e) =>
             {
                 if (pattr.Check(path_box.Text))
-                    prop.SetValue(configuration_instance, new ConfigurationElement($"{path_box.Text}"));
+                    SetConfigValue(prop,configuration_instance, path_box.Text);
             };
 
             return panel;

@@ -26,16 +26,13 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
             var checkbox = new CheckBox() { Content = $"{checkbox_content}{(attr.RequireRestart ? "(*)" : "")}", Margin = new Thickness(5, -2, 0, 0) };
 
             //set default value
-            var evalue = Tools.GetConigValue(prop, configuration_instance);
+            var evalue = GetConfigValue(prop, configuration_instance);
             if (bool.TryParse(evalue, out bool bvalue))
                 checkbox.IsChecked = bvalue;
 
             checkbox.Click += (s, e) =>
             {
-                if(prop.PropertyType==typeof(ConfigurationElement))
-                    prop.SetValue(configuration_instance, new ConfigurationElement(checkbox.IsChecked.ToString()));
-                else if(prop.PropertyType == typeof(bool))
-                    prop.SetValue(configuration_instance, checkbox.IsChecked);
+                SetConfigValue(prop,configuration_instance, checkbox.IsChecked.ToString());
             };
 
             panel.Children.Add(checkbox);

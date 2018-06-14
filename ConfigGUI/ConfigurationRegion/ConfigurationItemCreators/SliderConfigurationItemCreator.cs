@@ -25,7 +25,7 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
             };
 
             //set value
-            var evalue = Tools.GetConigValue(prop, configuration_instance);
+            var evalue = GetConfigValue(prop, configuration_instance);
             if (int.TryParse(evalue, out int ivalue))
                 slider.Value = ivalue;
 
@@ -39,9 +39,9 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 
             num_view.SetBinding(TextBox.TextProperty, new Binding("Value") { Source = slider });
 
-            slider.ValueChanged += (s, e) =>
+            num_view.TextChanged += (s, e) =>
             {
-                prop.SetValue(configuration_instance, new ConfigurationElement($"{(int)slider.Value}"));
+                SetConfigValue(prop,configuration_instance, num_view.Text);
             };
 
             panel.Children.Add(slider);

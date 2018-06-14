@@ -17,17 +17,14 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
         {
             var panel = base.CreateControl(attr,prop, configuration_instance);
 
-            var evalue = Tools.GetConigValue(prop, configuration_instance);
+            var evalue = GetConfigValue(prop, configuration_instance);
 
             var text = new TextBox() { Text = evalue, Width = 240, VerticalContentAlignment = VerticalAlignment.Center };
             panel.Children.Add(text);
 
             text.TextChanged += (s, e) =>
             {
-                if(prop.PropertyType == typeof(ConfigurationElement))
-                    prop.SetValue(configuration_instance, new ConfigurationElement($"{text.Text}"));
-                else if(prop.PropertyType == typeof(string))
-                    prop.SetValue(configuration_instance, text.Text);
+                SetConfigValue(prop,configuration_instance, text.Text);
             };
 
             return panel;

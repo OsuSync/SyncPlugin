@@ -53,12 +53,10 @@
     <Compile Include="ConfigurationRegion\ConfigurationItemCreators\ColorConfigurationItemCreator.cs" />
     <Compile Include="ConfigurationRegion\ConfigurationItemCreators\FloatConfigurationItemCreator.cs" />
     <Compile Include="ConfigurationRegion\ConfigurationItemCreators\FontConfigurationItemCreator.cs" />
-    <Compile Include="ConfigurationRegion\ConfigurationItemCreators\HideConfigurationItemCreator.cs" />
     <Compile Include="ConfigurationRegion\ConfigurationItemCreators\IntegerConfigurationItemCreator.cs" />
     <Compile Include="ConfigurationRegion\ConfigurationItemCreators\ListConfigurationItemCreator.cs" />
     <Compile Include="ConfigurationRegion\ConfigurationItemCreators\PathConfigurationItemCreator.cs" />
     <Compile Include="ConfigurationRegion\ConfigurationItemCreators\SliderConfigurationItemCreator.cs" />
-    <Compile Include="ConfigurationRegion\ConfigurationItemCreators\Tools.cs" />
     <Compile Include="ConfigWindow.xaml.cs">
       <DependentUpon>ConfigWindow.xaml</DependentUpon>
     </Compile>

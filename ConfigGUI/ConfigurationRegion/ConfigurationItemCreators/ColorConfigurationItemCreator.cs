@@ -21,7 +21,7 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 
             ColorAttribute cattr = attr as ColorAttribute;
 
-            var color_str = Tools.GetConigValue(prop, configuration_instance);
+            var color_str = GetConfigValue(prop, configuration_instance);
 
             var color_box = new TextBox() { Text = color_str, Width = 160, VerticalContentAlignment = VerticalAlignment.Center };
             var bound = new Border()
@@ -46,7 +46,7 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
             button.Click += (s, e) =>
             {
                 var colorDialog = new System.Windows.Forms.ColorDialog();
-                color_str = Tools.GetConigValue(prop, configuration_instance);
+                color_str = GetConfigValue(prop, configuration_instance);
 
                 color = StringToColor(color_str);
                 colorDialog.Color = color;
@@ -65,7 +65,7 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
                 color_rect.Fill = new SolidColorBrush() { Color = Color.FromArgb(color.A, color.R, color.G, color.B) };
 
                 if (cattr.Check(color_box.Text))
-                    prop.SetValue(configuration_instance, new ConfigurationElement($"{color_box.Text}"));
+                    SetConfigValue(prop,configuration_instance, color_box.Text);
             };
 
             return panel;
