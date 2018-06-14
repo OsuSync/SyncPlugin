@@ -50,6 +50,14 @@ namespace ConfigGUI.ConfigurationRegion
                     list = list.Where(p => type.IsSubclassOf(p.Key) || p.Key.IsAssignableFrom(type));
 
                     pair = list.FirstOrDefault();
+
+                    if(pair.Key==null || pair.Value==null)
+                    {
+                        type = typeof(StringAttribute);
+                        creator = m_items_mapping[type];
+                        break;
+                    }
+
                     type = pair.Key;
                     creator = pair.Value;
 
