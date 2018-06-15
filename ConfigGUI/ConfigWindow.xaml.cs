@@ -63,8 +63,7 @@ namespace ConfigGUI
                     var config_instance = config_item.GetType().GetField("config", BindingFlags.NonPublic | BindingFlags.Instance)
                         .GetValue(config_item);
                     var config_type = config_instance.GetType();
-
-                    if (config_type.GetCustomAttribute<HideAttribute>() != null) continue;
+                    var holder_attr = config_type.GetCustomAttribute<ConfigurationHolderAttribute>() ?? new ConfigurationHolderAttribute();
 
                     //Create config panle
                     var panle = GetConfigPanel(config_type, config_instance);

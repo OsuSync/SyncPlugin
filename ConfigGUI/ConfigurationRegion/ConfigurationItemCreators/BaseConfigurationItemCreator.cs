@@ -30,12 +30,18 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
             panel.Orientation = Orientation.Horizontal;
             panel.Margin = new Thickness(0, 5, 0, 5);
 
-            if (configuration_instance==null
-                ||!I18nManager.Instance.TryGetLanguageValue(configuration_instance.GetType().Namespace, prop.Name, out string label_content))
+            if (configuration_instance==null ||
+                !I18nManager.Instance.TryGetLanguageValue(configuration_instance.GetType().Namespace, prop.Name, out string label_content))
                 label_content = prop.Name;
+
+            if (configuration_instance == null ||
+                !I18nManager.Instance.TryGetLanguageDescription(configuration_instance.GetType().Namespace, prop.Name, out string description_content))
+                description_content = "";
 
             Control label = new Label() { Content = $"{label_content}{(attr.RequireRestart?"(*)":"")}:", Margin = new Thickness(0, -3, 0, 0) };
             panel.Children.Add(label);
+            if(!string.IsNullOrWhiteSpace(description_content))
+                label.ToolTip = description_content;
             return panel;
         }
     }

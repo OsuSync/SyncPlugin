@@ -19,9 +19,13 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
             var panel = base.CreateControl(attr,prop, configuration_instance);
             panel.Children.Clear();
 
-            if (configuration_instance == null
-                || !I18nManager.Instance.TryGetLanguageValue(configuration_instance.GetType().Namespace, prop.Name, out string checkbox_content))
+            if (configuration_instance == null || 
+                !I18nManager.Instance.TryGetLanguageValue(configuration_instance.GetType().Namespace, prop.Name, out string checkbox_content))
                 checkbox_content = prop.Name;
+
+            if (configuration_instance == null ||
+                !I18nManager.Instance.TryGetLanguageDescription(configuration_instance.GetType().Namespace, prop.Name, out string description_content))
+                description_content = "";
 
             var checkbox = new CheckBox() { Content = $"{checkbox_content}{(attr.RequireRestart ? "(*)" : "")}", Margin = new Thickness(5, -2, 0, 0) };
 
@@ -34,6 +38,9 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
             {
                 SetConfigValue(prop,configuration_instance, checkbox.IsChecked.ToString());
             };
+
+            if (!string.IsNullOrWhiteSpace(description_content))
+                checkbox.ToolTip = description_content;
 
             panel.Children.Add(checkbox);
             return panel;

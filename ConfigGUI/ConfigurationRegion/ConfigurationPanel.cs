@@ -22,16 +22,17 @@ namespace ConfigGUI.ConfigurationRegion
             foreach (var prop in configuration_type.GetProperties())
             {
                 if (prop.PropertyType != typeof(ConfigurationElement)) continue;
-                if (prop.GetCustomAttribute<HideAttribute>() != null) continue;
 
-                var attr = prop.GetCustomAttribute<BaseConfigurationAttribute>();
-                if (attr == null) attr = new StringAttribute();
+                var config_attr = prop.GetCustomAttribute<BaseConfigurationAttribute>() ?? new StringAttribute();
+                var holder_attr = prop.GetCustomAttribute<ConfigurationHolderAttribute>() ?? new ConfigurationHolderAttribute();
+
+                if (holder_attr.Hide == true) continue;
 
                 string name = prop.Name;
 
-                var item_panel = ConfigurationItemFactory.Instance.CreateItemPanel(attr, prop, configuration_instance);
+                var item_panel = ConfigurationItemFactory.Instance.CreateItemPanel(config_attr, prop, configuration_instance);
                 if (item_panel == null)
-                    throw new NullReferenceException($"Creator return null! Config attribute type: {attr}");
+                    throw new NullReferenceException($"Creator return null! Config attribute type: {config_attr}");
                 Panel.Children.Add(item_panel);
             }
         }
