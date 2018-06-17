@@ -33,6 +33,7 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
             {
                 Text = $"{(int)slider.Value}",
                 Width = 50,
+                Height = 22,
                 VerticalContentAlignment = VerticalAlignment.Center,
                 Margin = new Thickness(5, 0, 0, 0)
             };

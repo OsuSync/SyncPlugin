@@ -19,7 +19,7 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
             FontAttribute fattr = attr as FontAttribute;
 
             var panel = base.CreateControl(attr, prop, configuration_instance);
-            var font_box = new TextBox() { Text = font_str, Width = 160, VerticalContentAlignment = VerticalAlignment.Center };
+            var font_box = new TextBox() { Text = font_str, Width = 160,Height = 22, VerticalContentAlignment = VerticalAlignment.Center };
             var button = new Button() { Content = DefaultLanguage.BUTTON_FONT, Width = 75, Margin = new Thickness(5, 0, 5, 0) };
 
             panel.Children.Add(font_box);

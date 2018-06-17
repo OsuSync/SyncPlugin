@@ -21,7 +21,7 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 
             var evalue = GetConfigValue(prop, configuration_instance);
 
-            var path_box = new TextBox() { Text = evalue, Width = 160, VerticalContentAlignment = VerticalAlignment.Center };
+            var path_box = new TextBox() { Text = evalue, Width = 160,Height = 22, VerticalContentAlignment = VerticalAlignment.Center };
             var button = new Button() { Width = 75, Margin = new Thickness(5, 0, 5, 0) };
 
             if (!pattr.IsDirectory)

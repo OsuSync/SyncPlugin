@@ -23,7 +23,7 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 
             var color_str = GetConfigValue(prop, configuration_instance);
 
-            var color_box = new TextBox() { Text = color_str, Width = 160, VerticalContentAlignment = VerticalAlignment.Center };
+            var color_box = new TextBox() { Text = color_str, Width = 160, Height = 22, VerticalContentAlignment = VerticalAlignment.Center };
             var bound = new Border()
             {
                 BorderBrush = Brushes.Black,

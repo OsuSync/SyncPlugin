@@ -19,7 +19,13 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 
             var evalue = GetConfigValue(prop, configuration_instance);
 
-            var text = new TextBox() { Text = evalue, Width = 240, VerticalContentAlignment = VerticalAlignment.Center };
+            var text = new TextBox() {
+                Text = evalue,
+                Width = 240,
+                Height = 22,
+                VerticalContentAlignment = VerticalAlignment.Center,
+                AcceptsReturn = false
+            };
             panel.Children.Add(text);
 
             text.TextChanged += (s, e) =>
