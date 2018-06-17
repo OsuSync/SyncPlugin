@@ -10,8 +10,8 @@ using System.Diagnostics;
 using System.Globalization;
 using DefaultPlugin.Sources.BiliBili;
 using DefaultPlugin.Clients;
-using static DefaultPlugin.DefaultPlugin;
 using static Sync.Tools.IO;
+using static DefaultPlugin.DefaultPlugin;
 using static DefaultPlugin.Language;
 
 namespace DefaultPlugin.Commands
