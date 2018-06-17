@@ -63,12 +63,10 @@ namespace ConfigGUI
                     var config_instance = config_item.GetType().GetField("config", BindingFlags.NonPublic | BindingFlags.Instance)
                         .GetValue(config_item);
                     var config_type = config_instance.GetType();
-                    var holder_attr = config_type.GetCustomAttribute<ConfigurationHolderAttribute>() ?? new ConfigurationHolderAttribute();
-
-                    if (holder_attr.Hide == true) continue;
+                    var holder_attr = config_type.GetCustomAttribute<ConfigurationHolderAttribute>();
 
                     //Create config panle
-                    var panle = GetConfigPanel(config_type, config_instance);
+                    var panle = GetConfigPanel(config_type, config_instance, holder_attr);
                     if (panle.Children.Count != 0)
                     {
                         var sub_tree_item = new TreeViewItem() { Header = config_type.Name };
@@ -76,7 +74,7 @@ namespace ConfigGUI
                         sub_tree_item.Selected += (s, e) =>
                         {
                             //Get config panle
-                            var content = GetConfigPanel(config_type, config_instance);
+                            var content = GetConfigPanel(config_type, config_instance,holder_attr);
                             configRegion.Content = content;
                         };
 
@@ -96,12 +94,12 @@ namespace ConfigGUI
 
         private Dictionary<object, ConfigurationPanel> m_configuration_region_dict = new Dictionary<object, ConfigurationPanel>();
 
-        private Panel GetConfigPanel(Type config_type, object config_instance)
+        private Panel GetConfigPanel(Type config_type, object config_instance, ConfigurationHolderAttribute class_holder)
         {
             if (m_configuration_region_dict.TryGetValue(config_instance, out var region))
                 return region.Panel;
 
-            region = new ConfigurationPanel(config_type, config_instance);
+            region = new ConfigurationPanel(config_type, config_instance,class_holder);
             if (region.Panel.Children.Count != 0)
                 m_configuration_region_dict.Add(config_instance, region);
             return region.Panel;
