@@ -19,8 +19,6 @@ namespace ConfigGUI
         private static I18nManager s_i18n_manager = new I18nManager();
         private ConfigurationItemFactory m_item_factory;
 
-        private Panel m_sync_config_panel = null;
-
         public ConfigWindow(ConfigurationItemFactory itemFactory)
         {
             m_item_factory = itemFactory;
