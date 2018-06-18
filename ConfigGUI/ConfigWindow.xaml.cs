@@ -119,7 +119,7 @@ namespace ConfigGUI
             panel = new StackPanel();
             Label plugin_name_label = new Label()
             {
-                Content = $"Plugin Name: {plugin.Name}",
+                Content = $"Plugin: {plugin.Name}",
                 Margin = new Thickness(1)
             };
             Label plugin_author_label = new Label()
