@@ -1,5 +1,6 @@
 ﻿using ConfigGUI.ConfigurationI18n;
 using ConfigGUI.ConfigurationRegion;
+using Sync.Plugins;
 using Sync.Tools;
 using Sync.Tools.ConfigGUI;
 using System;
@@ -43,8 +44,13 @@ namespace ConfigGUI
             {
                 //get plguin name
                 string plugin_name = config_manager_type.GetField("name", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(manager) as string;
+                Plugin plugin = manager.GetType().GetField("instance", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(manager) as Plugin;
 
                 var tree_item = new TreeViewItem() { Header = plugin_name };
+                tree_item.Selected += (s, e) =>
+                  {
+                      configRegion.Content = GetPluginInformationPanel(plugin);
+                  };
 
                 //get List<PluginConfiuration>
                 var config_items_field = config_manager_type.GetField("items", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -71,6 +77,7 @@ namespace ConfigGUI
 
                         sub_tree_item.Selected += (s, e) =>
                         {
+                            e.Handled = true;
                             //Get config panle
                             var content = GetConfigPanel(config_type, config_instance,holder_attr);
                             configRegion.Content = content;
@@ -91,6 +98,7 @@ namespace ConfigGUI
         }
 
         private Dictionary<object, ConfigurationPanel> m_configuration_region_dict = new Dictionary<object, ConfigurationPanel>();
+        private Dictionary<Plugin, Panel> m_plugin_panel_dict = new Dictionary<Plugin, Panel>();
 
         private Panel GetConfigPanel(Type config_type, object config_instance, ConfigurationHolderAttribute class_holder)
         {
@@ -101,6 +109,35 @@ namespace ConfigGUI
             if (region.Panel.Children.Count != 0)
                 m_configuration_region_dict.Add(config_instance, region);
             return region.Panel;
+        }
+
+        private Panel GetPluginInformationPanel(Plugin plugin)
+        {
+            if (m_plugin_panel_dict.TryGetValue(plugin, out var panel))
+                return panel;
+
+            panel = new StackPanel();
+            Label plugin_name_label = new Label()
+            {
+                Content = $"Plugin Name: {plugin.Name}",
+                Margin = new Thickness(1)
+            };
+            Label plugin_author_label = new Label()
+            {
+                Content = $"Author: {plugin.Author}",
+                Margin = new Thickness(1)
+            };
+            Label plugin_version_label = new Label()
+            {
+                Content = $"Version: {plugin.GetType().GetCustomAttribute<SyncPluginID>()?.Version??"0.0.0"}",
+                Margin = new Thickness(1)
+            };
+            panel.Children.Add(plugin_name_label);
+            panel.Children.Add(plugin_author_label);
+            panel.Children.Add(plugin_version_label);
+
+            m_plugin_panel_dict.Add(plugin, panel);
+            return panel;
         }
 
         #endregion Plugins Config
