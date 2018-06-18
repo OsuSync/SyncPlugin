@@ -47,10 +47,13 @@ namespace ConfigGUI
                 Plugin plugin = manager.GetType().GetField("instance", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(manager) as Plugin;
 
                 var tree_item = new TreeViewItem() { Header = plugin_name };
-                tree_item.Selected += (s, e) =>
-                  {
-                      configRegion.Content = GetPluginInformationPanel(plugin);
-                  };
+                if(plugin != null)
+                {
+                    tree_item.Selected += (s, e) =>
+                    {
+                        configRegion.Content = GetPluginInformationPanel(plugin);
+                    };
+                }
 
                 //get List<PluginConfiuration>
                 var config_items_field = config_manager_type.GetField("items", BindingFlags.NonPublic | BindingFlags.Instance);
