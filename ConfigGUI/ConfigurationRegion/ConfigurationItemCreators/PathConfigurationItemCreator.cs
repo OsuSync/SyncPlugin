@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using Sync.Tools;
-using Sync.Tools.ConfigGUI;
+using Sync.Tools.ConfigurationAttribute;
 
 namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 {

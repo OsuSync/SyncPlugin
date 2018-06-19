@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Controls;
-using Sync.Tools.ConfigGUI;
+using Sync.Tools.ConfigurationAttribute;
 
 namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 {

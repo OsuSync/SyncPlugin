@@ -6,7 +6,7 @@ using Sync.MessageFilter;
 using Sync.Tools;
 using System.IO;
 using System.Diagnostics;
-using Sync.Tools.ConfigGUI;
+using Sync.Tools.ConfigurationAttribute;
 
 namespace NowPlaying
 {

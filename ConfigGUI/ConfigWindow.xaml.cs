@@ -2,7 +2,7 @@
 using ConfigGUI.ConfigurationRegion;
 using Sync.Plugins;
 using Sync.Tools;
-using Sync.Tools.ConfigGUI;
+using Sync.Tools.ConfigurationAttribute;
 using System;
 using System.Collections;
 using System.Collections.Generic;

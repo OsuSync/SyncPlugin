@@ -8,7 +8,7 @@ using Sync.Plugins;
 using Sync;
 using Sync.Command;
 using Sync.Tools;
-using Sync.Tools.ConfigGUI;
+using Sync.Tools.ConfigurationAttribute;
 
 namespace BeatmapSuggest
 {

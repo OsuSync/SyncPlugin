@@ -1,6 +1,6 @@
 ﻿using ConfigGUI.ConfigurationI18n;
 using Sync.Tools;
-using Sync.Tools.ConfigGUI;
+using Sync.Tools.ConfigurationAttribute;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using ConfigGUI.MultiSelect;
 using Sync.Tools;
-using Sync.Tools.ConfigGUI;
+using Sync.Tools.ConfigurationAttribute;
 
 namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 {
