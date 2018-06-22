@@ -13,11 +13,11 @@ using Sync.Tools;
 using System.Runtime.InteropServices;
 using Sync.Source;
 using System.Drawing.Drawing2D;
-using static Sync.Tools.DefaultI18n;
 using DefaultPlugin.Clients;
 using Sync.Command;
 using System.Diagnostics;
 using System.Reflection;
+using static Sync.Tools.DefaultI18n;
 
 namespace DefaultGUI
 {
@@ -50,28 +50,32 @@ namespace DefaultGUI
 
         public void ready()
         {
-            Invoke(new MethodInvoker(() => {
-                string formName = Console.Title;
-                int h = FindWindow("ConsoleWindowClass", formName);
-                Task.Delay(400);
-                ShowWindow(h, 0);
-                txtBotIRC.Text = DirectOSUIRCBot.IRCBotName;
-                txtBotIRCPassword.Text = DirectOSUIRCBot.IRCBotPasswd;
-                txtTargetIRC.Text = DirectOSUIRCBot.IRCNick;
-                txtLiveID.Text = SyncHost.Instance.SourceWrapper.Source.LiveID;
-                cbSources.Items.Clear();
-                if(DefaultGUI.hoster?.Sources != null)
-                foreach (var item in DefaultGUI.hoster?.Sources?.SourceList)
+            if (Created)
+            {
+                Invoke(new MethodInvoker(() =>
                 {
-                    cbSources.Items.Add(item);
-                }
-                cbSources.SelectedItem = DefaultGUI.hoster?.SourceWrapper?.Source;
+                    string formName = Console.Title;
+                    int h = FindWindow("ConsoleWindowClass", formName);
+                    Task.Delay(400);
+                    ShowWindow(h, 0);
+                    txtBotIRC.Text = DirectOSUIRCBot.IRCBotName;
+                    txtBotIRCPassword.Text = DirectOSUIRCBot.IRCBotPasswd;
+                    txtTargetIRC.Text = DirectOSUIRCBot.IRCNick;
+                    txtLiveID.Text = SyncHost.Instance.SourceWrapper.Source.LiveID;
+                    cbSources.Items.Clear();
+                    if (DefaultGUI.hoster?.Sources != null)
+                        foreach (var item in DefaultGUI.hoster?.Sources?.SourceList)
+                        {
+                            cbSources.Items.Add(item);
+                        }
+                    cbSources.SelectedItem = DefaultGUI.hoster?.SourceWrapper?.Source;
 
-                var c = new AutoCompleteStringCollection();
-                if(DefaultGUI.hoster != null) c.AddRange(DefaultGUI.hoster?.Commands?.Dispatch?.getCommandsHelp().Keys.ToArray());
-                txtCmd.AutoCompleteCustomSource = c;
-                IO.SetIO(this);
-            }));
+                    var c = new AutoCompleteStringCollection();
+                    if (DefaultGUI.hoster != null) c.AddRange(DefaultGUI.hoster?.Commands?.Dispatch?.getCommandsHelp().Keys.ToArray());
+                    txtCmd.AutoCompleteCustomSource = c;
+                    IO.SetIO(this);
+                }));
+            }
         }
 
         delegate void AppendTextDelegate(string text);
@@ -272,8 +276,8 @@ namespace DefaultGUI
 
         private void cbSources_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if ((cbSources.SelectedItem as SourceBase).Name == Configuration.Source) return;
-            Configuration.Source = (cbSources.SelectedItem as SourceBase).Name;
+            if ((cbSources.SelectedItem as SourceBase).Name == Configuration.Instance.Source) return;
+            Configuration.Instance.Source = (cbSources.SelectedItem as SourceBase).Name;
             if(MessageBox.Show(this, Language.UI_INFO_RESTART_REQ, "Restart", MessageBoxButtons.YesNo) == DialogResult.Yes)
             {
                 DefaultGUI.hoster.Commands.invokeCmdString("restart");

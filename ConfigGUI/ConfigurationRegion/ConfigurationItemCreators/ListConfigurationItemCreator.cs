@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 using System.Windows.Controls;
 using ConfigGUI.MultiSelect;
 using Sync.Tools;
-using Sync.Tools.ConfigGUI;
+using Sync.Tools.ConfigurationAttribute;
 
 namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 {
-    class ListConfigurationItemCreator:ConfigurationItemCreatorBase
+    public class ListConfigurationItemCreator:BaseConfigurationItemCreator
     {
         public override Panel CreateControl(BaseConfigurationAttribute attr, PropertyInfo prop, object configuration_instance)
         {
@@ -21,7 +21,7 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 
         public Panel CreateSingleSelectList(ListAttribute lattr, PropertyInfo prop, object configuration_instance)
         {
-            var evalue = Tools.GetConigValue(prop, configuration_instance);
+            var evalue = GetConfigValue(prop, configuration_instance);
             var panel = base.CreateControl(lattr, prop, configuration_instance);
 
             var combo_list = new ComboBox() { Width = 150 };
@@ -32,7 +32,7 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 
             combo_list.SelectionChanged += (s, e) =>
             {
-                prop.SetValue(configuration_instance, new ConfigurationElement($"{combo_list.SelectedValue}"));
+                SetConfigValue(prop,configuration_instance, $"{combo_list.SelectedValue}");
             };
 
             return panel;
@@ -40,7 +40,7 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 
         public Panel CreateMultiSelectList(ListAttribute lattr, PropertyInfo prop, object configuration_instance)
         {
-            var evalue = Tools.GetConigValue(prop, configuration_instance);
+            var evalue = GetConfigValue(prop, configuration_instance);
             var panel = base.CreateControl(lattr, prop, configuration_instance);
 
             string[] values = lattr.ValueList;
@@ -61,7 +61,7 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
             multi_list.SelectedItems = default_dict;
             multi_list.Click += (s, e) =>
             {
-                prop.SetValue(configuration_instance, new ConfigurationElement(string.Join(lattr.SplitSeparator.ToString(), multi_list.SelectedItems.Keys)));
+                SetConfigValue(prop,configuration_instance, string.Join(lattr.SplitSeparator.ToString(), multi_list.SelectedItems.Keys));
             };
 
             panel.Children.Add(multi_list);

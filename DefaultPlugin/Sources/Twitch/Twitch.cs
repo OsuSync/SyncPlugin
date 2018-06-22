@@ -120,7 +120,7 @@ namespace DefaultPlugin.Sources.Twitch
                 viewerUpdateTimer.Start();
 
                 Status = SourceStatus.CONNECTED_WORKING;
-                
+                SendStatus = true;
             }
             catch (Exception e)
             {

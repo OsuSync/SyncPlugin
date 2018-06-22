@@ -9,11 +9,11 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using Sync.Tools;
-using Sync.Tools.ConfigGUI;
+using Sync.Tools.ConfigurationAttribute;
 
 namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 {
-    class ColorConfigurationItemCreator:ConfigurationItemCreatorBase
+    public class ColorConfigurationItemCreator:BaseConfigurationItemCreator
     {
         public override Panel CreateControl(BaseConfigurationAttribute attr, PropertyInfo prop, object configuration_instance)
         {
@@ -21,9 +21,9 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 
             ColorAttribute cattr = attr as ColorAttribute;
 
-            var color_str = Tools.GetConigValue(prop, configuration_instance);
+            var color_str = GetConfigValue(prop, configuration_instance);
 
-            var color_box = new TextBox() { Text = color_str, Width = 160, VerticalContentAlignment = VerticalAlignment.Center };
+            var color_box = new TextBox() { Text = color_str, Width = 160, Height = 22, VerticalContentAlignment = VerticalAlignment.Center };
             var bound = new Border()
             {
                 BorderBrush = Brushes.Black,
@@ -46,7 +46,7 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
             button.Click += (s, e) =>
             {
                 var colorDialog = new System.Windows.Forms.ColorDialog();
-                color_str = Tools.GetConigValue(prop, configuration_instance);
+                color_str = GetConfigValue(prop, configuration_instance);
 
                 color = StringToColor(color_str);
                 colorDialog.Color = color;
@@ -65,13 +65,13 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
                 color_rect.Fill = new SolidColorBrush() { Color = Color.FromArgb(color.A, color.R, color.G, color.B) };
 
                 if (cattr.Check(color_box.Text))
-                    prop.SetValue(configuration_instance, new ConfigurationElement($"{color_box.Text}"));
+                    SetConfigValue(prop,configuration_instance, color_box.Text);
             };
 
             return panel;
         }
 
-        private System.Drawing.Color StringToColor(string rgba)
+        protected System.Drawing.Color StringToColor(string rgba)
         {
             if (rgba.Length != 9) return System.Drawing.Color.Black;
 
@@ -83,7 +83,7 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
             return color;
         }
 
-        private string RgbaToString(byte r, byte g, byte b, byte a)
+        protected string RgbaToString(byte r, byte g, byte b, byte a)
         {
             return $"#{r:X2}{g:X2}{b:X2}{a:X2}";
         }

@@ -1,5 +1,5 @@
 ﻿using Sync.Tools;
-using Sync.Tools.ConfigGUI;
+using Sync.Tools.ConfigurationAttribute;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,6 +42,15 @@ namespace ConfigGUI.ConfigurationI18n
             val = null;
             if (m_i18n_dict.TryGetValue(@namespace, out var dict))
                 if (dict.TryGetValue(config_name, out val))
+                    return true;
+            return false;
+        }
+
+        public bool TryGetLanguageDescription(string @namespace, string config_name, out string val)
+        {
+            val = null;
+            if (m_i18n_dict.TryGetValue(@namespace, out var dict))
+                if (dict.TryGetValue($"{config_name}Description", out val))
                     return true;
             return false;
         }

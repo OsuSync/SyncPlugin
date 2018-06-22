@@ -1,25 +1,14 @@
 ﻿using ConfigGUI.ConfigurationI18n;
 using ConfigGUI.ConfigurationRegion;
-using ConfigGUI.MultiSelect;
 using Sync.Plugins;
 using Sync.Tools;
-using Sync.Tools.ConfigGUI;
+using Sync.Tools.ConfigurationAttribute;
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace ConfigGUI
 {
@@ -29,69 +18,42 @@ namespace ConfigGUI
     public partial class ConfigWindow : Window
     {
         private static I18nManager s_i18n_manager = new I18nManager();
-        private static ConfigurationItemFactory s_item_factory = new ConfigurationItemFactory();
+        private ConfigurationItemFactory m_item_factory;
 
-        private Panel m_sync_config_panel = null;
-
-        public ConfigWindow()
+        public ConfigWindow(ConfigurationItemFactory itemFactory)
         {
+            m_item_factory = itemFactory;
+
             InitializeComponent();
-
-            m_sync_config_panel = CreateSyncConfigPanel();
-
-            InitializeSyncConfigPanel();
             InitializeConfigPanel();
 
             Title = DefaultLanguage.WINDOW_TITLE;
         }
 
-        #region Sync Config
-        private void InitializeSyncConfigPanel()
-        {
-            var tree_item = new TreeViewItem() { Header = "Sync" };
-            configsTreeView.Items.Add(tree_item);
-            tree_item.Selected += (s, e) =>
-              {
-                  configRegion.Content = m_sync_config_panel;
-              };
-        }
-
-        private Panel CreateSyncConfigPanel()
-        {
-            var sync_config_type = typeof(Configuration);
-            StackPanel panel = new StackPanel();
-
-            foreach (var prop in sync_config_type.GetProperties())
-            {
-                BaseConfigurationAttribute attr =null;
-
-                if (prop.PropertyType == typeof(bool))
-                    attr = new BoolAttribute();
-                else if (prop.PropertyType == typeof(string))
-                    attr= new StringAttribute();
-
-                var item_panel=ConfigurationItemFactory.Instance.CreateItemPanel(attr, prop, null);
-                panel.Children.Insert(0, item_panel);
-            }
-
-            return panel;
-        }
-        #endregion
-
         #region Plugins Config
+
         private void InitializeConfigPanel()
         {
             Type config_manager_type = typeof(PluginConfigurationManager);
             var config_manager_list = config_manager_type.GetField("ConfigurationSet", BindingFlags.Static | BindingFlags.NonPublic)
-                .GetValue(null) as LinkedList<PluginConfigurationManager>;
+                .GetValue(null) as IEnumerable<PluginConfigurationManager>;
 
-            List<TreeViewItem> tree_view_list= new List<TreeViewItem>();
+            List<TreeViewItem> tree_view_list = new List<TreeViewItem>();
             //each configuration manager
             foreach (var manager in config_manager_list)
             {
                 //get plguin name
-                var plguin = config_manager_type.GetField("instance", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(manager) as Plugin;
-                var tree_item = new TreeViewItem() { Header = plguin.Name };
+                string plugin_name = config_manager_type.GetField("name", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(manager) as string;
+                Plugin plugin = manager.GetType().GetField("instance", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(manager) as Plugin;
+
+                var tree_item = new TreeViewItem() { Header = plugin_name };
+                if(plugin != null)
+                {
+                    tree_item.Selected += (s, e) =>
+                    {
+                        configRegion.Content = GetPluginInformationPanel(plugin);
+                    };
+                }
 
                 //get List<PluginConfiuration>
                 var config_items_field = config_manager_type.GetField("items", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -108,18 +70,28 @@ namespace ConfigGUI
                     var config_instance = config_item.GetType().GetField("config", BindingFlags.NonPublic | BindingFlags.Instance)
                         .GetValue(config_item);
                     var config_type = config_instance.GetType();
+                    var holder_attr = config_type.GetCustomAttribute<ConfigurationHolderAttribute>();
 
-                    var sub_tree_item = new TreeViewItem() { Header = config_type.Name };
-
-                    sub_tree_item.Selected += (s, e) =>
+                    //Create config panle
+                    var panle = GetConfigPanel(config_type, config_instance, holder_attr);
+                    if (panle.Children.Count != 0)
                     {
-                        var panle = GetConfigPanel(config_type, config_instance);
-                        configRegion.Content = panle;
-                    };
+                        var sub_tree_item = new TreeViewItem() { Header = config_type.Name };
 
-                    tree_item.Items.Add(sub_tree_item);
+                        sub_tree_item.Selected += (s, e) =>
+                        {
+                            e.Handled = true;
+                            //Get config panle
+                            var content = GetConfigPanel(config_type, config_instance,holder_attr);
+                            configRegion.Content = content;
+                        };
+
+                        tree_item.Items.Add(sub_tree_item);
+                    }
                 }
-                tree_view_list.Add(tree_item);
+
+                if(tree_item.Items.Count != 0)
+                    tree_view_list.Add(tree_item);
             }
 
             tree_view_list.Sort((a, b) => ((string)a.Header).CompareTo((string)b.Header));
@@ -129,18 +101,49 @@ namespace ConfigGUI
         }
 
         private Dictionary<object, ConfigurationPanel> m_configuration_region_dict = new Dictionary<object, ConfigurationPanel>();
+        private Dictionary<Plugin, Panel> m_plugin_panel_dict = new Dictionary<Plugin, Panel>();
 
-        private Panel GetConfigPanel(Type config_type,object config_instance)
+        private Panel GetConfigPanel(Type config_type, object config_instance, ConfigurationHolderAttribute class_holder)
         {
             if (m_configuration_region_dict.TryGetValue(config_instance, out var region))
                 return region.Panel;
 
-            region = new ConfigurationPanel(config_type, config_instance);
-
-            m_configuration_region_dict.Add(config_instance, region);
+            region = new ConfigurationPanel(config_type, config_instance,class_holder);
+            if (region.Panel.Children.Count != 0)
+                m_configuration_region_dict.Add(config_instance, region);
             return region.Panel;
         }
-        #endregion
+
+        private Panel GetPluginInformationPanel(Plugin plugin)
+        {
+            if (m_plugin_panel_dict.TryGetValue(plugin, out var panel))
+                return panel;
+
+            panel = new StackPanel();
+            Label plugin_name_label = new Label()
+            {
+                Content = $"Plugin: {plugin.Name}",
+                Margin = new Thickness(1)
+            };
+            Label plugin_author_label = new Label()
+            {
+                Content = $"Author: {plugin.Author}",
+                Margin = new Thickness(1)
+            };
+            Label plugin_version_label = new Label()
+            {
+                Content = $"Version: {plugin.GetType().GetCustomAttribute<SyncPluginID>()?.Version??"0.0.0"}",
+                Margin = new Thickness(1)
+            };
+            panel.Children.Add(plugin_name_label);
+            panel.Children.Add(plugin_author_label);
+            panel.Children.Add(plugin_version_label);
+
+            m_plugin_panel_dict.Add(plugin, panel);
+            return panel;
+        }
+
+        #endregion Plugins Config
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {

@@ -1,5 +1,5 @@
 ﻿using ConfigGUI.ConfigurationRegion.ConfigurationItemCreators;
-using Sync.Tools.ConfigGUI;
+using Sync.Tools.ConfigurationAttribute;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +10,11 @@ using System.Windows.Controls;
 
 namespace ConfigGUI.ConfigurationRegion
 {
-    class ConfigurationItemFactory
+    public class ConfigurationItemFactory
     {
         public static ConfigurationItemFactory Instance;
 
-        public Dictionary<Type,ConfigurationItemCreatorBase> m_items_mapping = new Dictionary<Type, ConfigurationItemCreatorBase>();
+        public Dictionary<Type,BaseConfigurationItemCreator> m_items_mapping = new Dictionary<Type, BaseConfigurationItemCreator>();
 
         public ConfigurationItemFactory()
         {
@@ -27,13 +27,44 @@ namespace ConfigGUI.ConfigurationRegion
             m_items_mapping.Add(typeof(FontAttribute), new FontConfigurationItemCreator());
             m_items_mapping.Add(typeof(ColorAttribute), new ColorConfigurationItemCreator());
             m_items_mapping.Add(typeof(ListAttribute), new ListConfigurationItemCreator());
-            m_items_mapping.Add(typeof(ReflectListAttribute), new ListConfigurationItemCreator());
             m_items_mapping.Add(typeof(PathAttribute), new PathConfigurationItemCreator());
+        }
+
+        public void RegisterItemCreator<T>(BaseConfigurationItemCreator creator) where T: BaseConfigurationAttribute
+        {
+            m_items_mapping.Add(typeof(T),creator);
         }
 
         public Panel CreateItemPanel(BaseConfigurationAttribute attr, PropertyInfo prop, object configuration_instance)
         {
-            return m_items_mapping[attr.GetType()].CreateControl(attr,prop, configuration_instance);
+            BaseConfigurationItemCreator creator;
+            Type type = attr.GetType();
+
+            if (!m_items_mapping.TryGetValue(type, out creator))
+            {
+                IEnumerable<KeyValuePair<Type, BaseConfigurationItemCreator>> list = m_items_mapping;
+                KeyValuePair<Type, BaseConfigurationItemCreator> pair;
+
+                while (list.Count()>1)
+                {
+                    list = list.Where(p => type.IsSubclassOf(p.Key) || p.Key.IsAssignableFrom(type));
+
+                    pair = list.FirstOrDefault();
+
+                    if(pair.Key==null || pair.Value==null)
+                    {
+                        type = typeof(StringAttribute);
+                        creator = m_items_mapping[type];
+                        break;
+                    }
+
+                    type = pair.Key;
+                    creator = pair.Value;
+
+                    list = list.Take(1);
+                }
+            }
+            return creator.CreateControl(attr,prop, configuration_instance);
         }
     }
 }

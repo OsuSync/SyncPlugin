@@ -1,4 +1,5 @@
-﻿using Sync.Plugins;
+﻿using ConfigGUI.ConfigurationRegion;
+using Sync.Plugins;
 using Sync.Tools;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,8 @@ namespace ConfigGUI
         public const string PLUGIN_NAME="ConfigGUI";
         public const string PLUGIN_AUTHOR = "KedamaOvO";
         public const string PLGUIN_VERSION = "0.0.1";
+
+        public ConfigurationItemFactory ItemFactory { get; } = new ConfigurationItemFactory();
 
         public ConfigGuiPlugin() : base(PLUGIN_NAME, PLUGIN_AUTHOR)
         {
@@ -35,7 +38,7 @@ namespace ConfigGUI
             {
                 t.Commands.Dispatch.bind("config", args =>
                  {
-                     Application.Current.Dispatcher.Invoke(()=>new ConfigWindow().Show());
+                     Application.Current.Dispatcher.Invoke(()=>new ConfigWindow(ItemFactory).Show());
                      return true;
                  }, "show config window");
             });

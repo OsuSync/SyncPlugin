@@ -45,6 +45,7 @@ namespace DefaultPlugin.Sources.BiliBili
                 isConnected = true;
             }
             Status = SourceStatus.CONNECTED_WORKING;
+            SendStatus = true;
             RaiseEvent(new BaseStatusEvent(SourceStatus.CONNECTED_WORKING));
         }
 
