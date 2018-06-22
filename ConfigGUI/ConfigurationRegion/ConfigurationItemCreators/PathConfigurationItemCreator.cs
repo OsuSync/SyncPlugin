@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -37,7 +38,15 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
                 if (!pattr.IsDirectory)
                 {
                     var fileDialog = new System.Windows.Forms.OpenFileDialog();
-                    fileDialog.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                    try
+                    {
+                        fileDialog.InitialDirectory = Path.GetFullPath(evalue);
+                        fileDialog.FileName = Path.GetFileName(evalue);
+                    }
+                    catch(ArgumentException)
+                    {
+                        fileDialog.InitialDirectory = AppDomain.CurrentDomain.BaseDirectory;
+                    }
                     fileDialog.RestoreDirectory = true;
                     if (fileDialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
                         path_box.Text = fileDialog.FileName;
