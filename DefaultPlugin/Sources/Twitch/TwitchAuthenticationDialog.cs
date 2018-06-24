@@ -57,7 +57,7 @@ namespace DefaultPlugin.Sources.Twitch
 
             if (oauth.Length == 0)
             {
-                MessageBox.Show("OAuth不能为空", "TwitchAuthenticationDialog");
+                MessageBox.Show("Please enter your OAuth key", "TwitchAuthenticationDialog");
                 return;
             }
 
