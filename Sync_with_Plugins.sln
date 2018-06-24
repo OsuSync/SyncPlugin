@@ -22,6 +22,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DefaultGUI", "DefaultGUI\De
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sync", "..\Sync\Sync.csproj", "{FBD514C2-2830-479E-B050-D1C383028456}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigGUI", "ConfigGUI\ConfigGUI.csproj", "{0F922AFA-BBC0-44A0-8CA7-D408D5DD8298}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -94,6 +96,14 @@ Global
 		{FBD514C2-2830-479E-B050-D1C383028456}.Release|Any CPU.Build.0 = Release|Any CPU
 		{FBD514C2-2830-479E-B050-D1C383028456}.Release|x86.ActiveCfg = Release|Any CPU
 		{FBD514C2-2830-479E-B050-D1C383028456}.Release|x86.Build.0 = Release|Any CPU
+		{0F922AFA-BBC0-44A0-8CA7-D408D5DD8298}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F922AFA-BBC0-44A0-8CA7-D408D5DD8298}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F922AFA-BBC0-44A0-8CA7-D408D5DD8298}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{0F922AFA-BBC0-44A0-8CA7-D408D5DD8298}.Debug|x86.Build.0 = Debug|Any CPU
+		{0F922AFA-BBC0-44A0-8CA7-D408D5DD8298}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F922AFA-BBC0-44A0-8CA7-D408D5DD8298}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F922AFA-BBC0-44A0-8CA7-D408D5DD8298}.Release|x86.ActiveCfg = Release|Any CPU
+		{0F922AFA-BBC0-44A0-8CA7-D408D5DD8298}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
