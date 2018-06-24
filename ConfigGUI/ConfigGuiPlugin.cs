@@ -11,11 +11,12 @@ using System.Windows;
 
 namespace ConfigGUI
 {
+    [SyncPluginID("4eaf2dca-1d49-4f0c-b9b7-c220db5feab0", PLGUIN_VERSION)]
     public class ConfigGuiPlugin : Plugin
     {
         public const string PLUGIN_NAME="ConfigGUI";
         public const string PLUGIN_AUTHOR = "KedamaOvO";
-        public const string PLGUIN_VERSION = "0.0.1";
+        public const string PLGUIN_VERSION = "0.1.0";
 
         public ConfigurationItemFactory ItemFactory { get; } = new ConfigurationItemFactory();
 
