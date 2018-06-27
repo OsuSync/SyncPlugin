@@ -14,12 +14,12 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 {
     public abstract class BaseConfigurationItemCreator
     {
-        protected static string GetConfigValue(PropertyInfo prop, object config_instance)
+        public static string GetConfigValue(PropertyInfo prop, object config_instance)
         {
             return prop.GetValue(config_instance)?.ToString() ?? "";
         }
 
-        protected static void SetConfigValue(PropertyInfo prop, object config_instance,string value)
+        public static void SetConfigValue(PropertyInfo prop, object config_instance,string value)
         {
             prop.SetValue(config_instance, new ConfigurationElement(value));
         }
