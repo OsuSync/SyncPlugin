@@ -165,11 +165,11 @@ namespace ConfigGUI
 
         private async void Save_Button_Click(object sender, RoutedEventArgs e)
         {
-            SavedHit_Label.Content = DefaultLanguage.LABEL_SAVED_SAVING;
+            SavedHint_Label.Content = DefaultLanguage.LABEL_SAVED_SAVING;
             SavePluginConfig();
-            SavedHit_Label.Content = DefaultLanguage.LABEL_SAVED;
+            SavedHint_Label.Content = DefaultLanguage.LABEL_SAVED;
             await Task.Delay(2000);
-            SavedHit_Label.Content = "";
+            SavedHint_Label.Content = "";
         }
     }
 }
