@@ -7,6 +7,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
@@ -19,6 +20,7 @@ namespace ConfigGUI
     {
         private static I18nManager s_i18n_manager = new I18nManager();
         private ConfigurationItemFactory m_item_factory;
+        private IEnumerable<PluginConfigurationManager> m_pluginConfigurationManagers;
 
         public ConfigWindow(ConfigurationItemFactory itemFactory)
         {
@@ -28,6 +30,7 @@ namespace ConfigGUI
             InitializeConfigPanel();
 
             Title = DefaultLanguage.WINDOW_TITLE;
+            Save_Button.Content = DefaultLanguage.BUTTON_SAVE;
         }
 
         #region Plugins Config
@@ -35,12 +38,12 @@ namespace ConfigGUI
         private void InitializeConfigPanel()
         {
             Type config_manager_type = typeof(PluginConfigurationManager);
-            var config_manager_list = config_manager_type.GetField("ConfigurationSet", BindingFlags.Static | BindingFlags.NonPublic)
+            m_pluginConfigurationManagers = config_manager_type.GetField("ConfigurationSet", BindingFlags.Static | BindingFlags.NonPublic)
                 .GetValue(null) as IEnumerable<PluginConfigurationManager>;
 
             List<TreeViewItem> tree_view_list = new List<TreeViewItem>();
             //each configuration manager
-            foreach (var manager in config_manager_list)
+            foreach (var manager in m_pluginConfigurationManagers)
             {
                 //get plguin name
                 string plugin_name = config_manager_type.GetField("name", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(manager) as string;
@@ -148,7 +151,25 @@ namespace ConfigGUI
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             e.Cancel = true;
+            SavePluginConfig();
             Hide();
+        }
+
+        private void SavePluginConfig()
+        {
+            foreach (var manager in m_pluginConfigurationManagers)
+            {
+                manager.SaveAll();
+            }
+        }
+
+        private async void Save_Button_Click(object sender, RoutedEventArgs e)
+        {
+            SavedHit_Label.Content = DefaultLanguage.LABEL_SAVED_SAVING;
+            SavePluginConfig();
+            SavedHit_Label.Content = DefaultLanguage.LABEL_SAVED;
+            await Task.Delay(2000);
+            SavedHit_Label.Content = "";
         }
     }
 }
