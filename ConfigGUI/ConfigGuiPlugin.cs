@@ -16,7 +16,7 @@ namespace ConfigGUI
     {
         public const string PLUGIN_NAME="ConfigGUI";
         public const string PLUGIN_AUTHOR = "KedamaOvO";
-        public const string PLGUIN_VERSION = "0.1.0";
+        public const string PLGUIN_VERSION = "0.1.1";
 
         public ConfigurationItemFactory ItemFactory { get; } = new ConfigurationItemFactory();
 
