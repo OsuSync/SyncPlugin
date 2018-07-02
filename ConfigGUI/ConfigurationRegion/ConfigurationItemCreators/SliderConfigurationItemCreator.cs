@@ -43,6 +43,7 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
             num_view.TextChanged += (s, e) =>
             {
                 SetConfigValue(prop,configuration_instance, num_view.Text);
+                ConfigWindow.RequireRestart = attr.RequireRestart;
             };
 
             panel.Children.Add(slider);

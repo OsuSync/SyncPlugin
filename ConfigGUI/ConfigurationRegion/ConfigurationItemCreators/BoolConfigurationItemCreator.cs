@@ -37,6 +37,7 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
             checkbox.Click += (s, e) =>
             {
                 SetConfigValue(prop,configuration_instance, checkbox.IsChecked.ToString());
+                ConfigWindow.RequireRestart = attr.RequireRestart;
             };
 
             if (!string.IsNullOrWhiteSpace(description_content))

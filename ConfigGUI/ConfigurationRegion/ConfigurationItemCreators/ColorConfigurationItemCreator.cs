@@ -66,6 +66,7 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 
                 if (cattr.Check(color_box.Text))
                     SetConfigValue(prop,configuration_instance, color_box.Text);
+                ConfigWindow.RequireRestart = attr.RequireRestart;
             };
 
             return panel;

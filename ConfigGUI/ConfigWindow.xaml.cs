@@ -22,8 +22,23 @@ namespace ConfigGUI
         private ConfigurationItemFactory m_item_factory;
         private IEnumerable<PluginConfigurationManager> m_pluginConfigurationManagers;
 
+        private static ConfigWindow s_window_instance;
+
+        private static bool s_requireRestart = false;
+        public  static bool RequireRestart
+        {
+            get => s_requireRestart;
+            set
+            {
+                s_requireRestart = value | s_requireRestart;
+                if (value)
+                    s_window_instance.Title = $"{DefaultLanguage.WINDOW_TITLE} ({DefaultLanguage.WINDOW_TITLE_REQUIRE_RESTART})";
+            }
+        }
+
         public ConfigWindow(ConfigurationItemFactory itemFactory)
         {
+            s_window_instance = this;
             m_item_factory = itemFactory;
 
             InitializeComponent();
@@ -70,7 +85,8 @@ namespace ConfigGUI
                 while (enumerator.MoveNext())
                 {
                     var config_item = enumerator.Current;
-                    var config_instance = config_item.GetType().GetField("config", BindingFlags.NonPublic | BindingFlags.Instance)
+                    var config_instance = config_item.GetType()
+                        .GetField("config", BindingFlags.NonPublic | BindingFlags.Instance)
                         .GetValue(config_item);
                     var config_type = config_instance.GetType();
                     var holder_attr = config_type.GetCustomAttribute<ConfigurationHolderAttribute>();

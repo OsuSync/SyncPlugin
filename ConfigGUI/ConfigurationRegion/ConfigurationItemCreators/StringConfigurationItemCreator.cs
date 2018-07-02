@@ -31,6 +31,7 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
             text.TextChanged += (s, e) =>
             {
                 SetConfigValue(prop,configuration_instance, text.Text);
+                ConfigWindow.RequireRestart = attr.RequireRestart;
             };
 
             return panel;
