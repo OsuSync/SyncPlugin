@@ -15,7 +15,5 @@ namespace ConfigGUI
         public static LanguageElement BUTTON_SAVE = "Save";
         public static LanguageElement LABEL_SAVED = "Saved!";
         public static LanguageElement LABEL_SAVED_SAVING = "Saving...";
-
-
     }
 }
