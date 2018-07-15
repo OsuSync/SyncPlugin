@@ -184,8 +184,13 @@ namespace ConfigGUI
             SavedHint_Label.Content = DefaultLanguage.LABEL_SAVED_SAVING;
             SavePluginConfig();
             SavedHint_Label.Content = DefaultLanguage.LABEL_SAVED;
-            await Task.Delay(2000);
-            SavedHint_Label.Content = "";
+            try
+            {
+                await Task.Delay(2000);
+                SavedHint_Label.Content = "";
+            }
+            catch (Exception)
+            { }
         }
     }
 }
