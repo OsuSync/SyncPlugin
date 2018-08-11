@@ -44,9 +44,9 @@ namespace ConfigGUI
                      {
                          window = (window ?? new ConfigWindow(ItemFactory));
                          if (window.Visibility == Visibility.Visible)
-                             window.Topmost = true;
+                             window.Activate();
                          else
-                            window.Show();
+                             window.Show();
                      });
                      return true;
                  }, "show config window");
