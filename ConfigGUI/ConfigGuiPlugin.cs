@@ -34,12 +34,20 @@ namespace ConfigGUI
         public override void OnEnable()
         {
             I18n.Instance.ApplyLanguage(new DefaultLanguage());
+            ConfigWindow window=null;
 
             base.EventBus.BindEvent<PluginEvents.InitCommandEvent>((t) =>
             {
                 t.Commands.Dispatch.bind("config", args =>
                  {
-                     Application.Current.Dispatcher.Invoke(()=>new ConfigWindow(ItemFactory).Show());
+                     Application.Current.Dispatcher.Invoke(()=>
+                     {
+                         window = (window ?? new ConfigWindow(ItemFactory));
+                         if (window.Visibility == Visibility.Visible)
+                             window.Topmost = true;
+                         else
+                            window.Show();
+                     });
                      return true;
                  }, "show config window");
             });
