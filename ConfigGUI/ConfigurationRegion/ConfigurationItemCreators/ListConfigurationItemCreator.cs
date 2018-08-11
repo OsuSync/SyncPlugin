@@ -33,6 +33,7 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
             combo_list.SelectionChanged += (s, e) =>
             {
                 SetConfigValue(prop,configuration_instance, $"{combo_list.SelectedValue}");
+                ConfigWindow.RequireRestart = lattr.RequireRestart;
             };
 
             return panel;
@@ -62,6 +63,7 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
             multi_list.Click += (s, e) =>
             {
                 SetConfigValue(prop,configuration_instance, string.Join(lattr.SplitSeparator.ToString(), multi_list.SelectedItems.Keys));
+                ConfigWindow.RequireRestart = lattr.RequireRestart;
             };
 
             panel.Children.Add(multi_list);

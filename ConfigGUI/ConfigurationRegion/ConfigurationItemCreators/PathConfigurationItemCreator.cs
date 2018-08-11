@@ -64,6 +64,7 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
             {
                 if (pattr.Check(path_box.Text))
                     SetConfigValue(prop,configuration_instance, path_box.Text);
+                ConfigWindow.RequireRestart = attr.RequireRestart;
             };
 
             return panel;

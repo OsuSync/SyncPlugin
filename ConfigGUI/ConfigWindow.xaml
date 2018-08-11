@@ -13,10 +13,20 @@
         </Grid.ColumnDefinitions>
 
         <TreeView Name="configsTreeView" Margin="5" />
-        <Border Margin="5" BorderBrush="Black" BorderThickness="1" Background="White" Grid.Column="1">
-            <ScrollViewer Name="configRegion" VerticalScrollBarVisibility="auto">
-                <StackPanel />
-            </ScrollViewer>
-        </Border>
+        <Grid  Grid.Column="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="35" />
+            </Grid.RowDefinitions>
+            <Border Margin="5" BorderBrush="Black" BorderThickness="1" Background="White" Grid.Row="0">
+                <ScrollViewer Name="configRegion" VerticalScrollBarVisibility="auto">
+                    <StackPanel />
+                </ScrollViewer>
+            </Border>
+            <StackPanel Margin="0,0,5,0" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Right" Orientation="Horizontal">
+                <Label Name="SavedHint_Label" Margin="0,0,10,0" Content=""/>
+                <Button Name="Save_Button" Content="Save" Width="50" Height="25" Click="Save_Button_Click"/>
+            </StackPanel>
+        </Grid>
     </Grid>
 </Window>

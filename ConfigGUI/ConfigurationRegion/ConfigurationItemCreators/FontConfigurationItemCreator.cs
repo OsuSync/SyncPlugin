@@ -41,6 +41,7 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
             {
                 if (fattr.Check(font_box.Text))
                     SetConfigValue(prop,configuration_instance, font_box.Text);
+                ConfigWindow.RequireRestart = attr.RequireRestart;
             };
 
             return panel;

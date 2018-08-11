@@ -16,7 +16,7 @@ namespace ConfigGUI
     {
         public const string PLUGIN_NAME="ConfigGUI";
         public const string PLUGIN_AUTHOR = "KedamaOvO";
-        public const string PLGUIN_VERSION = "0.1.0";
+        public const string PLGUIN_VERSION = "0.1.2";
 
         public ConfigurationItemFactory ItemFactory { get; } = new ConfigurationItemFactory();
 
@@ -34,12 +34,20 @@ namespace ConfigGUI
         public override void OnEnable()
         {
             I18n.Instance.ApplyLanguage(new DefaultLanguage());
+            ConfigWindow window=null;
 
             base.EventBus.BindEvent<PluginEvents.InitCommandEvent>((t) =>
             {
                 t.Commands.Dispatch.bind("config", args =>
                  {
-                     Application.Current.Dispatcher.Invoke(()=>new ConfigWindow(ItemFactory).Show());
+                     Application.Current.Dispatcher.Invoke(()=>
+                     {
+                         window = (window ?? new ConfigWindow(ItemFactory));
+                         if (window.Visibility == Visibility.Visible)
+                             window.Activate();
+                         else
+                             window.Show();
+                     });
                      return true;
                  }, "show config window");
             });
