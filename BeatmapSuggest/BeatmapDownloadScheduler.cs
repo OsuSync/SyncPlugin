@@ -1,4 +1,5 @@
-﻿using Sync.MessageFilter;
+﻿using Sync;
+using Sync.MessageFilter;
 using Sync.Tools;
 using System;
 using System.Collections.Generic;
@@ -25,15 +26,40 @@ namespace BeatmapSuggest
         
         string save_path;
 
-        string api_key;
+        public string api_key { get; set; }
+
+        public string osu_cookies { get; set; }
 
         int capacity;
 
-        public BeatmapDownloadScheduler(int history_capacity,string api_key)
+        public BeatmapDownloadScheduler(int history_capacity,string api_key,string osu_cookies)
         {
             suggest_history_queue = new LinkedList<BeatmapDownloadTask>();
             capacity = history_capacity;
             this.api_key = api_key;
+            this.osu_cookies = osu_cookies;
+        }
+
+        public bool CheckDownloadable()
+        {
+            var error = string.Empty;
+
+            if (suggest_history_queue.Count==0)
+                error = $"[BeatmapDownloadScheduler]Queue is empty.";
+            else if (string.IsNullOrWhiteSpace(osu_cookies))
+                error = $"[BeatmapDownloadScheduler]OsuCookies is empty. you have to set OsuCookies as your cookies of osu!websites in config.ini , also type 'suggest login <OsuAccountName> <OsuAccountPassword>' in Sync for getting cookies automatically,and then restart Sync";
+            else if (string.IsNullOrWhiteSpace(api_key))
+                error = $"[BeatmapDownloadScheduler]"+DefaultLanguage.LANG_NO_API_KEY_NOFITY;
+
+            if (!string.IsNullOrWhiteSpace(error))
+            {
+                IO.CurrentIO.WriteColor(error, ConsoleColor.Red);
+                SyncHost.Instance.ClientWrapper?.Client?.SendMessage(new IRCMessage(SyncHost.Instance.ClientWrapper?.Client.NickName,error));
+
+                return false;
+            }
+
+            return true;
         }
 
         public void Push(int id,bool isSetId,string name)
@@ -127,9 +153,7 @@ namespace BeatmapSuggest
                 try
                 {
                     if (!TryGetOsuSongFolder())
-                    {
                         return;
-                    }
 
                     int beatmap_setid=map.id;
 
@@ -137,26 +161,38 @@ namespace BeatmapSuggest
                     if (!map.isSetId)
                     {
                         beatmap_setid = GetBeatmapSetID(map.id);
+
                         if (beatmap_setid<0)
-                        {
                             return;
-                        }
                     }
 
                     IO.CurrentIO.WriteColor(string.Format(DefaultLanguage.LANG_START_DOWNLOAD, map.name), ConsoleColor.Green);
                     
-                    string download_url = $"http://osu.uu.gl/s/{beatmap_setid}";
+                    string download_url = $"https://osu.ppy.sh/d/{beatmap_setid}";
 
                     WebClient wc = new WebClient();
-                    wc.DownloadFile(new Uri(download_url), save_path + "\\" + $"{beatmap_setid} {map.name}.osz");
+                    wc.Headers[HttpRequestHeader.Cookie] = osu_cookies;
 
-                    IO.CurrentIO.WriteColor(string.Format(DefaultLanguage.LANG_FINISH_DOWNLOAD, map.name), ConsoleColor.Green);
+                    var file_save_path = Path.Combine(save_path, $"{beatmap_setid} {map.name}.osz");
+
+                    wc.DownloadFile(new Uri(download_url), file_save_path);
+
+                    if (IsDownnloadSuccessfully(file_save_path))
+                        IO.CurrentIO.WriteColor(string.Format(DefaultLanguage.LANG_FINISH_DOWNLOAD, map.name), ConsoleColor.Green);
+                    else
+                        IO.CurrentIO.WriteColor(string.Format("Cant download beatmap {0}", map.name), ConsoleColor.Green);
                 }
                 catch (Exception e)
                 {
                     IO.CurrentIO.WriteColor(string.Format(DefaultLanguage.LANG_FAILED_DOWNLOAD, map.name,e.Message), ConsoleColor.Red);
                 }
             });
+        }
+
+        private bool IsDownnloadSuccessfully(string save_path)
+        {
+            FileInfo info = new FileInfo(save_path);
+            return info.Exists&&info.Length>100*1024; // >100kb success
         }
 
         /// <summary>

@@ -15,11 +15,14 @@ namespace BeatmapSuggest.Osu
 
         public void onMsg(ref IMessageBase msg)
         {
-            if ((!msg.Message.RawText.StartsWith(DownloadCommand))||Scheduler == null)
+            if (!msg.Message.RawText.StartsWith(DownloadCommand))
                 return;
 
             msg.Cancel = true;
 
+            if (!Scheduler?.CheckDownloadable() ?? false)
+                return;
+            
             string param = msg.Message.RawText.Replace(DownloadCommand, string.Empty).Trim();
 
             switch (param)
