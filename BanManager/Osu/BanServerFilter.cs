@@ -7,10 +7,10 @@ using static BanManagerPlugin.DefaultLanguage;
 
 namespace BanManagerPlugin.Ban
 {
-    class BanServerFilter : IFilter,ISourceClient
+    public class BanServerFilter : IFilter,ISourceClient
     {
-
         BanManager bindManager = null;
+
         public void SetBanManager(BanManager manager)
         {
             this.bindManager = manager;
@@ -55,7 +55,7 @@ namespace BanManagerPlugin.Ban
 
                 if (args.Length == 0) // like ?ban ,?whitelist for help
                 {
-                    bindManager.GetMessageDispatcher().RaiseMessage<ISourceClient>(new IRCMessage(string.Empty, basecommandHelpArray[i]));
+                    bindManager.MessageSender.RaiseMessage<ISourceClient>(new IRCMessage(string.Empty, basecommandHelpArray[i]));
                 }
                 else {
                     try
@@ -64,7 +64,7 @@ namespace BanManagerPlugin.Ban
                     }
                     catch (Exception e)
                     {
-                        bindManager.GetMessageDispatcher().RaiseMessage<ISourceClient>(new IRCMessage(string.Empty,e.Message));
+                        bindManager.MessageSender.RaiseMessage<ISourceClient>(new IRCMessage(string.Empty,e.Message));
                     }
                 }
                 break;
@@ -114,17 +114,17 @@ namespace BanManagerPlugin.Ban
                     if (!Int32.TryParse(message[1], out id))
                         ThrowErrorMessage();
                     else
-                        bindManager.GetFliterInfo().AddBanId(id);
+                        bindManager.Info.AddBanId(id);
                     break;
 
                 case "-regex":
                     if(message.Length < 2)
                         ThrowErrorMessage();
-                    bindManager.GetFliterInfo().AddBanRuleRegex(message[1]);
+                    bindManager.Info.AddBanRuleRegex(message[1]);
                     break;
 
                 default:
-                    bindManager.GetFliterInfo().AddBanUserName(message[0]);
+                    bindManager.Info.AddBanUserName(message[0]);
                     break;
             }
         }
@@ -141,7 +141,7 @@ namespace BanManagerPlugin.Ban
                     if (!Int32.TryParse(message[1], out id))
                         ThrowErrorMessage();
                     else
-                        bindManager.GetFliterInfo().RemoveBanId(id);
+                        bindManager.Info.RemoveBanId(id);
                     break;
 
                 case "-regex":
@@ -150,10 +150,10 @@ namespace BanManagerPlugin.Ban
                     if (!Int32.TryParse(message[1], out id))
                         ThrowErrorMessage();
                     else
-                        bindManager.GetFliterInfo().RemovBanListRuleRegex(id);
+                        bindManager.Info.RemovBanListRuleRegex(id);
                     break;
                 default:
-                    bindManager.GetFliterInfo().RemoveBanUserName(message[0]);
+                    bindManager.Info.RemoveBanUserName(message[0]);
                     break;
             }
         }
@@ -169,17 +169,17 @@ namespace BanManagerPlugin.Ban
                     if (!Int32.TryParse(message[1], out id))
                         ThrowErrorMessage();
                     else
-                        bindManager.GetFliterInfo().AddWhiteListId(id);
+                        bindManager.Info.AddWhiteListId(id);
                     break;
 
                 case "-regex":
                     if (message.Length < 2)
                         ThrowErrorMessage(); ;
-                    bindManager.GetFliterInfo().AddWhiteListRuleRegex(message[1]);
+                    bindManager.Info.AddWhiteListRuleRegex(message[1]);
                     break;
 
                 default:
-                    bindManager.GetFliterInfo().AddWhiteListUserName(message[0]);
+                    bindManager.Info.AddWhiteListUserName(message[0]);
                     break;
             }
         }
@@ -196,7 +196,7 @@ namespace BanManagerPlugin.Ban
                     if (!Int32.TryParse(message[1], out id))
                         ThrowErrorMessage();
                     else
-                        bindManager.GetFliterInfo().RemoveWhiteListId(id);
+                        bindManager.Info.RemoveWhiteListId(id);
                     break;
 
                 case "-regex":
@@ -205,10 +205,10 @@ namespace BanManagerPlugin.Ban
                     if (!Int32.TryParse(message[1], out id))
                         ThrowErrorMessage();
                     else
-                        bindManager.GetFliterInfo().RemoveWhiteListRuleRegex(id);
+                        bindManager.Info.RemoveWhiteListRuleRegex(id);
                     break;
                 default:
-                    bindManager.GetFliterInfo().RemoveWhiteListUserName(message[0]);
+                    bindManager.Info.RemoveWhiteListUserName(message[0]);
                     break;
             }
         }
@@ -224,23 +224,23 @@ namespace BanManagerPlugin.Ban
             switch (message[0])
             {
                 case "-ban":
-                    foreach (var userName in bindManager.GetFliterInfo().GetBanUserList())
+                    foreach (var userName in bindManager.Info.BanUsers)
                         sb.AppendFormat("{0} || ",userName);
-                    foreach (var rule in bindManager.GetFliterInfo().GetBanRuleRegexList())
-                        sb.AppendFormat("{0}:\"{1}\" || ", rule.id,rule.expression);
+                    foreach (var rule in bindManager.Info.BanRules)
+                        sb.AppendFormat("{0}:\"{1}\" || ", rule.RuleID,rule.RuleExpression);
                     
                     break;
 
                 case "-whitelist":
-                    foreach (var userName in bindManager.GetFliterInfo().GetWhiteListUserList())
+                    foreach (var userName in bindManager.Info.WhitelistUsers)
                         sb.AppendFormat("{0} || ", userName);
-                    foreach (var rule in bindManager.GetFliterInfo().GetWhiteListRuleRegexList())
-                        sb.AppendFormat("{0}:\"{1}\" || ", rule.id, rule.expression);
+                    foreach (var rule in bindManager.Info.WhitelistRules)
+                        sb.AppendFormat("{0}:\"{1}\" || ", rule.RuleID, rule.RuleExpression);
                     
                     break;
             }
 
-            bindManager.GetMessageDispatcher().RaiseMessage<ISourceClient>(new IRCMessage(string.Empty,sb.ToString()));
+            bindManager.MessageSender.RaiseMessage<ISourceClient>(new IRCMessage(string.Empty,sb.ToString()));
         }
 
         public void Dispose()
