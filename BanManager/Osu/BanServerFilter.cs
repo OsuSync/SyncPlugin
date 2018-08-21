@@ -90,7 +90,7 @@ namespace BanManagerPlugin.Ban
         /// <returns></returns>
         private bool IsBaseCommand(string command, string message)
         {
-            return (message.StartsWith(command));
+            return (message.StartsWith(command+" "));
         }
 
         private void ThrowErrorMessage(string message= null)
