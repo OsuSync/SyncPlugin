@@ -46,9 +46,7 @@ namespace BanManagerPlugin.Ban
 
                 if (!IsBaseCommand(basecommandArray[i], message))
                     continue;
-
                 
-
                 args = message.Substring(basecommandArray[i].Length).Split(split, StringSplitOptions.RemoveEmptyEntries);
                 for (int t = 0; t < args.Length; t++)
                     args[t] = args[t].Trim();
@@ -215,7 +213,25 @@ namespace BanManagerPlugin.Ban
 
         public void accessCommand(string[] message)
         {
-            //咕咕咕咕咕
+            if (message.Length==0)
+                return;
+
+            var val = string.Join(string.Empty, message);
+
+            switch (val.ToLower())
+            {
+                case "nobanned":
+                    bindManager.Info.AccessType = BanAccessType.NotBanned;
+                    break;
+                case "all":
+                    bindManager.Info.AccessType = BanAccessType.All;
+                    break;
+                case "whitelist":
+                    bindManager.Info.AccessType = BanAccessType.Whitelist;
+                    break;
+                default:
+                    break;
+            }
         }
 
         public void listCommand(string[] message)

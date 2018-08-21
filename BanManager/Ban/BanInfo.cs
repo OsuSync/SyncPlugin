@@ -11,9 +11,9 @@ namespace BanManagerPlugin.Ban
 {
     public enum BanAccessType
     {
-        NOTBANNED,//没被ban的可以发言给osu!irc
-        WHITE_LIST,//只有白名单的人可以发言
-        ALL//全都可以发言
+        NotBanned,//没被ban的可以发言给osu!irc
+        Whitelist,//只有白名单的人可以发言
+        All//全都可以发言
     }
 
     public class BanInfo
@@ -29,7 +29,9 @@ namespace BanManagerPlugin.Ban
 
         public List<Rule> BanRules { get; set; } = new List<Rule>();
 
-        public List<string> BanUsers { get; set; } = new List<string>();
+        public List<string> BanUsers {
+            get;
+            set; } = new List<string>();
 
         public List<string> WhitelistUsers { get; set; } = new List<string>();
 
@@ -38,7 +40,7 @@ namespace BanManagerPlugin.Ban
         [JsonIgnore]
         internal int rule_id_gerenator;
 
-        public BanAccessType AccessType { get; set; } = BanAccessType.NOTBANNED;
+        public BanAccessType AccessType { get; set; } = BanAccessType.NotBanned;
 
         private int GenRuleId()
         {
@@ -52,7 +54,8 @@ namespace BanManagerPlugin.Ban
         public void AddBanUserName(string userName)
         {
             RemoveWhiteListUserName(userName);
-            BanUsers.Add(userName);
+            if (!BanUsers.Contains(userName))
+                BanUsers.Add(userName);
         }
 
         private static Rule CreateRule(string expr, int id) => new Rule()
@@ -70,8 +73,7 @@ namespace BanManagerPlugin.Ban
         public int AddBanRuleRegex(string ruleRegexExpr)
         {
             Rule rule = CreateRule(ruleRegexExpr, GenRuleId());
-
-            BanRules.Add(rule);
+            
             return rule.RuleID;
         }
 
@@ -90,7 +92,8 @@ namespace BanManagerPlugin.Ban
         public void AddWhiteListUserName(string userName)
         {
             RemoveBanUserName(userName);
-            WhitelistUsers.Add(userName);
+            if (!WhitelistUsers.Contains(userName))
+                WhitelistUsers.Add(userName);
         }
 
         /// <summary>
@@ -195,7 +198,7 @@ namespace BanManagerPlugin.Ban
         }
 
         /// <summary>
-        /// 按照字符串内容加载内容
+        /// 按照字符串内容加载内容,顺带清除重复冲突的内容
         /// </summary>
         /// <param name="formatString">字符串内容，通常由SaveAsFormattedString()得到的</param>
         public static BanInfo LoadFromJSON(string formatString)
@@ -211,6 +214,31 @@ namespace BanManagerPlugin.Ban
 
             info.rule_id_gerenator = list.Count()!=0?list.Max(r=>r.RuleID):0;
 
+            HashSet<int> check = new HashSet<int>();
+            Predicate<Rule> check_func = p =>
+            {
+                if (check.Contains(p.RuleID))
+                    return true;
+                check.Add(p.RuleID);
+                return false;
+            };
+
+            info.WhitelistRules.RemoveAll(check_func);
+            info.BanRules.RemoveAll(check_func);
+
+            HashSet<string> check_str = new HashSet<string>();
+            Predicate<string> check_str_func = p =>
+            {
+                if (check_str.Contains(p))
+                    return true;
+                check_str.Add(p);
+                return false;
+            };
+
+            info.WhitelistUsers.RemoveAll(check_str_func);
+            check_str.Clear();
+            info.BanUsers.RemoveAll(check_str_func);
+
             return info;
         }
 
@@ -221,9 +249,9 @@ namespace BanManagerPlugin.Ban
         /// <returns></returns>
         public bool IsBanned(string userName)
         {
-            if (AccessType == BanAccessType.ALL)
+            if (AccessType == BanAccessType.All)
                 return false;
-            if (AccessType == BanAccessType.WHITE_LIST)
+            if (AccessType == BanAccessType.Whitelist)
             {
                 foreach (var enumUserName in WhitelistUsers)
                     if (enumUserName.CompareTo(userName) == 0)
@@ -233,7 +261,7 @@ namespace BanManagerPlugin.Ban
                         return false;
                 return true;
             }
-            if (AccessType == BanAccessType.NOTBANNED)
+            if (AccessType == BanAccessType.NotBanned)
             {
                 foreach (var enumUserName in BanUsers)
                     if (enumUserName.CompareTo(userName) == 0)
