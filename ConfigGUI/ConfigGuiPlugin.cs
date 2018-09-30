@@ -2,6 +2,7 @@
 using Sync.Plugins;
 using Sync.Tools;
 using System;
+using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,13 +23,7 @@ namespace ConfigGUI
 
         public ConfigGuiPlugin() : base(PLUGIN_NAME, PLUGIN_AUTHOR)
         {
-            if (Application.Current == null)
-            {
-                var thread = new Thread(() => new Application().Run());
-                thread.Name = "STA WPF Application Thread";
-                thread.SetApartmentState(ApartmentState.STA);
-                thread.Start();
-            }
+
         }
 
         public override void OnEnable()
@@ -39,16 +34,33 @@ namespace ConfigGUI
             base.EventBus.BindEvent<PluginEvents.InitCommandEvent>((t) =>
             {
                 t.Commands.Dispatch.bind("config", args =>
-                 {
-                     Application.Current.Dispatcher.Invoke(()=>
-                     {
-                         window = (window ?? new ConfigWindow(ItemFactory));
-                         if (window.Visibility == Visibility.Visible)
-                             window.Activate();
-                         else
-                             window.Show();
-                     });
-                     return true;
+                {
+                    if (Application.Current == null)
+                    {
+                        TaskCompletionSource<bool> completionSource = new TaskCompletionSource<bool>();
+                        var thread = new Thread(() =>
+                        {
+                            var app = new Application();
+                            app.Startup += (s,e)=>completionSource.SetResult(true);
+                            app.Run();
+                        });
+                        thread.Name = "STA WPF Application Thread";
+                        thread.SetApartmentState(ApartmentState.STA);
+                        thread.Start();
+                        completionSource.Task.Wait();
+                    }
+
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        window = (window ?? new ConfigWindow(ItemFactory));
+                        if (window.Visibility == Visibility.Visible)
+                            window.Activate();
+                        else
+                            window.Show();
+                    });
+
+
+                    return true;
                  }, "show config window");
             });
         }
