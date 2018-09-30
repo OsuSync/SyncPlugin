@@ -23,7 +23,6 @@ namespace ConfigGUI
 
         public ConfigGuiPlugin() : base(PLUGIN_NAME, PLUGIN_AUTHOR)
         {
-
         }
 
         public override void OnEnable()
@@ -58,7 +57,6 @@ namespace ConfigGUI
                         else
                             window.Show();
                     });
-
 
                     return true;
                  }, "show config window");
