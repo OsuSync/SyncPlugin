@@ -15,5 +15,7 @@ namespace ConfigGUI
         public static LanguageElement BUTTON_SAVE = "Save";
         public static LanguageElement LABEL_SAVED = "Saved!";
         public static LanguageElement LABEL_SAVED_SAVING = "Saving...";
+
+        public static LanguageElement COMMAND_LINE_HINT = "[ConfigGUI]Enter \"config\" to open the configuration panel.";
     }
 }
