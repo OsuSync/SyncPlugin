@@ -30,6 +30,9 @@ namespace ConfigGUI
             I18n.Instance.ApplyLanguage(new DefaultLanguage());
             ConfigWindow window=null;
 
+            base.EventBus.BindEvent<PluginEvents.ProgramReadyEvent>((t) => 
+                IO.CurrentIO.WriteColor(DefaultLanguage.COMMAND_LINE_HINT, ConsoleColor.Yellow));
+
             base.EventBus.BindEvent<PluginEvents.InitCommandEvent>((t) =>
             {
                 t.Commands.Dispatch.bind("config", args =>
