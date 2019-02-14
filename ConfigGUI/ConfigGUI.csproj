@@ -70,6 +70,7 @@
     <Compile Include="ConfigurationRegion\ConfigurationItemCreators\StringConfigurationItemCreator.cs" />
     <Compile Include="ConfigurationRegion\ConfigurationPanel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Tray\TrayPlugin.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Sync\Sync.csproj">
