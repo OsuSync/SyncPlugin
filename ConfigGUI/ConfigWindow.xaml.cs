@@ -23,6 +23,7 @@ namespace ConfigGUI
         private IEnumerable<PluginConfigurationManager> m_pluginConfigurationManagers;
 
         private static ConfigWindow s_window_instance;
+        private static bool s_initialize = false;
 
         private static bool s_requireRestart = false;
         public  static bool RequireRestart
@@ -30,9 +31,12 @@ namespace ConfigGUI
             get => s_requireRestart;
             set
             {
-                s_requireRestart = value | s_requireRestart;
-                if (value)
-                    s_window_instance.Title = $"{DefaultLanguage.WINDOW_TITLE} ({DefaultLanguage.WINDOW_TITLE_REQUIRE_RESTART})";
+                if (s_initialize == true)
+                {
+                    s_requireRestart = value | s_requireRestart;
+                    if (value)
+                        s_window_instance.Title = $"{DefaultLanguage.WINDOW_TITLE} ({DefaultLanguage.WINDOW_TITLE_REQUIRE_RESTART})";
+                }
             }
         }
 
@@ -46,6 +50,8 @@ namespace ConfigGUI
 
             Title = DefaultLanguage.WINDOW_TITLE;
             Save_Button.Content = DefaultLanguage.BUTTON_SAVE;
+
+            s_initialize = true;
         }
 
         #region Plugins Config
