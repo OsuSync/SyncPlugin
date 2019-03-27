@@ -15,5 +15,12 @@ namespace ConfigGUI
         public static LanguageElement BUTTON_SAVE = "Save";
         public static LanguageElement LABEL_SAVED = "Saved!";
         public static LanguageElement LABEL_SAVED_SAVING = "Saving...";
+
+        public static LanguageElement TRAY_HIDE_SHOW = "Hide/Show";
+        public static LanguageElement TRAY_CONFIG = "Config";
+        public static LanguageElement TRAY_OPEN_SYNC_FOLDER = "Sync Folder";
+        public static LanguageElement TRAY_EXIT= "Exit";
+
+        public static LanguageElement COMMAND_LINE_HINT = "[ConfigGUI]Enter \"config\" to open the configuration panel.";
     }
 }

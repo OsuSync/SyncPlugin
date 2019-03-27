@@ -42,7 +42,15 @@ namespace ConfigGUI.ConfigurationRegion.ConfigurationItemCreators
 
             num_view.TextChanged += (s, e) =>
             {
-                SetConfigValue(prop,configuration_instance, num_view.Text);
+                if (!string.IsNullOrWhiteSpace(num_view.Text))
+                {
+                    SetConfigValue(prop, configuration_instance, num_view.Text);
+                }
+                else
+                {
+                    SetConfigValue(prop, configuration_instance, slider.Minimum.ToString());
+                }
+
                 ConfigWindow.RequireRestart = attr.RequireRestart;
             };
 
