@@ -58,7 +58,7 @@ namespace DefaultPlugin.Sources.BiliBili.BiliBili_dm
                     {
                         var request2 = WebRequest.Create(CIDInfoUrl + channelId);
                         request2.Timeout = 2000;
-                        var response2 = await request2.GetResponseAsync();
+                        var response2 = request2.GetResponse();
                         using (var stream = response2.GetResponseStream())
                         {
                             using (var sr = new StreamReader(stream))
@@ -67,7 +67,8 @@ namespace DefaultPlugin.Sources.BiliBili.BiliBili_dm
                                 var xml = "<root>" + text + "</root>";
                                 XmlDocument doc = new XmlDocument();
                                 doc.LoadXml(xml);
-                                ChatHost = doc["root"]["server"].InnerText;
+                                ChatHost = doc["root"]["dm_server"].InnerText;
+                                ChatPort = int.Parse(doc["root"]["dm_port"].InnerText);
                             }
                         }
                     }
@@ -85,7 +86,7 @@ namespace DefaultPlugin.Sources.BiliBili.BiliBili_dm
                 }
                 Client = new TcpClient();
 
-                await Client.ConnectAsync(ChatHost, ChatPort);
+                Client.Connect(ChatHost, ChatPort);
 
                 NetStream = Client.GetStream();
 

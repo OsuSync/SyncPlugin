@@ -30,7 +30,7 @@ namespace DefaultPlugin.Sources.Twitch
         string oauth = @"oauth:pjaicvg4jon0o0doiwjlo5z9s05a7l";
         string name = @"osuSync";
         string client_id = "esmhw2lcvrgtqw545ourqjwlg7twee";
-        string ircAddress = @"irc.twitch.tv";
+        string ircAddress = @"irc.chat.twitch.tv";
         int ircPort = 6667;
         string channelName = null;
 
@@ -98,7 +98,9 @@ namespace DefaultPlugin.Sources.Twitch
             outputStreamSender = new StreamWriter(rawSocketStream);
             inputStreamReciever = new StreamReader(rawSocketStream);
 
-            outputStreamSender.WriteLine($"PASS {oauth}\nNICK {name.ToLower()}");
+            outputStreamSender.WriteLine($"PASS {oauth}");
+            outputStreamSender.Flush();
+            outputStreamSender.WriteLine($"NICK mikirasora");
             outputStreamSender.Flush();
 
             outputStreamSender.WriteLine(@"CAP REQ :twitch.tv/membership");
