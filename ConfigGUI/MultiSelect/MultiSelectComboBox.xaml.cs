@@ -127,7 +127,7 @@ namespace ConfigGUI.MultiSelect
             }
             SetSelectedItems();
             SetText();
-            Click?.Invoke(sender, e);
+            Click?.Invoke(this, e);
         }
         #endregion
 
