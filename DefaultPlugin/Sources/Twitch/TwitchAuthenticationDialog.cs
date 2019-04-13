@@ -34,7 +34,7 @@ namespace DefaultPlugin.Sources.Twitch
 
         private void TwitchAuthenticationDialog_Load(object sender, EventArgs e)
         {
-            textBox1.Text = bindTwitchSource.OAuth != null&&bindTwitchSource.OAuth.Length>6 ? bindTwitchSource.OAuth.Substring("oauth:".Length) : "";
+            textBox1.Text = bindTwitchSource.SOAuth?.ToString()?.StartsWith("oauth:")??false ? bindTwitchSource.SOAuth?.ToString()?.Substring(6) : bindTwitchSource.SOAuth?.ToString() ;
             checkBox1.Checked = !bindTwitchSource.IsUsingDefaultChannelID;
         }
 
@@ -63,16 +63,13 @@ namespace DefaultPlugin.Sources.Twitch
 
             oauth = (oauth.StartsWith("oauth:") ? "" : "oauth:") + oauth;
 
-            bindTwitchSource.OAuth = oauth;
+            bindTwitchSource.SOAuth = oauth;
 
             string clientId = textBox2.Text;
 
-            bindTwitchSource.IsUsingDefaultChannelID = false;
-
             if (clientId.Length != 0)
             {
-                bindTwitchSource.ClientID = clientId;
-                bindTwitchSource.IsUsingDefaultChannelID = true;
+                bindTwitchSource.CurrentClientID = clientId;
             }
 
             //Connect();

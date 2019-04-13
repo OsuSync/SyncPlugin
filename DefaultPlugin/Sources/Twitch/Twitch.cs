@@ -11,6 +11,7 @@ using Sync.Tools;
 using System.Timers;
 using Sync.MessageFilter;
 using Sync.Tools.ConfigurationAttribute;
+using Sync.Plugins;
 
 namespace DefaultPlugin.Sources.Twitch
 {
@@ -33,43 +34,32 @@ namespace DefaultPlugin.Sources.Twitch
 
         string oauth="", clientId="", channelName="";
 
-        bool isUsingDefaultChannelID = true;
-
         Logger logger = new Logger<Twitch>();
 
         public Twitch() : base(SOURCE_NAME, SOURCE_AUTHOR)
         {
+
         }
 
-        public string OAuth { get { return oauth; } set { oauth = value; } }
-        public string ClientID { get { return clientId; } set { clientId = value; } }
-        public string ChannelName { get { return channelName; } set { channelName = value; } }
-        public bool IsUsingDefaultChannelID { get { return isUsingDefaultChannelID; } set { isUsingDefaultChannelID = value; } }
+        const string DEFAULT_CLIENT_ID = "esmhw2lcvrgtqw545ourqjwlg7twee";
 
         public ConfigurationElement HostChannelName { get; set; } = "";
-        public ConfigurationElement DefaultClientID { get; set; } = "";
         public ConfigurationElement CurrentClientID { get; set; } = "";
-
-        [Bool]
-        public ConfigurationElement IsUsingCurrentClientID { get; set; } = "True";
         public ConfigurationElement SOAuth { get; set; } = "";
+
+        public bool IsUsingDefaultChannelID => string.IsNullOrWhiteSpace(CurrentClientID);
+        public string ClientID => IsUsingDefaultChannelID ? DEFAULT_CLIENT_ID:(string) CurrentClientID;
+
         #region 接口实现
 
         public void LoadConfig()
         {
-            ClientID = IsUsingCurrentClientID == "1" ? CurrentClientID : DefaultClientID;
-            IsUsingDefaultChannelID = !(IsUsingCurrentClientID=="1");
-            OAuth = SOAuth;
-            ChannelName = HostChannelName;
+
         }
 
         public void SaveConfig()
         {
-            CurrentClientID = (ClientID == DefaultClientID ? "" : ClientID);
-            HostChannelName = ChannelName;
-            SOAuth = OAuth;
-            IsUsingCurrentClientID = IsUsingDefaultChannelID ? "1" : "0";
-            DefaultClientID = "esmhw2lcvrgtqw545ourqjwlg7twee";
+            CurrentClientID = ClientID == DEFAULT_CLIENT_ID ? string.Empty : ClientID;
         }
 
         public void Connect(string roomName)
@@ -94,8 +84,6 @@ namespace DefaultPlugin.Sources.Twitch
                 if (result == false)
                     return;
             }
-
-            SaveConfig();
 
             if (currentIRCIO != null)
             {
@@ -135,19 +123,28 @@ namespace DefaultPlugin.Sources.Twitch
             }
         }
 
+        public void ReConnect()
+        {
+            Disconnect();
+            Connect();
+        }
+
         private void CurrentIRCIO_OnError(TwitchIRCIO arg1, Exception arg2)
         {
             if (arg1 != currentIRCIO)
                 return;
 
-            logger.LogError($"Twitch source occured exception:\"{arg2.Message}\",try to reconnect.");
+            logger.LogError($"IRC kernel occured exception:\"{arg2.Message}\",try to reconnect.");
 
             try
             {
-                Disconnect();
-                Connect();
+                ReConnect();
             }
-            catch{}
+            catch(Exception e)
+            {
+                logger.LogError($"can't reconnet:\"{e}\".");
+                RaiseEvent(new BaseStatusEvent(SourceStatus.USER_DISCONNECTED));
+            }
         }
 
         public override void Disconnect()
