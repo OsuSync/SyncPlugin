@@ -10,6 +10,7 @@ using System.IO;
 using Sync.Tools;
 using System.Timers;
 using Sync.MessageFilter;
+using Sync.Tools.ConfigurationAttribute;
 
 namespace DefaultPlugin.Sources.Twitch
 {
@@ -48,7 +49,9 @@ namespace DefaultPlugin.Sources.Twitch
         public ConfigurationElement HostChannelName { get; set; } = "";
         public ConfigurationElement DefaultClientID { get; set; } = "";
         public ConfigurationElement CurrentClientID { get; set; } = "";
-        public ConfigurationElement IsUsingCurrentClientID { get; set; } = "1";
+
+        [Bool]
+        public ConfigurationElement IsUsingCurrentClientID { get; set; } = "True";
         public ConfigurationElement SOAuth { get; set; } = "";
         #region 接口实现
 
