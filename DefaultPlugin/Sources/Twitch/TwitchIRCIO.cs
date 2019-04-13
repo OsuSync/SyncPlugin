@@ -58,15 +58,13 @@ namespace DefaultPlugin.Sources.Twitch
         Thread outputThread/*发送线程*/, inputThread/*接收线程*/;
         List<string> rawOutputMsgList = new List<string>();
 
-        public delegate void OnRecieveMessageFunc(string rawMessage);
-
-        public delegate void OnNamesCountFunc(int newPeopleCount);
-
         /// <summary>
         /// 触发接收消息事件
         /// </summary>
-        public event OnRecieveMessageFunc OnRecieveRawMessage;
-        public event OnNamesCountFunc OnNamesCountUpdate;
+        public event Action<string> OnRecieveRawMessage;
+        public event Action<int> OnNamesCountUpdate;
+        public event Action<TwitchIRCIO,Exception> OnError;
+        
         #endregion
 
         public TwitchIRCIO(string channelName)
@@ -112,30 +110,37 @@ namespace DefaultPlugin.Sources.Twitch
         /// </summary>
         private void inputThreadFunc()
         {
-            while (isLooping)
+            try
             {
-                Thread.Sleep(sleepInterval);
-
-                //没消息？吃惊，睡觉
-                if (!rawSocketStream.DataAvailable)
-                    continue;
-
-                string message = inputStreamReciever.ReadLine();
-
-                if (!message.Contains(@"PRIVMSG #"))
+                while (isLooping)
                 {
-                    //处理非对话消息
-                    if (message.StartsWith("PING "))
-                        SendRawMessage(message.Replace(@"PING", @"PONG"));
-                    else
+                    Thread.Sleep(sleepInterval);
+
+                    //没消息？吃惊，睡觉
+                    if (!rawSocketStream.DataAvailable)
+                        continue;
+
+                    string message = inputStreamReciever.ReadLine();
+
+                    if (!message.Contains(@"PRIVMSG #"))
                     {
-                        var result = message.Split(' ');
-                        if (result.Length > 1)
-                            processCommandMessage(result[1], message);
+                        //处理非对话消息
+                        if (message.StartsWith("PING "))
+                            SendRawMessage(message.Replace(@"PING", @"PONG"));
+                        else
+                        {
+                            var result = message.Split(' ');
+                            if (result.Length > 1)
+                                processCommandMessage(result[1], message);
+                        }
                     }
+                    else
+                        OnRecieveRawMessage?.Invoke(message);
                 }
-                else
-                    OnRecieveRawMessage?.Invoke(message);
+            }
+            catch (Exception e)
+            {
+                OnError?.Invoke(this,e);
             }
 
             //释放资源?
@@ -182,48 +187,57 @@ namespace DefaultPlugin.Sources.Twitch
             timer.Start();
             int sendCount = 0;
 
-            while (isLooping)
+            try
             {
-                Thread.Sleep(sleepInterval);
-
-                //twitch irc限制每30秒最多能发20条信息否则就是被圣神制裁45分钟
-                if (timer.ElapsedMilliseconds > 30000)
+                while (isLooping)
                 {
-                    sendCount = 0;
-                    timer.Reset();
-                    timer.Start();
-                }
+                    Thread.Sleep(sleepInterval);
 
-                if (sendCount >= 20)
-                    continue;//超过限制，先退出
-
-                if (rawOutputMsgList.Count == 0)
-                    continue;
-
-                lock (rawOutputMsgList)
-                {
-                    while (rawOutputMsgList.Count != 0)
+                    //twitch irc限制每30秒最多能发20条信息否则就是被圣神制裁45分钟
+                    if (timer.ElapsedMilliseconds > 30000)
                     {
-                        var message = rawOutputMsgList[0];
-                        rawOutputMsgList.RemoveAt(0);
+                        sendCount = 0;
+                        timer.Restart();
+                    }
 
-                        if (!clientSocket.Connected)
+                    if (sendCount >= 20)
+                        continue;//超过限制，先退出
+
+                    if (rawOutputMsgList.Count == 0)
+                        continue;
+
+                    lock (rawOutputMsgList)
+                    {
+                        while (rawOutputMsgList.Count != 0)
                         {
-                            Reconnect();
+                            var message = rawOutputMsgList[0];
+                            rawOutputMsgList.RemoveAt(0);
+
+                            if (!clientSocket.Connected)
+                            {
+                                throw new Exception("发送数据前irc连接未准备好.");
+                                //Reconnect();
+                            }
+
+                            outputStreamSender.WriteLine(message);
+                            outputStreamSender.Flush();
+
+                            sendCount++;
+                            if (sendCount >= 20)
+                                break;
                         }
-
-                        outputStreamSender.WriteLine(message);
-                        outputStreamSender.Flush();
-
-                        sendCount++;
-                        if (sendCount >= 20)
-                            break;
                     }
                 }
             }
-
-            //释放资源?
-            timer.Stop();
+            catch (Exception e)
+            {
+                OnError?.Invoke(this,e);
+            }
+            finally
+            {
+                //释放资源?
+                timer.Stop();
+            }
         }
 
         #endregion

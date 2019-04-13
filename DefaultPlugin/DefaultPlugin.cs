@@ -15,7 +15,7 @@ using Sync.MessageFilter;
 
 namespace DefaultPlugin
 {
-    [SyncPluginID("c620c63a-32b6-4281-87a9-b7da62be0215", "2.16.0")]
+    [SyncPluginID("c620c63a-32b6-4281-87a9-b7da62be0215", "2.16.2")]
     public class DefaultPlugin : Plugin
     {
         public static MessageDispatcher MainMessager = null;

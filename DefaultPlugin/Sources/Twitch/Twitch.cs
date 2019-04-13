@@ -34,6 +34,8 @@ namespace DefaultPlugin.Sources.Twitch
 
         bool isUsingDefaultChannelID = true;
 
+        Logger logger = new Logger<Twitch>();
+
         public Twitch() : base(SOURCE_NAME, SOURCE_AUTHOR)
         {
         }
@@ -111,6 +113,7 @@ namespace DefaultPlugin.Sources.Twitch
                 currentIRCIO.Connect();
 
                 currentIRCIO.OnRecieveRawMessage += onRecieveRawMessage;
+                currentIRCIO.OnError += CurrentIRCIO_OnError;
 
                 RaiseEvent(new BaseStatusEvent(SourceStatus.CONNECTED_WORKING));
                 UpdateChannelViewersCount();
@@ -127,6 +130,21 @@ namespace DefaultPlugin.Sources.Twitch
 
                 Status = SourceStatus.USER_DISCONNECTED;
             }
+        }
+
+        private void CurrentIRCIO_OnError(TwitchIRCIO arg1, Exception arg2)
+        {
+            if (arg1 != currentIRCIO)
+                return;
+
+            logger.LogError($"Twitch source occured exception:\"{arg2.Message}\",try to reconnect.");
+
+            try
+            {
+                Disconnect();
+                Connect();
+            }
+            catch{}
         }
 
         public override void Disconnect()
