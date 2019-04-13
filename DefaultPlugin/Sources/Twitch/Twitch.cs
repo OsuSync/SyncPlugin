@@ -32,8 +32,6 @@ namespace DefaultPlugin.Sources.Twitch
 
         public Timer viewerUpdateTimer;
 
-        string oauth="", clientId="", channelName="";
-
         Logger logger = new Logger<Twitch>();
 
         public Twitch() : base(SOURCE_NAME, SOURCE_AUTHOR)
@@ -69,15 +67,13 @@ namespace DefaultPlugin.Sources.Twitch
                 Disconnect();
             }
 
-            channelName = roomName;
-
-            if (channelName.Length == 0)
+            if (string.IsNullOrWhiteSpace(HostChannelName))
             {
                 IO.CurrentIO.WriteColor("频道名不能为空!",ConsoleColor.Red);
                 return;
             }
 
-            while (oauth.Length==0)
+            while (string.IsNullOrWhiteSpace(SOAuth))
             {
                 var result = RequestSetup();
 
@@ -97,9 +93,9 @@ namespace DefaultPlugin.Sources.Twitch
             {
                 currentIRCIO = new TwitchIRCIO(roomName)
                 {
-                    OAuth = oauth,
-                    ChannelName = channelName,
-                    ClientID = clientId
+                    OAuth = SOAuth,
+                    ChannelName = HostChannelName,
+                    ClientID = ClientID
                 };
                 currentIRCIO.Connect();
 
@@ -238,7 +234,7 @@ namespace DefaultPlugin.Sources.Twitch
             return result.Groups[1].Value;
         }
 
-        public override void Connect() => Connect(channelName);
+        public override void Connect() => Connect(HostChannelName);
 
         public override string ToString()
         {
