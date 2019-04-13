@@ -69,7 +69,7 @@ namespace DefaultPlugin.Sources.Twitch
 
             if (string.IsNullOrWhiteSpace(HostChannelName))
             {
-                IO.CurrentIO.WriteColor("频道名不能为空!",ConsoleColor.Red);
+                logger.LogError("HostChannelName is empty");
                 return;
             }
 
@@ -113,7 +113,7 @@ namespace DefaultPlugin.Sources.Twitch
             }
             catch (Exception e)
             {
-                IO.CurrentIO.WriteColor("twitch connect error!" + e.Message, ConsoleColor.Red);
+                logger.LogError("twitch source connect error!" + e.Message);
 
                 Status = SourceStatus.USER_DISCONNECTED;
             }
@@ -154,11 +154,6 @@ namespace DefaultPlugin.Sources.Twitch
 
             Status = SourceStatus.USER_DISCONNECTED;
         }
-
-        public bool Stauts()
-        {
-            return currentIRCIO != null && currentIRCIO.IsConnected;
-        } 
 
         public override void Send(IMessageBase message)
         {
