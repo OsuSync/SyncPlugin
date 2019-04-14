@@ -35,7 +35,7 @@ namespace DefaultPlugin.Sources.Twitch
         private void TwitchAuthenticationDialog_Load(object sender, EventArgs e)
         {
             var oauth = bindTwitchSource?.SOAuth?.ToString()??string.Empty;
-            textBox1.Text = oauth.StartsWith("oauth:") ? oauth.Substring(6) : oauth ;
+            textBox1.Text = oauth.StartsWith("oauth:") ? oauth.Substring(6) : oauth;
 
             checkBox1.Checked = !bindTwitchSource.IsUsingDefaultChannelID;
         }

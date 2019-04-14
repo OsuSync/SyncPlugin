@@ -36,7 +36,6 @@ namespace DefaultPlugin.Sources.Twitch
 
         public Twitch() : base(SOURCE_NAME, SOURCE_AUTHOR)
         {
-
         }
 
         const string DEFAULT_CLIENT_ID = "esmhw2lcvrgtqw545ourqjwlg7twee";
@@ -52,7 +51,6 @@ namespace DefaultPlugin.Sources.Twitch
 
         public void LoadConfig()
         {
-
         }
 
         public void SaveConfig()

@@ -6,12 +6,10 @@ using DefaultPlugin.Filters;
 using DefaultPlugin.Commands;
 using System;
 using Sync.Tools;
-using System.Threading.Tasks;
 using Sync.Source;
 using Sync.Client;
 using DefaultPlugin.Clients;
 using static Sync.Plugins.PluginEvents;
-using Sync.MessageFilter;
 
 namespace DefaultPlugin
 {

@@ -68,7 +68,6 @@ namespace BeatmapSuggest
 
         private void ShowHelp()
         {
-
         }
 
         private bool OnCommand(Arguments args)
@@ -158,7 +157,6 @@ namespace BeatmapSuggest
             stream.Write(param_byte, 0, param_byte.Length);
             stream.Close();
 
-
             HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
 
             var cookie_collection = cookie_container.GetCookies(new Uri("http://osu.ppy.sh"));
@@ -173,7 +171,6 @@ namespace BeatmapSuggest
             OsuCookies = sb.ToString();
             if (osu_filter.Scheduler!=null)
                 osu_filter.Scheduler.osu_cookies = OsuCookies;
-                
         }
 
         private void InitPlugin()
