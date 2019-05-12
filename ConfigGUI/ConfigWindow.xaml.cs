@@ -18,7 +18,6 @@ namespace ConfigGUI
     /// </summary>
     public partial class ConfigWindow : Window
     {
-        private static I18nManager s_i18n_manager = new I18nManager();
         private ConfigurationItemFactory m_item_factory;
         private IEnumerable<PluginConfigurationManager> m_pluginConfigurationManagers;
 
@@ -42,8 +41,8 @@ namespace ConfigGUI
 
         public ConfigWindow(ConfigurationItemFactory itemFactory)
         {
-            s_window_instance = this;
             m_item_factory = itemFactory;
+            s_window_instance = this;
 
             InitializeComponent();
             InitializeConfigPanel();
