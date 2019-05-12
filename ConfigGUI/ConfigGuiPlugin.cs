@@ -18,7 +18,7 @@ namespace ConfigGUI
     {
         public const string PLUGIN_NAME="ConfigGUI";
         public const string PLUGIN_AUTHOR = "KedamaOvO";
-        public const string PLGUIN_VERSION = "0.2.1";
+        public const string PLGUIN_VERSION = "0.2.2";
 
         private I18nManager m_i18n_manager;
 
