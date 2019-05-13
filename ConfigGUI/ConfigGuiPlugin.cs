@@ -1,4 +1,5 @@
-﻿using ConfigGUI.ConfigurationRegion;
+﻿using ConfigGUI.ConfigurationI18n;
+using ConfigGUI.ConfigurationRegion;
 using Sync.Plugins;
 using Sync.Tools;
 using System;
@@ -17,7 +18,9 @@ namespace ConfigGUI
     {
         public const string PLUGIN_NAME="ConfigGUI";
         public const string PLUGIN_AUTHOR = "KedamaOvO";
-        public const string PLGUIN_VERSION = "0.2.1";
+        public const string PLGUIN_VERSION = "0.2.2";
+
+        private I18nManager m_i18n_manager;
 
         public ConfigurationItemFactory ItemFactory { get; } = new ConfigurationItemFactory();
 
@@ -28,6 +31,7 @@ namespace ConfigGUI
         public override void OnEnable()
         {
             I18n.Instance.ApplyLanguage(new DefaultLanguage());
+            m_i18n_manager = new I18nManager();
             ConfigWindow window=null;
 
             base.EventBus.BindEvent<PluginEvents.ProgramReadyEvent>((t) => 
