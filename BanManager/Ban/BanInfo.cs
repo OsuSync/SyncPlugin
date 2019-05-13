@@ -1,4 +1,5 @@
-﻿using RecentlyUserQuery;
+﻿using Newtonsoft.Json;
+using RecentlyUserQuery;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,65 +9,42 @@ using System.Threading.Tasks;
 
 namespace BanManagerPlugin.Ban
 {
-    enum BanAccessType
+    public enum BanAccessType
     {
-        NOTBANNED,//没被ban的可以发言给osu!irc
-        WHITE_LIST,//只有白名单的人可以发言
-        ALL//全都可以发言
+        NotBanned,//没被ban的可以发言给osu!irc
+        Whitelist,//只有白名单的人可以发言
+        All//全都可以发言
     }
 
-    class BanInfo
+    public class BanInfo
     {
         public class Rule
         {
-            public Rule(string expr, int id)
-            {
-                this.id = id;
-                expression = expr;
-                regex = new Regex(expr);
-            }
-            public int id;
-            public string expression;
-            public Regex regex;
+            public int RuleID { get; set; }
+            public string RuleExpression { get; set; }
+
+            [JsonIgnore]
+            public Regex regex { get; set; }
         }
 
-        int rule_id_gerenator = 0;
+        public List<Rule> BanRules { get; set; } = new List<Rule>();
 
-        string splitString = @"_@!#_";
+        public List<string> BanUsers {
+            get;
+            set; } = new List<string>();
 
-        List<string> banUserName = new List<string>();
+        public List<string> WhitelistUsers { get; set; } = new List<string>();
 
-        public List<string> GetBanUserList()
-        {
-            return banUserName;
-        }
+        public List<Rule> WhitelistRules { get; set; } = new List<Rule>();
 
-        List<Rule> banRuleRegex = new List<Rule>();
+        [JsonIgnore]
+        internal int rule_id_gerenator;
 
-        public List<Rule> GetBanRuleRegexList()
-        {
-            return banRuleRegex;
-        }
-
-        List<string> whitelistUserName = new List<string>();
-
-        public List<string> GetWhiteListUserList()
-        {
-            return whitelistUserName;
-        }
-
-        List<Rule> whitelistRuleRegex = new List<Rule>();
-
-        public List<Rule> GetWhiteListRuleRegexList()
-        {
-            return whitelistRuleRegex;
-        }
-
-        BanAccessType accessType = BanAccessType.NOTBANNED;
+        public BanAccessType AccessType { get; set; } = BanAccessType.NotBanned;
 
         private int GenRuleId()
         {
-            return rule_id_gerenator++;
+            return rule_id_gerenator;
         }
 
         /// <summary>
@@ -76,8 +54,16 @@ namespace BanManagerPlugin.Ban
         public void AddBanUserName(string userName)
         {
             RemoveWhiteListUserName(userName);
-            banUserName.Add(userName);
+            if (!BanUsers.Contains(userName))
+                BanUsers.Add(userName);
         }
+
+        private static Rule CreateRule(string expr, int id) => new Rule()
+        {
+            RuleExpression = expr,
+            RuleID = id,
+            regex = new Regex(expr)
+        };
 
         /// <summary>
         /// 添加禁言规则，符合正则表达式匹配的用户名都被加入黑名单
@@ -86,14 +72,16 @@ namespace BanManagerPlugin.Ban
         /// <returns></returns>
         public int AddBanRuleRegex(string ruleRegexExpr)
         {
-            Rule rule = new Rule(ruleRegexExpr, GenRuleId());
-            banRuleRegex.Add(rule);
-            return rule.id;
+            Rule rule = CreateRule(ruleRegexExpr, GenRuleId());
+            
+            return rule.RuleID;
         }
 
         private int AddBanRuleRegex(string ruleRegexExpr, int id)
         {
-            banRuleRegex.Add(new Rule(ruleRegexExpr, id));
+            BanRules.RemoveAll(r => r.RuleID == id);
+
+            BanRules.Add(CreateRule(ruleRegexExpr, GenRuleId()));
             return id;
         }
 
@@ -104,7 +92,8 @@ namespace BanManagerPlugin.Ban
         public void AddWhiteListUserName(string userName)
         {
             RemoveBanUserName(userName);
-            whitelistUserName.Add(userName);
+            if (!WhitelistUsers.Contains(userName))
+                WhitelistUsers.Add(userName);
         }
 
         /// <summary>
@@ -113,8 +102,8 @@ namespace BanManagerPlugin.Ban
         /// <param name="userName">用户名</param>
         public void RemoveBanUserName(string userName)
         {
-            if (banUserName.Contains(userName))
-                banUserName.Remove(userName);
+            if (BanUsers.Contains(userName))
+                BanUsers.Remove(userName);
         }
 
         /// <summary>
@@ -123,8 +112,8 @@ namespace BanManagerPlugin.Ban
         /// <param name="userName">用户名</param>
         public void RemoveWhiteListUserName(string userName)
         {
-            if (whitelistUserName.Contains(userName))
-                whitelistUserName.Remove(userName);
+            if (WhitelistUsers.Contains(userName))
+                WhitelistUsers.Remove(userName);
         }
 
         /// <summary>
@@ -134,18 +123,18 @@ namespace BanManagerPlugin.Ban
         /// <returns></returns>
         public int AddWhiteListRuleRegex(string ruleRegexExpr)
         {
-            Rule rule = new Rule(ruleRegexExpr, GenRuleId());
-            whitelistRuleRegex.Add(rule);
-            return rule.id;
+            Rule rule = CreateRule(ruleRegexExpr, GenRuleId());
+            WhitelistRules.Add(rule);
+            return rule.RuleID;
         }
 
         public void RemoveWhiteListRuleRegex(int ruleId)
         {
-            for(int i = 0; i < whitelistRuleRegex.Count; i++)
+            for(int i = 0; i < WhitelistRules.Count; i++)
             {
-                if (whitelistRuleRegex[i].id == ruleId)
+                if (WhitelistRules[i].RuleID == ruleId)
                 {
-                    whitelistRuleRegex.RemoveAt(i);
+                    WhitelistRules.RemoveAt(i);
                     break;
                 }
                     
@@ -154,11 +143,11 @@ namespace BanManagerPlugin.Ban
 
         public void RemovBanListRuleRegex(int ruleId)
         {
-            for (int i = 0; i < banRuleRegex.Count; i++)
+            for (int i = 0; i < BanRules.Count; i++)
             {
-                if (banRuleRegex[i].id == ruleId)
+                if (BanRules[i].RuleID == ruleId)
                 {
-                    banRuleRegex.RemoveAt(i);
+                    BanRules.RemoveAt(i);
                     break;
                 }
 
@@ -167,7 +156,7 @@ namespace BanManagerPlugin.Ban
 
         private int AddWhiteListRuleRegex(string ruleRegexExpr, int id)
         {
-            whitelistRuleRegex.Add(new Rule(ruleRegexExpr, id));
+            WhitelistRules.Add(CreateRule(ruleRegexExpr, id));
             return id;
         }
 
@@ -205,98 +194,52 @@ namespace BanManagerPlugin.Ban
         /// <returns></returns>
         public string SaveAsFormattedString()
         {
-            StringBuilder sb = new StringBuilder();
-            foreach (var userName in banUserName)
-            {
-                sb.AppendFormat("0{0}{1}\n", splitString, userName);
-            }
-            foreach (var rule in banRuleRegex)
-            {
-                sb.AppendFormat("1{0}{1}{0}{2}\n", splitString, rule.id, rule.expression);
-            }
-            foreach (var userName in whitelistUserName)
-            {
-                sb.AppendFormat("2{0}{1}\n", splitString, userName);
-            }
-            foreach (var rule in whitelistRuleRegex)
-            {
-                sb.AppendFormat("3{0}{1}{0}{2}\n", splitString, rule.id, rule.expression);
-            }
-            return sb.ToString();//todo
+            return JsonConvert.SerializeObject(this, Formatting.Indented);
         }
 
         /// <summary>
-        /// 按照字符串内容加载内容
+        /// 按照字符串内容加载内容,顺带清除重复冲突的内容
         /// </summary>
         /// <param name="formatString">字符串内容，通常由SaveAsFormattedString()得到的</param>
-        public void LoadFromFormattedString(string formatString)
+        public static BanInfo LoadFromJSON(string formatString)
         {
-            //StringReader reader = new StringReader(formatString);
-            int position = 0;
-            string content = "";
-            int max_id = 0;
-            int current_id = 0;
-            char ch;
-            while (position < formatString.Length)
-            {
-                ch = formatString[position];
-                content += ch;
-                if (ch == '\n')
-                {
-                    current_id = RecoverObject(content);
-                    if (max_id < current_id)
-                        max_id = current_id;
-                    content = "";
-                }
-                position++;
-            }
+            BanInfo info = JsonConvert.DeserializeObject<BanInfo>(formatString);
 
-            rule_id_gerenator = max_id;
-        }
+            Action<Rule> gen_regex = r => r.regex = new Regex(r.RuleExpression);
 
-        protected int RecoverObject(string context)
-        {
-            if (context.Length == 0)
-                return -1;
-            string[] splitResult;
-            int maxId = 0, current_id;
-            splitResult = context.Split(context.ToCharArray(), StringSplitOptions.None);
-            if (splitResult.Length < 2)
-                return -1;
-            if (splitResult[splitResult.Length - 1][splitResult[splitResult.Length - 1].Length - 1] == '\n')
-                splitResult[splitResult.Length - 1] = splitResult[splitResult.Length - 1].Substring(0, splitResult[splitResult.Length - 1].Length - 1);
-            switch (context[0])
+            info.BanRules.ForEach(gen_regex);
+            info.WhitelistRules.ForEach(gen_regex);
+
+            var list = info.WhitelistRules.Concat(info.BanRules);
+
+            info.rule_id_gerenator = list.Count()!=0?list.Max(r=>r.RuleID):0;
+
+            HashSet<int> check = new HashSet<int>();
+            Predicate<Rule> check_func = p =>
             {
-                case '0':
-                    {
-                        AddBanUserName(splitResult[1]);
-                        break;
-                    }
-                case '1':
-                    {
-                        current_id = Convert.ToInt32(splitResult[1]);
-                        AddBanRuleRegex(splitResult[2], current_id);
-                        if (maxId < current_id)
-                            maxId = current_id;
-                        break;
-                    }
-                case '2':
-                    {
-                        AddWhiteListUserName(splitResult[1]);
-                        break;
-                    }
-                case '3':
-                    {
-                        current_id = Convert.ToInt32(splitResult[1]);
-                        AddWhiteListRuleRegex(splitResult[2], current_id);
-                        if (maxId < current_id)
-                            maxId = current_id;
-                        break;
-                    }
-                default:
-                    break;
-            }
-            return maxId;
+                if (check.Contains(p.RuleID))
+                    return true;
+                check.Add(p.RuleID);
+                return false;
+            };
+
+            info.WhitelistRules.RemoveAll(check_func);
+            info.BanRules.RemoveAll(check_func);
+
+            HashSet<string> check_str = new HashSet<string>();
+            Predicate<string> check_str_func = p =>
+            {
+                if (check_str.Contains(p))
+                    return true;
+                check_str.Add(p);
+                return false;
+            };
+
+            info.WhitelistUsers.RemoveAll(check_str_func);
+            check_str.Clear();
+            info.BanUsers.RemoveAll(check_str_func);
+
+            return info;
         }
 
         /// <summary>
@@ -306,24 +249,24 @@ namespace BanManagerPlugin.Ban
         /// <returns></returns>
         public bool IsBanned(string userName)
         {
-            if (accessType == BanAccessType.ALL)
+            if (AccessType == BanAccessType.All)
                 return false;
-            if (accessType == BanAccessType.WHITE_LIST)
+            if (AccessType == BanAccessType.Whitelist)
             {
-                foreach (var enumUserName in whitelistUserName)
+                foreach (var enumUserName in WhitelistUsers)
                     if (enumUserName.CompareTo(userName) == 0)
                         return false;
-                foreach (var enumRule in whitelistRuleRegex)
+                foreach (var enumRule in WhitelistRules)
                     if (enumRule.regex.IsMatch(userName))
                         return false;
                 return true;
             }
-            if (accessType == BanAccessType.NOTBANNED)
+            if (AccessType == BanAccessType.NotBanned)
             {
-                foreach (var enumUserName in banUserName)
+                foreach (var enumUserName in BanUsers)
                     if (enumUserName.CompareTo(userName) == 0)
                         return true;
-                foreach (var enumRule in banRuleRegex)
+                foreach (var enumRule in BanRules)
                     if (enumRule.regex.IsMatch(userName))
                         return true;
                 return false;

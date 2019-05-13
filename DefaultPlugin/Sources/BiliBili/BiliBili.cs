@@ -10,7 +10,7 @@ namespace DefaultPlugin.Sources.BiliBili
     /// <summary>
     /// BiliBili Live的同步源类
     /// </summary>
-    class BiliBili : SendableSource , IConfigurable
+    public class BiliBili : SendableSource , IConfigurable
     {
         public const string SOURCE_NAME = "Bilibili";
         public const string SOURCE_AUTHOR = "Sender: Deliay, Receive: copyliu";
@@ -45,7 +45,6 @@ namespace DefaultPlugin.Sources.BiliBili
                 isConnected = true;
             }
             Status = SourceStatus.CONNECTED_WORKING;
-            SendStatus = true;
             RaiseEvent(new BaseStatusEvent(SourceStatus.CONNECTED_WORKING));
         }
 

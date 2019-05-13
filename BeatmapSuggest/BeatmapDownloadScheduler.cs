@@ -1,4 +1,5 @@
-﻿using Sync.MessageFilter;
+﻿using Sync;
+using Sync.MessageFilter;
 using Sync.Tools;
 using System;
 using System.Collections.Generic;
@@ -25,15 +26,47 @@ namespace BeatmapSuggest
         
         string save_path;
 
-        string api_key;
+        public string api_key { get; set; }
+
+        private string _osu_cookies;
+        
+        WebClient wc = new WebClient();
+
+        public string osu_cookies { get => _osu_cookies; set{
+                _osu_cookies = value;
+                wc.Headers[HttpRequestHeader.Cookie] = osu_cookies;
+            } }
 
         int capacity;
 
-        public BeatmapDownloadScheduler(int history_capacity,string api_key)
+        public BeatmapDownloadScheduler(int history_capacity,string api_key,string osu_cookies)
         {
             suggest_history_queue = new LinkedList<BeatmapDownloadTask>();
             capacity = history_capacity;
             this.api_key = api_key;
+            this.osu_cookies = osu_cookies;
+        }
+
+        public bool CheckDownloadable()
+        {
+            var error = string.Empty;
+
+            if (suggest_history_queue.Count==0)
+                error = $"[BeatmapDownloadScheduler]Queue is empty.";
+            else if (string.IsNullOrWhiteSpace(osu_cookies))
+                error = $"[BeatmapDownloadScheduler]OsuCookies is empty. you have to set OsuCookies as your cookies of osu!websites in config.ini , also type 'suggest login <OsuAccountName> <OsuAccountPassword>' in Sync for getting cookies automatically,and then restart Sync";
+            else if (string.IsNullOrWhiteSpace(api_key))
+                error = $"[BeatmapDownloadScheduler]"+DefaultLanguage.LANG_NO_API_KEY_NOFITY;
+
+            if (!string.IsNullOrWhiteSpace(error))
+            {
+                IO.CurrentIO.WriteColor(error, ConsoleColor.Red);
+                SyncHost.Instance.ClientWrapper?.Client?.SendMessage(new IRCMessage(SyncHost.Instance.ClientWrapper?.Client.NickName,error));
+
+                return false;
+            }
+
+            return true;
         }
 
         public void Push(int id,bool isSetId,string name)
@@ -55,7 +88,7 @@ namespace BeatmapSuggest
             IO.CurrentIO.Write($"[BeatmapSuggest]Push {name}");
         }
 
-        public void DownloadLastSuggest()
+        public async void DownloadLastSuggest()
         {
             if (suggest_history_queue.Count==0)
                 return;
@@ -65,10 +98,11 @@ namespace BeatmapSuggest
 
             SendIRCMessage(string.Format(DefaultLanguage.LANG_START_DOWNLOAD,map.name));
 
-            DownloadBeatmap(map);
+            if (!await DownloadBeatmap(map))
+                SendIRCMessage($"Download [{map.id}]{map.name} failed!");
         }
 
-        public void DownloadAll()
+        public async void DownloadAll()
         {
             if (suggest_history_queue.Count == 0)
                 return;
@@ -78,10 +112,12 @@ namespace BeatmapSuggest
 
             SendIRCMessage(string.Format(DefaultLanguage.LANG_DOWNLOAD_TASK_COUNT,copy_list.Count));
 
+            int success_count = 0;
+            
             foreach (var map in copy_list)
-            {
-                DownloadBeatmap(map);
-            }
+                success_count += await DownloadBeatmap(map)?1:0;
+
+            SendIRCMessage($"Downloaded {success_count}/{copy_list.Count} beatmaps.");
         }
 
         /// <summary>
@@ -120,43 +156,63 @@ namespace BeatmapSuggest
             return true;
         }
 
-        private async void DownloadBeatmap(BeatmapDownloadTask map)
+        private async Task<bool> DownloadBeatmap(BeatmapDownloadTask map)
         {
-            await Task.Run(() => 
+            try
             {
-                try
+                if (!TryGetOsuSongFolder())
+                    return false;
+
+                int beatmap_setid = map.id;
+
+                //通过id获取对应的setid
+                if (!map.isSetId)
                 {
-                    if (!TryGetOsuSongFolder())
-                    {
-                        return;
-                    }
+                    beatmap_setid =await GetBeatmapSetID(map.id);
 
-                    int beatmap_setid=map.id;
+                    if (beatmap_setid < 0)
+                        return false;
+                }
 
-                    //通过id获取对应的setid
-                    if (!map.isSetId)
-                    {
-                        beatmap_setid = GetBeatmapSetID(map.id);
-                        if (beatmap_setid<0)
-                        {
-                            return;
-                        }
-                    }
+                IO.CurrentIO.WriteColor(string.Format(DefaultLanguage.LANG_START_DOWNLOAD, map.name), ConsoleColor.Green);
 
-                    IO.CurrentIO.WriteColor(string.Format(DefaultLanguage.LANG_START_DOWNLOAD, map.name), ConsoleColor.Green);
-                    
-                    string download_url = $"http://osu.uu.gl/s/{beatmap_setid}";
+                string download_url = $"https://osu.ppy.sh/d/{beatmap_setid}";
 
-                    WebClient wc = new WebClient();
-                    wc.DownloadFile(new Uri(download_url), save_path + "\\" + $"{beatmap_setid} {map.name}.osz");
+                var file_save_path = Path.Combine(save_path, GetSafePath($"{beatmap_setid} {map.name}.osz"));
 
+                wc.DownloadFile(new Uri(download_url), file_save_path);
+
+                if (IsDownnloadSuccessfully(file_save_path))
+                {
                     IO.CurrentIO.WriteColor(string.Format(DefaultLanguage.LANG_FINISH_DOWNLOAD, map.name), ConsoleColor.Green);
+                    return true;
                 }
-                catch (Exception e)
-                {
-                    IO.CurrentIO.WriteColor(string.Format(DefaultLanguage.LANG_FAILED_DOWNLOAD, map.name,e.Message), ConsoleColor.Red);
-                }
-            });
+                else
+                    IO.CurrentIO.WriteColor(string.Format("Cant download beatmap {0}", map.name), ConsoleColor.Green);
+            }
+            catch (Exception e)
+            {
+                IO.CurrentIO.WriteColor(string.Format(DefaultLanguage.LANG_FAILED_DOWNLOAD, map.name, e.Message), ConsoleColor.Red);
+            }
+
+            return false;
+        }
+
+        private string GetSafePath(string raw_path)
+        {
+            string result = string.Empty;
+            var chars = /*Path.GetInvalidPathChars().Concat*/(Path.GetInvalidFileNameChars());
+
+            foreach (var ch in raw_path)
+                result += chars.Contains(ch) ? ' ' : ch;
+
+            return result;
+        }
+
+        private bool IsDownnloadSuccessfully(string save_path)
+        {
+            FileInfo info = new FileInfo(save_path);
+            return info.Exists&&info.Length>100*1024; // >100kb success
         }
 
         /// <summary>
@@ -164,14 +220,14 @@ namespace BeatmapSuggest
         /// </summary>
         /// <param name="id">beatmapID</param>
         /// <returns></returns>
-        private int GetBeatmapSetID(int id)
+        private async Task<int> GetBeatmapSetID(int id)
         {
             string uri = @"https://osu.ppy.sh/api/get_beatmaps?" +
                 $@"k={api_key}&b={id}&limit=1";
 
             HttpWebRequest request = HttpWebRequest.Create(uri) as HttpWebRequest;
             request.Method = "GET";
-            var response = (HttpWebResponse)request.GetResponse();
+            var response = (HttpWebResponse)await request.GetResponseAsync();
             var stream = new StreamReader(response.GetResponseStream(), Encoding.UTF8);
             string data = stream.ReadToEnd();
 

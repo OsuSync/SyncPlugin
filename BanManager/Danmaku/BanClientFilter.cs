@@ -7,35 +7,26 @@ using System.Threading.Tasks;
 
 namespace BanManagerPlugin.Ban
 {
-    class BanClientFilter : IFilter, ISourceDanmaku
+    [FilterPriority(Priority = FilterPriority.Highest)]
+    public class BanClientFilter : IFilter, ISourceDanmaku
     {
-        BanManager bindManager = null;
-        public void SetBanManager(BanManager manager)
-        {
-            this.bindManager = manager;
-        }
+        BanManager manager = null;
 
-        protected BanClientFilter() {}
         public BanClientFilter(BanManager refManager)
         {
-            SetBanManager(refManager);
-        }
-
-        private BanInfo GetInfo()
-        {
-            return bindManager.GetFliterInfo();
+            manager = refManager;
         }
 
         public void onMsg(ref IMessageBase msg)
         {
 
-            if (GetInfo().IsBanned(msg.User.RawText))
+            if (manager.Info.IsBanned(msg.User.RawText))
+            {
+#if DEBUG
+                Log.Debug(msg.User.RawText+" was banned.");
+#endif
                 msg.Cancel = true;
-        }
-
-        public void Dispose()
-        {
-            //nothing to do
+            }
         }
     }
 }

@@ -82,23 +82,28 @@ namespace DefaultPlugin.Sources
         /// <param name="msg">弹幕</param>
         public void send(string msg)
         {
-            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(new Uri("http://live.bilibili.com/msg/send"));
+            HttpWebRequest req = (HttpWebRequest)WebRequest.Create(new Uri("http://api.live.bilibili.com/msg/send"));
             long unix = (DateTime.Now.ToUniversalTime().Ticks - 621355968000000000) / 10000000;
-            byte[] byteArray = Encoding.UTF8.GetBytes("color=16777215&fontsize=25&mode=1&msg=" + msg + "&rnd=" + unix + "&roomid=" + BiliBili.BiliBili.RoomID + "");
+            var body= "color=16777215&fontsize=25&mode=1&msg="+msg+"&rnd="+unix+"&roomid="+BiliBili.BiliBili.RoomID+"";
             string[] cookies = BiliBili.BiliBili.Cookies.ToString().Split("; ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
             Uri live = new Uri("http://live.bilibili.com/");
 
-            req.Method = "POST";
-            req.ContentType = "application/x-www-form-urlencoded";
-            req.ContentLength = byteArray.Length;
-            req.CookieContainer = new CookieContainer();
+            req.Method="POST";
+            req.ContentType="application/x-www-form-urlencoded";
+            req.Headers[HttpRequestHeader.Cookie]=BiliBili.BiliBili.Cookies.ToString();
 
-            foreach (var i in cookies)
+            var result=cookies.Select(x => x.Split(new[] { '=' }, 2)).FirstOrDefault(x=>x[0]=="bili_jct");
+
+            if (result==null||result.Length<2)
             {
-                string[] cookie = i.Split("=".ToCharArray(), 2);
-                req.CookieContainer.Add(live, new Cookie(cookie[0], cookie[1].Replace(',', '_')));
+                //no CSRF , cant send message
+                return;
             }
+            
+            body+="&csrf="+result[1];
 
+            byte[] byteArray = Encoding.UTF8.GetBytes(body);
+            req.ContentLength=byteArray.Length;
 
             using (Stream dataStream = req.GetRequestStream())
             {

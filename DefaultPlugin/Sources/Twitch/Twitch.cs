@@ -10,6 +10,8 @@ using System.IO;
 using Sync.Tools;
 using System.Timers;
 using Sync.MessageFilter;
+using Sync.Tools.ConfigurationAttribute;
+using Sync.Plugins;
 
 namespace DefaultPlugin.Sources.Twitch
 {
@@ -30,41 +32,30 @@ namespace DefaultPlugin.Sources.Twitch
 
         public Timer viewerUpdateTimer;
 
-        string oauth="", clientId="", channelName="";
-
-        bool isUsingDefaultChannelID = true;
+        Logger logger = new Logger<Twitch>();
 
         public Twitch() : base(SOURCE_NAME, SOURCE_AUTHOR)
         {
         }
 
-        public string OAuth { get { return oauth; } set { oauth = value; } }
-        public string ClientID { get { return clientId; } set { clientId = value; } }
-        public string ChannelName { get { return channelName; } set { channelName = value; } }
-        public bool IsUsingDefaultChannelID { get { return isUsingDefaultChannelID; } set { isUsingDefaultChannelID = value; } }
+        const string DEFAULT_CLIENT_ID = "esmhw2lcvrgtqw545ourqjwlg7twee";
 
         public ConfigurationElement HostChannelName { get; set; } = "";
-        public ConfigurationElement DefaultClientID { get; set; } = "";
         public ConfigurationElement CurrentClientID { get; set; } = "";
-        public ConfigurationElement IsUsingCurrentClientID { get; set; } = "1";
         public ConfigurationElement SOAuth { get; set; } = "";
+
+        public bool IsUsingDefaultChannelID => string.IsNullOrWhiteSpace(CurrentClientID);
+        public string ClientID => IsUsingDefaultChannelID ? DEFAULT_CLIENT_ID:(string) CurrentClientID;
+
         #region 接口实现
 
         public void LoadConfig()
         {
-            ClientID = IsUsingCurrentClientID == "1" ? CurrentClientID : DefaultClientID;
-            IsUsingDefaultChannelID = !(IsUsingCurrentClientID=="1");
-            OAuth = SOAuth;
-            ChannelName = HostChannelName;
         }
 
         public void SaveConfig()
         {
-            CurrentClientID = (ClientID == DefaultClientID ? "" : ClientID);
-            HostChannelName = ChannelName;
-            SOAuth = OAuth;
-            IsUsingCurrentClientID = IsUsingDefaultChannelID ? "1" : "0";
-            DefaultClientID = "esmhw2lcvrgtqw545ourqjwlg7twee";
+            CurrentClientID = ClientID == DEFAULT_CLIENT_ID ? string.Empty : ClientID;
         }
 
         public void Connect(string roomName)
@@ -74,23 +65,19 @@ namespace DefaultPlugin.Sources.Twitch
                 Disconnect();
             }
 
-            channelName = roomName;
-
-            if (channelName.Length == 0)
+            if (string.IsNullOrWhiteSpace(HostChannelName))
             {
-                IO.CurrentIO.WriteColor("频道名不能为空!",ConsoleColor.Red);
+                logger.LogError("HostChannelName is empty");
                 return;
             }
 
-            while (oauth.Length==0)
+            while (string.IsNullOrWhiteSpace(SOAuth))
             {
                 var result = RequestSetup();
 
                 if (result == false)
                     return;
             }
-
-            SaveConfig();
 
             if (currentIRCIO != null)
             {
@@ -104,13 +91,14 @@ namespace DefaultPlugin.Sources.Twitch
             {
                 currentIRCIO = new TwitchIRCIO(roomName)
                 {
-                    OAuth = oauth,
-                    ChannelName = channelName,
-                    ClientID = clientId
+                    OAuth = SOAuth,
+                    ChannelName = HostChannelName,
+                    ClientID = ClientID
                 };
                 currentIRCIO.Connect();
 
                 currentIRCIO.OnRecieveRawMessage += onRecieveRawMessage;
+                currentIRCIO.OnError += CurrentIRCIO_OnError;
 
                 RaiseEvent(new BaseStatusEvent(SourceStatus.CONNECTED_WORKING));
                 UpdateChannelViewersCount();
@@ -120,13 +108,36 @@ namespace DefaultPlugin.Sources.Twitch
                 viewerUpdateTimer.Start();
 
                 Status = SourceStatus.CONNECTED_WORKING;
-                SendStatus = true;
             }
             catch (Exception e)
             {
-                IO.CurrentIO.WriteColor("twitch connect error!" + e.Message, ConsoleColor.Red);
+                logger.LogError("twitch source connect error!" + e.Message);
 
                 Status = SourceStatus.USER_DISCONNECTED;
+            }
+        }
+
+        public void ReConnect()
+        {
+            Disconnect();
+            Connect();
+        }
+
+        private void CurrentIRCIO_OnError(TwitchIRCIO arg1, Exception arg2)
+        {
+            if (arg1 != currentIRCIO)
+                return;
+
+            logger.LogError($"IRC kernel occured exception:\"{arg2.Message}\",try to reconnect.");
+
+            try
+            {
+                ReConnect();
+            }
+            catch(Exception e)
+            {
+                logger.LogError($"can't reconnet:\"{e}\".");
+                RaiseEvent(new BaseStatusEvent(SourceStatus.USER_DISCONNECTED));
             }
         }
 
@@ -141,11 +152,6 @@ namespace DefaultPlugin.Sources.Twitch
 
             Status = SourceStatus.USER_DISCONNECTED;
         }
-
-        public bool Stauts()
-        {
-            return currentIRCIO != null && currentIRCIO.IsConnected;
-        } 
 
         public override void Send(IMessageBase message)
         {
@@ -221,7 +227,7 @@ namespace DefaultPlugin.Sources.Twitch
             return result.Groups[1].Value;
         }
 
-        public override void Connect() => Connect(channelName);
+        public override void Connect() => Connect(HostChannelName);
 
         public override string ToString()
         {
