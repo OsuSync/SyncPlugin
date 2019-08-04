@@ -18,7 +18,7 @@ namespace ConfigGUI
     {
         public const string PLUGIN_NAME="ConfigGUI";
         public const string PLUGIN_AUTHOR = "KedamaOvO";
-        public const string PLGUIN_VERSION = "0.2.2";
+        public const string PLGUIN_VERSION = "0.2.3";
 
         private I18nManager m_i18n_manager;
 
@@ -31,11 +31,12 @@ namespace ConfigGUI
         public override void OnEnable()
         {
             I18n.Instance.ApplyLanguage(new DefaultLanguage());
-            m_i18n_manager = new I18nManager();
             ConfigWindow window=null;
 
-            base.EventBus.BindEvent<PluginEvents.ProgramReadyEvent>((t) => 
-                IO.CurrentIO.WriteColor(DefaultLanguage.COMMAND_LINE_HINT, ConsoleColor.Yellow));
+            base.EventBus.BindEvent<PluginEvents.ProgramReadyEvent>((t) => {
+                m_i18n_manager = new I18nManager();
+                IO.CurrentIO.WriteColor(DefaultLanguage.COMMAND_LINE_HINT, ConsoleColor.Yellow);
+            });
 
             base.EventBus.BindEvent<PluginEvents.InitCommandEvent>((t) =>
             {
