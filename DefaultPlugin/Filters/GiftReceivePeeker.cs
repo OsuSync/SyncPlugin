@@ -12,6 +12,7 @@ namespace DefaultPlugin.Filters
 {
     class GiftReceivePeeker : IFilter, ISourceGift
     {
+        private bool quitGiftRecyler = false;
         private Thread giftRecyler;
         private List<IBaseGiftEvent> historyGift;
         private bool isRunning = false;
@@ -42,7 +43,7 @@ namespace DefaultPlugin.Filters
         {
             if (isRunning)
             {
-                giftRecyler.Abort();
+                quitGiftRecyler = true;
                 isRunning = false;
             }
         }
@@ -57,7 +58,7 @@ namespace DefaultPlugin.Filters
             System.Diagnostics.Stopwatch time = new System.Diagnostics.Stopwatch();
             time.Start();
 
-            while (true)
+            while (!quitGiftRecyler)
             {
                 if (time.ElapsedMilliseconds / 1000 > 180)
                 {
